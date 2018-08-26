@@ -10,3 +10,5 @@ There is an interface function and simple function - interface function usually 
 Here, 'Type value' means : the function 'value' inherits the function 'Type'. Surprisingly, it works well as traditional view on type.
 
 Inheritance is like this: The child function needs to be defined for all domain of the parent function, mapping all value to the codomain of the parent function.
+
+This is all the description I think I need, try to take a look at it!

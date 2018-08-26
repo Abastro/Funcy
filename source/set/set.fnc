@@ -12,7 +12,7 @@
 
 import basics 
 
-(ToBoolean<F> crit, Iterable<F, I> ite) Set<F, Iterator<F> I> = (
+(ToBool<F> crit, Iterable<F, I> ite) Set<F, Iterator<F> I> = (
     Iterable<F, I> iterable expose ite,
-    ToBoolean<F> criterion expose crit) // Syntax sugar
+    ToBool<F> criterion expose crit) // Syntax sugar
 // Well, Set is an interface after all

@@ -30,10 +30,10 @@ Setter<F> = (Iterator<F> ite, Integer index, F value |
     <Iterator<F>> (ite, pointer -> OffsetSet<F>(ite(pointer), index, value))      
 )
 
-(FromInteger<F> fi, None::Iterable<F, Iterator<F>>) Array<F> = (Iterator<F> head,
+(FromInt<F> fi, None::Iterable<F, Iterator<F>>) Array<F> = (Iterator<F> head,
                                                         hasNext -> HasNext<F, Iterator<F>>,
                                                         next -> Next<F, Iterator<F>> next,
-                                                        indexer -> FromInteger<F>,
+                                                        indexer -> FromInt<F>,
                                                         setter -> Setter<F>,
                                                         indexer expose fi) // Complex compound declaration with inheritance
 

@@ -11,11 +11,11 @@
 Nullable = NULL // Compiler might only allow explicit NULL on Nullable values
 Identity<F> = (F f | f)
 
-FromInteger<F> = (Integer | F)
-ToInteger<F> = (F f | 0) // Prototype - default implementation exists for now
+FromInt<F> = (Integer | F)
+ToInt<F> = (F f | 0) // Prototype - default implementation exists for now
 
-FromBoolean<F> = (Boolean | F)
-ToBoolean<F> = (F f | False)
+FromBool<F> = (Boolean | F)
+ToBool<F> = (F f | False)
 
 Nullable Iterator<F> = (F value) // Inherited Nullable - Nullable values are declared. Here you can see the compound with a single value
 HasNext<F, Iterator<F> I> = (I info | FALSE)

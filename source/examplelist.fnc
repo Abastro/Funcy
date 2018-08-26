@@ -34,7 +34,7 @@ namespace List {
     )                                                                               // OffsetSet needs to be internal
 }
 
-(FromInteger<F> fi, Iterable<F, ListIterable<F>>) List<F> = (List::Iterator<F> head,
+(FromInteger<F> fi, Iterable<F, List::Iterator<F>>) List<F> = (List::Iterator<F> head,
                                                                 hasNext -> List::HasNext<F, List::Iterator<F>>, next -> List::Next<F, List::Iterator<F>> next,
                                                                 indexer -> FromInteger<F>, setter -> Setter<F>, t -> indexer(t)) // Complex compound declaration with inheritance
 

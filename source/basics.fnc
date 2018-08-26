@@ -10,11 +10,16 @@
 
 Nullable = NULL // Compiler might only allow explicit NULL on Nullable values
 Identity<F> = (F f | f)
-FromInteger<F> = (F f | 0) // Prototype - default implementation exists for now
+
+FromInteger<F> = (Integer | F)
+ToInteger<F> = (F f | 0) // Prototype - default implementation exists for now
+
+FromBoolean<F> = (Boolean | F)
+ToBoolean<F> = (F f | False)
 
 Nullable Iterator<F> = (F value) // Inherited Nullable - Nullable values are declared. Here you can see the compound with a single value
-HasNext<F, Iterator<F> I> = (I ite | FALSE)
-Next<F, Iterator<F> I> = (I ite | F)
+HasNext<F, Iterator<F> I> = (I info | FALSE)
+Next<F, Iterator<F> I> = (I | F) // Interface - lacks the name
 Iterable<F, Iterator<F> I> = (HasNext<F,I> hasNext, Next<F,I> next) // Interface Function declaration as a interface compound - (Type1 name1, Type2 name2)
 
 // Parameter is automatically wrapped into unnamed compound

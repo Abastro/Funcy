@@ -20,33 +20,42 @@ Next<F, Iterator<F> I> = (I ite | F)
 Iterable<F, Iterator<F> I> = (HasNext<F,I> hasNext, Next<F,I> next) // Interface Function declaration as a interface compound - (Type1 name1, Type2 name2)
 
 namespace List {
-    None::Iterator<F>             Iterator<F> = (Integer size, Integer index, Pointer<F> pointer, value -> OffsetGet<F>(ite(pointer, index))) // OffsetGet needs to be internal
-                                                                                                    // Mixed interface compound declaration
+    None::Iterator<F>             Iterator<F> = (Integer size, Integer index,
+                                                Pointer<F> pointer,
+                                                value -> OffsetGet<F>(ite(pointer, index))) // OffsetGet needs to be internal
+                                                                                            // Mixed interface compound declaration
     None::HasNext<F,Iterator<I>>  HasNext<F> = (ListIterator<F> ite | ite(size) < ite(index))       // Inheritance forces the function to be applicable for parent cases
-    None::Next<F,Iterator<I>>     Next<F> = (ListIterator<F> ite |
-        IfElse(ite(size) < ite(index), ite,
+    None::Next<F,Iterator<I>>     Next<F> = (
+        ListIterator<F> ite |
+        IfElse(ite(size) < ite(index),
+            ite,
             (Iterator<F> ite | <ListIterator<Integer>>(ite(size), ite(index) + 1, Increase<F>(ite(pointer), 1), )), // Syntax sugar for a new compound function
             <Iterator<F>>NULL
         )
     )
-    Setter<F>(Iterator<F> ite, Integer index, F value | <ListIterator<F>>   // Uses unnamed compound to easily specify parameters and results - generates new compound function, internally
-        (size = ite(size), index = ite(index), pointer = OffsetSet<F>(ite(pointer), index, value))      
+
+    Setter<F>(Iterator<F> ite, Integer index, F value |
+        <ListIterator<F>>                               // Uses unnamed compound to easily specify parameters and results - generates new compound function, internally
+        (ite, pointer -> OffsetSet<F>(ite(pointer), index, value))      
     )                                                                               // OffsetSet needs to be internal
 }
 
 (FromInteger<F> fi, Iterable<F, List::Iterator<F>>) List<F> = (List::Iterator<F> head,
-                                                                hasNext -> List::HasNext<F, List::Iterator<F>>, next -> List::Next<F, List::Iterator<F>> next,
-                                                                indexer -> FromInteger<F>, setter -> Setter<F>, t -> indexer(t)) // Complex compound declaration with inheritance
+                                                                hasNext -> List::HasNext<F, List::Iterator<F>>,
+                                                                next -> List::Next<F, List::Iterator<F>> next,
+                                                                indexer -> FromInteger<F>,
+                                                                setter -> Setter<F>,
+                                                                indexer expose fi) // Complex compound declaration with inheritance
 
 List::Set<List<F> L> = (L list, Integer index, F value |
-    <List<F>>(list, head -> Setter<F>(list(head), index, value)) // Syntax sugar for compound creation
+    <List<F>>(list, head -> Setter<F> (list(head), index, value)) // Syntax sugar for compound creation
 )
 
 AsList<F> = (F... lists | <List<F>> (
     <List::Iterator<F>> (Size<F>(lists), -1, Pointerize<F>(lists))
 ) // Welp. For now I can't come up with better syntax for pointerizing this thing
 
-// Parameter is automatically wrapped into compund
+// Parameter is automatically wrapped into compound
 Loop<F, Iterator<F>, Iterable<F, I>> = (Iterable<F, I> iterable, Function run |
     For<iterable(hasNext), iterable(next), run()>)
 

@@ -1,0 +1,26 @@
+{
+    "name": "funcy",
+    "displayName": "funcy",
+    "description": "Funcy Language Support",
+    "version": "0.0.1",
+    "publisher": "Abastro",
+    "engines": {
+        "vscode": "^1.26.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "funcy",
+            "aliases": ["Funcy", "funcy"],
+            "extensions": ["fnc"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "funcy",
+            "scopeName": "source",
+            "path": "./syntaxes/funcy.tmLanguage.json"
+        }]
+    }
+}

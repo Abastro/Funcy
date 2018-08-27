@@ -1,0 +1,70 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Funcy",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#templates"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name":"comment.block",
+					"begin": "\/\\*",
+					"end": "\\*\/"
+				},
+				{
+					"name": "comment.line",
+					"match": "\/\/.*"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.other",
+					"match": "\\b(If|While|For|Bool|Int|Float|Pointer)\\b"
+				},
+				{
+					"name": "keyword.control",
+					"match": "\\b(import|as|inherits|template|obj|func|var|native)\\b"
+				},
+				{
+					"name":"constant",
+					"match": "\\b(NULL|FALSE|TRUE)\\b"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.funcy",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.funcy",
+					"match": "\\\\."
+				}
+			]
+		},
+		"templates": {
+			"patterns": [
+				{
+					"name": "variable.parameter",
+					"begin": "(?<=template) *<",
+					"end": ">"
+				}
+			]
+		}
+	},
+	"scopeName": "source"
+}

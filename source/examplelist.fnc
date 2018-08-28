@@ -8,84 +8,88 @@
  * (It has LGPL v3.0 license)
  */
 
-// Implementation of Immutable List on Funcy
+// Implementation of Immutable Array on Funcy
 
 Nullable = NULL // Compiler might only allow explicit NULL on Nullable values
 
 // Basics
-template <obj V>                    // This assumes generics
-func Id = V v -> v
-func FromInt = V v -> 0             // Prototype - default implementation exists
+func Id := obj V -> (V v -> v)      // Generics are simply function calls
+func FromInt := obj V -> (V v -> 0) // Prototype - default implementation exists
+native func Consumer := obj V -> (V -> NULL) // What to put here? DK
+native func toString := obj -> String
 
 // Pointer
-template <func F>
-native func Pointer : Nullable = (V value) // Inherited Nullable - Nullable values are declared. Here you can see the compound with a single value
+native func Pointer := func F -> (F value) inherits Nullable
+// Inherited Nullable - Nullable values are declared. Here you can see the compound with a single value
 
-native var NewPointer = () -> Pointer                       // Variable accepts nothing as parameter as well - which only matches NULL, essentially
-native var NewPointer = (Int size) -> Pointer               // Can assign another when the Parameter Type is different
+native var NewPointer := func F -> () -> Pointer(F)          // Variable accepts nothing as parameter as well - which only matches NULL, essentially
+native var NewPointer := func F -> (Int size) -> Pointer     // Can assign another when the Parameter Type anywhere is different
 
-native func OffsetGet = (Pointer pointer, Int offset) -> Pointer    // Annonymous compound declaration to easily specify parameters (and result later)
-native func OffsetSet = (Pointer pointer, Int offset, V value) -> Pointer
+native func OffsetGet := func F -> (Pointer(F) pointer, Int offset) -> Pointer    // Anonymous compound declaration to easily specify parameters (and result later)
+native func OffsetSet := func F -> (Pointer(F) pointer, Int offset, V value) -> Pointer
 
 // Iterators
-template <func F>
-func Ite : Nullable = (F value)     // Virtual Function declared as a virtual compound
+func Ite := func F -> (F value)     // Virtual Function declared as a virtual compound
 
-template <func F, Ite<F> I>
-HasNext = I ite -> FALSE
-Next = I -> I // Virtual Function
-Iterable = (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
+HasNext := Ite(?) I -> (I ite -> FALSE) // No need to specify the parameter here - thus wildcard it
+Next := Ite(?) I -> (I -> I) // Virtual Function - damn, this reads bad
+Iterable := Ite(?) I -> (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
 
 // Buffer
-var Out // This needs more specification - it is incomplete!
+var IPrint := String -> Bool
+var OutSite := (IPrint print) // Needs clarification, but enough for now
+native var Console := (IPrint print) inherits OutSite
 
-var Printer = obj output -> Bool
-native func Print = Out write -> Printer printer
-native var Console : Out
+var Print := OutSite site -> var printed -> toString(printed)
 
-namespace List {
-    template <func F, I := Ite<F>>
-    func Ite : None::Ite = (Int size, Int index, Pointer pointer,
-                        value -> OffsetGet(value(pointer), index))          // Mixed interface compound declaration
+namespace Array {
+    func Ite := func F ->
+        (Int size, Int index, Pointer pointer,
+            value -> OffsetGet(F)(value(pointer), index))
+        inherits None::Ite(F)     // Mixed interface compound declaration
 
-    func HasNext : None::HasNext = I ite -> (ite(size) < ite(index))        // Inheritance forces the function to be applicable for parent cases
-    func Next    : None::Next    = I ite ~ {
-        len := ite(size)
-        ind := ite(index) + 1
-        newp := OffsetGet(ite(pointer), 1)                                  // Auto-evaluated compound from function call
-    } -> (len < ind)? <I> (len, ind, newp) : <I> NULL
+    func HasNext := func F ->
+        (Ite(F) ite -> (ite(size) < ite(index))
+        inherits None::HasNext(Ite(F)))    // Inheritance forces the function to be applicable for parent cases
 
-    func Setter = (Ite<F> ite, Int index, F val) ~ {
-        newp := OffsetSet(ite(pointer), index, value)
-    } -> <I> (ite, pointer -> newp)
+    func Next := func F ~ {
+        I := Ite(F)
+        internal inherits None::Next(I) := I ite ~ {
+            len := ite(size)
+            ind := ite(index) + 1
+            newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from function call
+        } -> (len < ind)? (I) (len, ind, newp) : <I> NULL
+    } -> internal
+
+
+    func Setter := func F ->
+        (Ite(F) ite, Int index, F val) ~ {
+            newp := OffsetSet(ite(pointer), index, value)
+        } -> (Ite(F)) (ite, pointer -> newp) // Syntax sugar for compound declaration
 }
 
-template <func F, I := List::Ite<F>>
-func List = (
-    List::Ite head,
-    hasNext -> List::HasNext,
-    next -> List::Next,
-    indexer -> FromInteger<F>,
-    setter -> Setter<F>,
+func Array := func F -> (
+    Array::Ite(F) head,
+    hasNext -> Array::HasNext(F),
+    next -> Array::Next(F),
+    indexer -> FromInteger(F),
+    setter -> Setter(F),
     indexer expose fi
-) // Complex compound declaration with inheritance
+) inherits Iterable(Array::Ite(F)) // Complex compound declaration with inheritance
 
-template <func F>
-func List::Set = (L list, Integer index, F value) ~ {
-    newHead := Setter(list(head), index, value);
-} -> <List<F>> (list, head -> newHead) // Syntax sugar for compound creation
+func Array::Set := func F ->
+    (Array<F> Array, Integer index, F value) ~ {
+        newHead := Setter(Array(head), index, value);
+    } -> <Array<F>> (Array, head -> newHead) // Syntax sugar for compound creation
 
-var AsList = (F a1, F a2, F a3) ~ {
-    pointer := NewPointer<F>(3);
-} -> <List> (3, -1, pointer)
+var AsArray = func F ->
+    (F a1, F a2, F a3) ~ {
+        pointer := NewPointer<F>(3);
+    } -> <Array> (3, -1, pointer)
 
 // Parameter is automatically wrapped into compound
-template <F, I := Ite<F>, C := Iterable<F>>
-func Loop = (Iterable iterable, obj run) ->
-    For(iterable(head), iterable(hasNext), iterable(next), run) // Function version and Variable version is separately needed
+func Loop = func F ->
+    (Iterable(F) iterable, Consumer(F) run) ->
+        For(iterable(head), iterable(hasNext), iterable(next), run) // Function version and Variable version is separately needed
 
-template <func P>
-var Main = P par -> Loop(AsList(1, 2, 3), x -> Print(Console)(x))    // Compiler deal with guessing the type parameters. Also, lambdas
-// Main = (P | Loop[1, 2, 3], x -> Print(x))        // Equivalent with above code
-
-// TODO Only variable declaration is left
+var Main = String par -> Loop(AsArray(1, 2, 3), x -> Print(Console)(x))    // Compiler deal with guessing the type parameters. Also, lambdas

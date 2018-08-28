@@ -41,7 +41,7 @@
 				},
 				{
 					"name":"constant",
-					"match": "\\b(NULL|FALSE|TRUE)\\b"
+					"match": "\\b(FALSE|TRUE)\\b"
 				}
 			]
 		},

@@ -9,20 +9,17 @@
  */
 
 // Implementation of Immutable Array on Funcy
-
-Nullable = NULL // Compiler might only allow explicit NULL on Nullable values
-
 // Basics
 func Id := obj V -> (V v -> v)      // Generics are simply function calls
 func FromInt := obj V -> (V v -> 0) // Prototype - default implementation exists
-native func Consumer := obj V -> (V -> NULL) // What to put here? DK
+native func Consumer := obj V -> var(V -> ()) // What to put here? DK
 native func toString := obj -> String
 
 // Pointer
-native func Pointer := func F -> (F value) inherits Nullable
-// Inherited Nullable - Nullable values are declared. Here you can see the compound with a single value
+native func Pointer := func F -> (F value)
 
-native var NewPointer := func F -> () -> Pointer(F)          // Variable accepts nothing as parameter as well - which only matches NULL, essentially
+native var NullPointer := func F -> Pointer(F)
+native var NewPointer := func F -> () -> Pointer(F)          // Variable accepts nothing as parameter as well
 native var NewPointer := func F -> (Int size) -> Pointer     // Can assign another when the Parameter Type anywhere is different
 
 native func OffsetGet := func F -> (Pointer(F) pointer, Int offset) -> Pointer    // Anonymous compound declaration to easily specify parameters (and result later)
@@ -54,11 +51,11 @@ namespace Array {
 
     func Next := func F ~ {
         I := Ite(F)
-        internal inherits None::Next(I) := I ite ~ {
+        internal := (I ite ~ {
             len := ite(size)
             ind := ite(index) + 1
             newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from function call
-        } -> (len < ind)? (I) (len, ind, newp) : <I> NULL
+        } -> (len < ind)? (I) (len, ind, newp) : (I) (0, 0, NullPointer())) inherits None::Next(I)
     } -> internal
 
 
@@ -80,12 +77,12 @@ func Array := func F -> (
 func Array::Set := func F ->
     (Array<F> Array, Integer index, F value) ~ {
         newHead := Setter(Array(head), index, value);
-    } -> <Array<F>> (Array, head -> newHead) // Syntax sugar for compound creation
+    } -> (Array<F>) (Array, head -> newHead) // Syntax sugar for compound creation
 
 var AsArray = func F ->
     (F a1, F a2, F a3) ~ {
         pointer := NewPointer<F>(3);
-    } -> <Array> (3, -1, pointer)
+    } -> (Array) (3, -1, pointer)
 
 // Parameter is automatically wrapped into compound
 func Loop = func F ->

@@ -11,10 +11,15 @@
 // Implementation of Immutable Array on Funcy
 // Basics
 // Lambda - (V v -> v) means func(V v) { return v; } except it has no name
-func Id := func V -> (V v -> v)      // Function definition. Generics are simply function calls
+func Simple := func V -> (V -> V)
+func Id := func V -> (V v -> v) inherits simple(V)      // Function definition. Generics are simply function calls
 func FromInt := func V -> (V v -> 0) // Default implementation exists
-native func Consumer := (func V, func C) -> ((V, C) -> C) // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
-native func toString := func -> String           // Another interface. This needs to be fleshed out
+native func Consumer := (func C, func I) -> ((C, I) -> C) // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
+native func toString := func -> String          // Another interface. This needs to be fleshed out
+
+func Pair := (func T, func S) -> (T t, S s)     // Interface. Could be a type as well
+func Compose := (func T, func S) -> ((Simple(T) trans1, Simple(S) trans2) ->
+    ((T t, S s) -> trans1(t), trans2(s)))
 
 // Pointer
 native func Pointer := func F -> (F value)
@@ -35,11 +40,11 @@ func Iterable := Ite(?) I -> (I head, HasNext hasNext, Next next) // Virtual Fun
 
 // Buffer
 func StringState;       // Well, this is just a name
-func Printer := (StringState state, String output) -> StringState    // Interface
+func Printer := Consumer(StringState, String)    // Un-genericized interface
 func OutSite := (Printer print, StringState initial)
 native func Console := (OutSite)() inherits OutSite     // Synthetic Sugar
 
-func Print := OutSite site -> ((S state, func printed) -> site(print)(state, toString(printed)))
+func Print := OutSite site -> ((StringState state, func printed) -> site(print)(state, toString(printed)))
 
 func Next := func F ~ { // For declarations depending on the parameter
     I := Ite(F)
@@ -99,6 +104,6 @@ func AsArray = func F ->
 // Parameter is automatically wrapped into compound
 func Loop = func F ->
     (Iterable(F) iterable, Consumer(F) run) ->
-        For(iterable(head), iterable(hasNext), iterable(next), run) // Function version and Variable version is separately needed
+        For((iterable(head), ), iterable(hasNext), Compose(iterable(next),)) // Function version and Variable version is separately needed
 
-func Main = String par -> Loop(AsArray("arr", 1, 2, 3), x -> Print(Console)(x))    // Compiler deal with guessing the type parameters. Also, lambdas
+func Main = String par -> Loop(AsArray("arr", 1, 2, 3), Print(Console))    // Compiler deal with guessing the type parameters. Also, lambdas

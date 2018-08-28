@@ -37,7 +37,7 @@
 				},
 				{
 					"name": "keyword.control",
-					"match": "\\b(import|as|inherits|template|obj|func|var|native)\\b"
+					"match": "\\b(import|as|inherits|template|obj|func|var|void|native)\\b"
 				},
 				{
 					"name":"constant",

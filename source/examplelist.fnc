@@ -10,9 +10,10 @@
 
 // Implementation of Immutable Array on Funcy
 // Basics
-func Id := obj V -> (V v -> v)      // Generics are simply function calls
-func FromInt := obj V -> (V v -> 0) // Prototype - default implementation exists
-native func Consumer := obj V -> var(V -> ()) // What to put here? DK
+// Lambda - (V v -> v) means func(V v) { return v; } except it has no name
+func Id := obj V -> (V v -> v)      // Function definition. Generics are simply function calls
+func FromInt := obj V -> (V v -> 0) // Default implementation exists
+native func Consumer := obj V -> var(V -> void) // Maps to nothing here - a prototype is first shown here. Native means it's fullfiled
 native func toString := obj -> String
 
 // Pointer
@@ -28,34 +29,44 @@ native func OffsetSet := func F -> (Pointer(F) pointer, Int offset, V value) -> 
 // Iterators
 func Ite := func F -> (F value)     // Virtual Function declared as a virtual compound
 
-HasNext := Ite(?) I -> (I ite -> FALSE) // No need to specify the parameter here - thus wildcard it
-Next := Ite(?) I -> (I -> I) // Virtual Function - damn, this reads bad
-Iterable := Ite(?) I -> (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
+func HasNext := Ite(?) I -> (I ite -> FALSE) // No need to specify the parameter here - thus wildcard it
+func Next := Ite(?) I -> (I -> I) // Virtual Function - damn, this reads bad
+func Iterable := Ite(?) I -> (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
 
 // Buffer
-var IPrint := String -> Bool
-var OutSite := (IPrint print) // Needs clarification, but enough for now
+var IPrint := String -> Bool    // You know this is prototype by now
+var OutSite := (IPrint print)   // Needs clarification, but enough for now
 native var Console := (IPrint print) inherits OutSite
 
 var Print := OutSite site -> var printed -> toString(printed)
+
+func Next := func F ~ { // For declarations depending on the parameter
+    I := Ite(F)
+    internal := (I ite ~ {
+        len := ite(size)
+        ind := ite(index) + 1
+        newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from function call
+    } -> (len < ind)? (I) (len, ind, newp) : NullIte(F)) inherits None::Next(I)
+} -> internal
 
 namespace Array {
     func Ite := func F ->
         (Int size, Int index, Pointer pointer,
             value -> OffsetGet(F)(value(pointer), index))
         inherits None::Ite(F)     // Mixed interface compound declaration
+    func NullIte := func F -> (0, 0, NullPointer(F)) inherits Ite(F)
 
     func HasNext := func F ->
         (Ite(F) ite -> (ite(size) < ite(index))
         inherits None::HasNext(Ite(F)))    // Inheritance forces the function to be applicable for parent cases
 
-    func Next := func F ~ {
+    func Next := func F ~ { // For declarations depending on the parameter
         I := Ite(F)
         internal := (I ite ~ {
             len := ite(size)
             ind := ite(index) + 1
             newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from function call
-        } -> (len < ind)? (I) (len, ind, newp) : (I) (0, 0, NullPointer())) inherits None::Next(I)
+        } -> (len < ind)? (I) (len, ind, newp) : NullIte(F)) inherits None::Next(I)
     } -> internal
 
 

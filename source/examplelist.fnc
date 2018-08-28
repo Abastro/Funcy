@@ -11,17 +11,17 @@
 // Implementation of Immutable Array on Funcy
 // Basics
 // Lambda - (V v -> v) means func(V v) { return v; } except it has no name
-func Id := obj V -> (V v -> v)      // Function definition. Generics are simply function calls
-func FromInt := obj V -> (V v -> 0) // Default implementation exists
-native func Consumer := obj V -> var(V -> void) // Maps to nothing here - a prototype is first shown here. Native means it's fullfiled
-native func toString := obj -> String
+func Id := func V -> (V v -> v)      // Function definition. Generics are simply function calls
+func FromInt := func V -> (V v -> 0) // Default implementation exists
+native func Consumer := (func V, func C) -> ((V, C) -> C) // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
+native func toString := func -> String           // Another interface. This needs to be fleshed out
 
 // Pointer
 native func Pointer := func F -> (F value)
 
-native var NullPointer := func F -> Pointer(F)
-native var NewPointer := func F -> () -> Pointer(F)          // Variable accepts nothing as parameter as well
-native var NewPointer := func F -> (Int size) -> Pointer     // Can assign another when the Parameter Type anywhere is different
+native func NullPointer := func F -> Pointer(F)
+native func NewPointer := func F -> (String id) -> Pointer(F)
+native func NewPointer := func F -> (String id, Int size) -> Pointer     // Can assign another when the Parameter Type anywhere is different
 
 native func OffsetGet := func F -> (Pointer(F) pointer, Int offset) -> Pointer    // Anonymous compound declaration to easily specify parameters (and result later)
 native func OffsetSet := func F -> (Pointer(F) pointer, Int offset, V value) -> Pointer
@@ -34,11 +34,12 @@ func Next := Ite(?) I -> (I -> I) // Virtual Function - damn, this reads bad
 func Iterable := Ite(?) I -> (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
 
 // Buffer
-var IPrint := String -> Bool    // You know this is prototype by now
-var OutSite := (IPrint print)   // Needs clarification, but enough for now
-native var Console := (IPrint print) inherits OutSite
+func StringState;       // Well, this is just a name
+func Printer := (StringState state, String output) -> StringState    // Interface
+func OutSite := (Printer print, StringState initial)
+native func Console := (OutSite)() inherits OutSite     // Synthetic Sugar
 
-var Print := OutSite site -> var printed -> toString(printed)
+func Print := OutSite site -> ((S state, func printed) -> site(print)(state, toString(printed)))
 
 func Next := func F ~ { // For declarations depending on the parameter
     I := Ite(F)
@@ -90,9 +91,9 @@ func Array::Set := func F ->
         newHead := Setter(Array(head), index, value);
     } -> (Array<F>) (Array, head -> newHead) // Syntax sugar for compound creation
 
-var AsArray = func F ->
-    (F a1, F a2, F a3) ~ {
-        pointer := NewPointer<F>(3);
+func AsArray = func F ->
+    (String id, F a1, F a2, F a3) ~ {
+        pointer := NewPointer<F>(id, 3);
     } -> (Array) (3, -1, pointer)
 
 // Parameter is automatically wrapped into compound
@@ -100,4 +101,4 @@ func Loop = func F ->
     (Iterable(F) iterable, Consumer(F) run) ->
         For(iterable(head), iterable(hasNext), iterable(next), run) // Function version and Variable version is separately needed
 
-var Main = String par -> Loop(AsArray(1, 2, 3), x -> Print(Console)(x))    // Compiler deal with guessing the type parameters. Also, lambdas
+func Main = String par -> Loop(AsArray("arr", 1, 2, 3), x -> Print(Console)(x))    // Compiler deal with guessing the type parameters. Also, lambdas

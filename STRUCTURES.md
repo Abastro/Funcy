@@ -8,9 +8,9 @@ Still, it's capable of many things. (Not yet proved, but I think it's a Turing-C
 Definitions:
 1. A function is a mathematical object which has its domain and codomain defined - usually types defines both sets.
 
-  1. A normal function is literally a normal function, which has all the values defined in codomain for all elements in its domain.
+    1. A normal function is literally a normal function, which has all the values defined in codomain for all elements in its domain.
 
-  2. A virtual function is only partially mathematical function. It's missing some mappings - it has at least domain and codomain sets defined.
+    2. A virtual function is only partially mathematical function. It's missing some mappings - it has at least domain and codomain sets defined.
 
 2. A type means a function which is a kind of form a function can have with certain domain set, i.e. for function F with type T, F is identical with T in T's domain.
 It needs to be explicitly stated if a function has a given type, as such check is not feasible.
@@ -21,9 +21,9 @@ It is defined by combining several functions with distinct domains, which is add
 4. Mapping (function) is a special function which usually serve the purpose to simulate sub-functions and better type system.
 It is defined by mapping from a single Field to a single typed value, where the Field is referenced by its name.
 
-  1. A normal mapping is a normal function which is a mapping.
+    1. A normal mapping is a normal function which is a mapping.
 
-  2. A virtual mapping is a virtual function which is defined by a domain of single Field, and the specified type.
+    2. A virtual mapping is a virtual function which is defined by a domain of single Field, and the specified type.
 
 Specifications:
 

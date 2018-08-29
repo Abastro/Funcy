@@ -8,18 +8,21 @@
  * (It has LGPL v3.0 license)
  */
 
+// Basic features
+IntToString := Int -> String // 
+
 // Implementation of Immutable Array on Funcy
 // Basics
 // Lambda - (V v -> v) means func(V v) { return v; } except it has no name
-func Simple := func V -> (V -> V)
-func Id := func V -> (V v -> v) inherits simple(V)      // Function definition. Generics are simply function calls
-func FromInt := func V -> (V v -> 0) // Default implementation exists
-native func Consumer := (func C, func I) -> ((C, I) -> C) // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
-native func toString := func -> String          // Another interface. This needs to be fleshed out
+Simple := (func V) -> (V -> V)
+Id := V -> (V v -> v) inherits simple(V)      // Function definition. Generics are simply function calls
+FromInt := V -> (V v -> 0) // Default implementation exists
+native Consumer := (func C, func I) -> ((C, I) -> C) // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
+native toString := func -> String          // Another interface. This needs to be fleshed out
 
 func Pair := (func T, func S) -> (T t, S s)     // Interface. Could be a type as well
 func Compose := (func T, func S) -> ((Simple(T) trans1, Simple(S) trans2) ->
-    ((T t, S s) -> trans1(t), trans2(s)))
+    ((T t, S s) -> Pair(trans1(t), trans2(s))))
 
 // Pointer
 native func Pointer := func F -> (F value)

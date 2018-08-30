@@ -1,19 +1,24 @@
-Preface:
+#Preface:
 
 Funcy is an unusual functional programming language, which doesn't have anything other than functions and forces you to use singular parameters and return to the functions.
 Also, functions are generally not allowed to have any variables involved.
 One of its specialty is that it does not allow multiline expression containing semicolon. The result should be singular, composite function calls.
-Still, it's capable of many things. (Not yet proved, but I think it's a Turing-Complete language)
+Still, it's capable of many things programming languages can do.
 
-Definitions:
-1. A function is a mathematical object which has its domain and codomain defined - usually types defines both sets.
+#Definitions:
+1. A function (in funcy) is a pair of two sets, which are the domain and codomain - usually types defines both sets.
 
     1. A normal function is literally a normal function, which has all the values defined in codomain for all elements in its domain.
 
     2. A virtual function is only partially mathematical function. It's missing some mappings - it has at least domain and codomain sets defined.
 
-2. A type means a function which is a kind of form a function can have with certain domain set, i.e. for function F with type T, F is identical with T in T's domain.
-It needs to be explicitly stated if a function has a given type, as such check is not feasible.
+2. A type means a function which is a kind of a form a function can have with certain domain set.
+
+  1. 
+
+  2. 
+
+  3. A type needs to be explicitly stated if a function has a given type, as such check is not feasible.
 
 3. Compound (function) is a special function which usually serve the purpose of easier code and simulation of muliple parameters.
 It is defined by combining several functions with distinct domains, which is added to form one big domains and codomains.
@@ -25,7 +30,7 @@ It is defined by mapping from a single Field to a single typed value, where the 
 
     2. A virtual mapping is a virtual function which is defined by a domain of single Field, and the specified type.
 
-Specifications:
+#Specifications:
 
 1. A non-special function can have either of the corresponding forms:
 

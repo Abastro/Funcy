@@ -1,18 +1,24 @@
-#Preface:
+# Preface
 
 Funcy is an unusual functional programming language, which doesn't have anything other than functions and forces you to use singular parameters and return to the functions.
 Also, functions are generally not allowed to have any variables involved.
 One of its specialty is that it does not allow multiline expression containing semicolon. The result should be singular, composite function calls.
 Still, it's capable of many things programming languages can do.
 
-#Definitions:
-1. A function (in funcy) is a pair of two sets, which are the domain and codomain - usually types defines both sets.
+# Definitions
 
-    1. A normal function is literally a normal function, which has all the values defined in codomain for all elements in its domain.
+## Mathematical
 
-    2. A virtual function is only partially mathematical function. It's missing some mappings - it has at least domain and codomain sets defined.
+1. A ***funcy*** from X to Y is a set of a pair (S, T), where S is a subset of X, T is of Y,
+  all such S are distinct to each other and union of it is X.
+  Here, S is called an *inset*, and T is called *outset*.
 
-2. A type means a function which is a kind of a form a function can have with certain domain set.
+    1. Here X is called *domain*, and Y is called *codomain*. Union of outsets Y is caleled *image*.
+
+    2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element.
+      It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
+
+2. A ***type*** T of funcy F is a funcy which meets these conditions: identical in function X (?)
 
   1. 
 
@@ -30,7 +36,10 @@ It is defined by mapping from a single Field to a single typed value, where the 
 
     2. A virtual mapping is a virtual function which is defined by a domain of single Field, and the specified type.
 
-#Specifications:
+## 
+
+
+# Specifications
 
 1. A non-special function can have either of the corresponding forms:
 

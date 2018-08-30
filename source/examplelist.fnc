@@ -10,13 +10,13 @@
 
 // TODO Write specification for inheritance of virtual function
 // Basic features
-IntToString := Int -> String        // Virtual function of Int to String. Only used as a type, not a value
+IntToStr := Int -> String        // Virtual function of Int to String. Only used as a type, not a value
 PairIS := (Int int, String string)  // Virtual compound function of Int and String. Only used as a type, not a value.
                                     // Can call PairIS(int) and PairIS(string) to get the int and string
 ToEmpty := Int int -> "" inherits IntToString       // Function of Int to Empty String inheriting the virtual function.
 Special := (int -> 0, string -> "") inherits PairIS // Compound function of 0 and "" inheriting the virtual compound function.
 
-CompoundTrans := (PairIS pair, IntToString transform) -> transform(pair(string)) // Compound parameter, for easier and coherent passing
+CompoundTrans := (PairIS pair, IntToStr transform) -> transform(pair(string)) // Compound parameter, for easier and coherent passing
 
 Test1 := Int useless -> ToEmpty(Special(int))   // Gives empty String
 Test2 := CompoundTrans(Special, ToEmpty)        // Gives empty String
@@ -28,10 +28,10 @@ template [F V] := expr -> (F V -> expr)   // Template
 template [F T, G S] := expr -> ((F T, G S) -> expr)
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
 
-Self  := [V] V -> V
+Self    := [V] V -> V
 Id      := [V] (V v -> v) inherits Self(V)      // Function definition. Generics are simply function calls
 FromInt := [V] Int -> V
-ToBool := [V] V -> Bool
+ToBool  := [V] V -> Bool
 
 native For := [F] (F initial, ToBool(F) condition, Self(F) increase)
 
@@ -55,7 +55,7 @@ native OffsetSet := [F] (Pointer(F) pointer, Int offset, V value) -> Pointer
 // Iterators
 Ite := [F] (F value)     // Virtual Function declared as a virtual compound
 
-HasNext := [Ite(?) I] (I ite -> FALSE) // No need to specify the parameter here - thus wildcard it (It's folded)
+HasNext := [Ite(?) I] (I -> Bool) // No need to specify the parameter here - thus wildcard it (It's folded)
 Next := [Ite(?) I] (I -> I) // Virtual Function - damn, this reads bad
 Iterable := [Ite(?) I] (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
 
@@ -74,7 +74,7 @@ Printer := Consumer(StringState, String)    // Un-genericized interface
 OutSite := (Printer print, StringState initial)
 native Console := (OutSite)() inherits OutSite     // Synthetic Sugar
 
-Print := [OutSite site] ([StringState state, func printed] site(print)(state, toString(printed)))
+Print := [OutSite site] (StringState state, func printed) -> site(print)(state, toString(printed)))
                 inherits Consumer(StringState, func)
 
 namespace Array {

@@ -9,16 +9,17 @@ Still, it's capable of many things programming languages can do.
 
 ## Mathematical
 
-1. A ***funcy*** from X to Y is a set of a pair (S, T), where S is a subset of X, T is of Y,
-  all such S are distinct to each other and union of it is X.
-  Here, S is called an *inset*, and T is called *outset*.
+1. A ***funcy*** from X to Y is a set of a pair (I, O), where I is a subset of X, O is of Y,
+  all such O are distinct to each other and union of it is X.
+  Here, I is called an *inset*, and O is called *outset*.
 
     1. Here X is called *domain*, and Y is called *codomain*. Union of outsets Y is caleled *image*.
 
     2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element.
       It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
 
-2. A ***type*** T of funcy F is a funcy which meets these conditions: identical in function X (?)
+2. A ***type*** T of funcy F is a prototype funcy where for any pair (I, O) in F, there is a unique (J, P)
+  where J contains I and P contains O.
 
   1. 
 

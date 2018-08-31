@@ -14,7 +14,7 @@
         "languages": [{
             "id": "funcy",
             "aliases": ["Funcy", "funcy"],
-            "extensions": ["fnc"],
+            "extensions": ["fnc", "fnd"],
             "configuration": "./language-configuration.json"
         }],
         "grammars": [{

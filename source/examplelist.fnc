@@ -8,7 +8,6 @@
  * (It has LGPL v3.0 license)
  */
 
-// TODO Write specification for inheritance of virtual function
 // Basic features
 IntToStr := Int -> String        // Virtual function of Int to String. Only used as a type, not a value
 PairIS := (Int int, String string)  // Virtual compound function of Int and String. Only used as a type, not a value.
@@ -23,19 +22,28 @@ Test2 := CompoundTrans(Special, ToEmpty)        // Gives empty String
 
 // Implementation of Immutable Array on Funcy
 // Basics
-// Lambda - (func V) -> (V v -> v) means template<typename V> anonymous(V v) { return v; } except it has no name
-template [F V] := expr -> (F V -> expr)   // Template
-template [F T, G S] := expr -> ((F T, G S) -> expr)
+// IDK Why I'm doing this, but..
+// TODO Declaration of Set of which inherits the type
+syntax Reference := TRUE -> String                 // Can't set it to String, ofc, as a Reference is different
+Containment := func V -> (Field -> V)       // Syntax here allows the containment
+
+// Templates here
+native template(expr) $`v` -> Reference
+template(func) `F` `v` := % ($v -> F) inherits Containment(F)
+
+template(func) [`func F` `V`] `expre` := F V -> expre
+template(func) [`func F` `T`, `func G` `S`] `expre` := (F T, G S) -> expre
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
 
+// Lambda - (func V) -> (V v -> v) means template<typename V> anonymous(V v) { return v; } except it has no name
 Self    := [V] V -> V
 Id      := [V] (V v -> v) inherits Self(V)      // Function definition. Generics are simply function calls
 FromInt := [V] Int -> V
 ToBool  := [V] V -> Bool
 
-native For := [F] (F initial, ToBool(F) condition, Self(F) increase)
+native For := [F] (F initial, ToBool(F) condition, Self(F) increase) -> F
 
-native toString := func -> String
+toString := [V] V -> String
 
 Consumer := [V, I] (V value, I input) -> C // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
 
@@ -43,7 +51,7 @@ Pair := [T, S] (T left, S right)     // Interface. Could be a type as well
 
 
 // Pointer
-native Pointer := [F] (F value)
+native Pointer := [F] F value
 
 native NullPointer := [F] Pointer(F)
 native NewPointer := [F] (String id) -> Pointer(F)
@@ -53,19 +61,19 @@ native OffsetGet := [F] (Pointer(F) pointer, Int offset) -> Pointer    // Anonym
 native OffsetSet := [F] (Pointer(F) pointer, Int offset, V value) -> Pointer
 
 // Iterators
-Ite := [F] (F value)     // Virtual Function declared as a virtual compound
+Ite := [F] (F value)     // Virtual Funcy declared as a virtual compound
 
 HasNext := [Ite(?) I] (I -> Bool) // No need to specify the parameter here - thus wildcard it (It's folded)
-Next := [Ite(?) I] (I -> I) // Virtual Function - damn, this reads bad
-Iterable := [Ite(?) I] (I head, HasNext hasNext, Next next) // Virtual Function declaration as a virtual compound - (Type1 name1, Type2 name2)
+Next := [Ite(?) I] (I -> I) // Virtual Funcy
+Iterable := [Ite(?) I] (I head, HasNext hasNext, Next next) // Virtual Funcy declaration as a virtual compound - (Type1 name1, Type2 name2)
 
 ItePair := [F, V] Pair(Ite(F) ite, V val)
 // Parameter is automatically wrapped into compound
-Loop := [V, F] (Iterable(F) iterable, V initial, Consumer(C, F) consumer)
+Loop := [V, F] (Iterable(F) iterable, V initial, Consumer(V, F) consumer)
             -> For(
-                    Pair(iterable(head), initial),
+                    Pair(iterable($head), initial),
                     (Ite(F) ite, V val) -> iterable(hasNext)(ite),
-                    (Ite(F) ite, V val) -> Pair(iterable(next)(ite), consumer(val, ite(value)))
+                    (Ite(F) ite, V val) -> (iterable(next)(ite), consumer(val, ite(value)))
                 ) // Auto-complete things here
 
 // Buffer
@@ -77,6 +85,9 @@ native Console := (OutSite)() inherits OutSite     // Synthetic Sugar
 Print := [OutSite site] (StringState state, func printed) -> site(print)(state, toString(printed)))
                 inherits Consumer(StringState, func)
 
+VarState = Field -> func;
+Set := [V] (VarState state, Field field, ) -> 
+
 namespace Array {
     Ite := [F] (Int size, Int index, Pointer pointer,
             value -> OffsetGet(F)(value(pointer), index))
@@ -84,14 +95,14 @@ namespace Array {
     NullIte := [F] (0, 0, NullPointer(F)) inherits Ite(F)
 
     HasNext := [F] Ite(F) ite -> ite(size) < ite(index)
-        inherits None::HasNext(Ite(F)))    // Inheritance forces the function to be applicable for parent cases
+        inherits None::HasNext(Ite(F)))    // Inheritance forces the funcy to be applicable for parent cases
 
     Next := [F] ~ { // For declarations depending on the parameter
         I := Ite(F)
         internal := (I ite ~ {
             len := ite(size)
             ind := ite(index) + 1
-            newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from function call
+            newp := OffsetGet(ite(pointer), 1)              // Auto-evaluated compound from funcy call
         } -> (len < ind)? (I) (len, ind, newp) : NullIte(F)) inherits None::Next(I)
     } -> internal
 
@@ -118,4 +129,4 @@ AsArray = [F] (String id, F a1, F a2, F a3) ~ {
     pointer := NewPointer(F)(id, 3);
 } -> (Array) (3, -1, pointer)
 
-Main = String par -> Loop(AsArray("arr", 1, 2, 3), Print(Console))    // Compiler deal with guessing the type parameters. Also, lambdas
+Main = String par -> Loop(AsArray("arr", 1, 2, 3), Console($initial), Print(Console)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

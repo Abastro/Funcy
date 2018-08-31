@@ -1,0 +1,32 @@
+// Bloats to be reduced since this is about scripting
+header data
+{
+    SPACING := 6
+    LocalState := (Bool boolState)
+}
+
+(
+    (GuiData guiData, ElementID id, LocalState local) -> {
+        Bool boolState := local($boolState)
+    } ~ (
+        name -> boolState? "foo" : "bar",
+        color -> 0xffdddddd,
+    
+        position -> QuadPosition pos ~ {
+            spaced := Spacing(pos, SPACING)
+            part := PartitionHor(spaced, 0, 0.5)
+            partSpaced := SpacingRight(part, SPACING / 2)
+        } -> partSpaced,
+
+        onPressed -> (
+            GuiState state ~ {
+                GuiMsgBox msgBox := MessageBox(state, "foo", "bar")
+                GuiState newState := Watch(msgBox,
+                    GuiState state -> (
+                        Bool result -> state(id)($boolState) = result
+                    )
+                )
+            } -> newState
+        )
+    )
+) inherits GuiButton(LocalState)

@@ -59,21 +59,44 @@ ThisIsWorld := TF3("Hello") // "World"
 // Now take a look at mundane declaration! Typedef, maybe?
 TF3 := TF2
 
-// From now on, virtual functions would be discussed.
+// From now on, virtual funcies would be discussed.
 TF4 := Int -> Bool
 // Parameter name is omitted. This imply it takes integer parameters, which gives boolean output.
+// Of course, TF4(0) will give error as it does not have such mapping specified.
 
-TF5 := Int i -> i != 0 inherits TF4
+TF5 := (Int i -> i != 0) inherits TF4
 // inherits declares the inheritance. Here it means TF5 can be used in the place of TF4 in substitution.
+// It is applied to the last expression which is grouped.
 
-TF6 := Int value
+TF6 := TF4 val -> val(0)
+// You can look at the usage here. Note that every funcy could be a type.
+// Anything which inherits funcy TF4 could have the type TF4.
+// Here, val(0) could exist as val is not determined.
+// Virtual function exists to encapsulate things in opaque definitions.
+
+ThisISFalse := TF6(TF5)
+
+TF7 := Int value
 // This means field $value will give integers.
 // TF4($value) will give error, as it's not specified.
 // Instead, it could be used to call inherited funcies with virtual type.
-TF7 := value -> 7 inherits TF6
-TF8 := TF6 V -> V($value)
-// You can look at the usage here
-ThisIsSeven := TF8(TF7)
+TF8 := (value -> 7) inherits TF7
+
+TF9 := TF7 val -> val($value)
+// V($value) could exist as val is not determined.
+
+ThisIsSeven := TF9(TF8)
+// Lazy evaluation should allow this - the applicability could be determined in compile-time, though.
+
+// Now compounds being virtual: It's just compound of virtual funcies.
+TF9 := (Int number, Int -> Int)
+TF10 := (number -> 10, Int i -> i / 2) inherits TF10
+
+TF11 := TF9 val -> val($number)
+TF12 := TF9 val -> val(11)
+
+ThisIsTen := TF11(TF10)
+ThisIsFive := TF12(TF10)
 
 // Everything from now on is just shortcuts.
 // TODO - describe shortcuts, especially with compounds - because they are annoying to write as whole.

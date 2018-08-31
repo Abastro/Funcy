@@ -98,6 +98,13 @@ TF12 := TF9 val -> val(11)
 ThisIsTen := TF11(TF10)
 ThisIsFive := TF12(TF10)
 
+// When it needs many declarations to evaluate the result, you can use parameter-dependent block in this way.
+TFLong := Int num ~ {
+    Int sqr := num * num
+    Int result := num + 1
+} -> result
+// Note that it thinks num is declared in the block, and gives new declarations from it
+
 // Everything from now on is just shortcuts.
 // TODO - describe shortcuts, especially with compounds - because they are annoying to write as whole.
 

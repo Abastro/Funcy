@@ -2,31 +2,34 @@
 header data
 {
     SPACING := 6
-    LocalState := (Bool boolState)
 }
+LayoutSpacingHor(SPACING) [
+    (
+        (GuiData guiData, ElementID id, BoolState local) {
+            Bool sign := local($bool)
+        } -> (
+            name -> sign? "foo" : "bar",
+            color -> 0xffdddddd
 
-(
-    (GuiData guiData, ElementID id, LocalState local) -> {
-        Bool boolState := local($boolState)
-    } ~ (
-        name -> boolState? "foo" : "bar",
-        color -> 0xffdddddd,
-    
-        position -> QuadPosition pos ~ {
-            spaced := Spacing(pos, SPACING)
-            part := PartitionHor(spaced, 0, 0.5)
-            partSpaced := SpacingRight(part, SPACING / 2)
-        } -> partSpaced,
-
-        onPressed -> (
-            GuiState state ~ {
-                GuiMsgBox msgBox := MessageBox(state, "foo", "bar")
-                GuiState newState := Watch(msgBox,
-                    GuiState state -> (
-                        Bool result -> state(id)($boolState) = result
-                    )
+            partition -> 0.5    
+            onPressed -> Watch (
+                MessageBox(state, "foo", "bar"), GuiState prev -> (
+                    Bool result -> Wrap(prev, prev(id)($bool) = result)
                 )
-            } -> newState
+            )
         )
-    )
-) inherits GuiButton(LocalState)
+    ) inherits {GuiButton(BoolState), HasPartition},
+    (
+        (GuiData guiData, ElementID id, BoolState local) {
+            Bool sign := local($bool0)
+        } -> (
+            name -> sign? "f" : "b"
+            color -> 0xffdddddd
+
+            partition -> 1.0
+            onPressed -> (
+                GuiState prev -> Wrap(prev, prev(id)($bool) = !sign)
+            )
+        )
+    ) inherits {GuiButton(BoolState), HasParition}
+]

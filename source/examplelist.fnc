@@ -8,32 +8,77 @@
  * (It has LGPL v3.0 license)
  */
 
-// Basic features
-IntToStr := Int -> String        // Virtual function of Int to String. Only used as a type, not a value
-PairIS := (Int int, String string)  // Virtual compound function of Int and String. Only used as a type, not a value.
-                                    // Can call PairIS(int) and PairIS(string) to get the int and string
-ToEmpty := Int int -> "" inherits IntToString       // Function of Int to Empty String inheriting the virtual function.
-Special := (int -> 0, string -> "") inherits PairIS // Compound function of 0 and "" inheriting the virtual compound function.
-
-CompoundTrans := (PairIS pair, IntToStr transform) -> transform(pair(string)) // Compound parameter, for easier and coherent passing
-
-Test1 := Int useless -> ToEmpty(Special(int))   // Gives empty String
-Test2 := CompoundTrans(Special, ToEmpty)        // Gives empty String
-
 // Implementation of Immutable Array on Funcy
+
 // Basics
-// IDK Why I'm doing this, but..
 // TODO Declaration of Set of which inherits the type
 syntax Reference := TRUE -> String                 // Can't set it to String, ofc, as a Reference is different
 Containment := func V -> (Field -> V)       // Syntax here allows the containment
 
 // Templates here
 native template(expr) $`v` -> Reference
-template(func) `F` `v` := % ($v -> F) inherits Containment(F)
+template(func) `F` `v` := % ($v -> F) inherits Containment(F) // $ Declares the set which inherits all of it
 
 template(func) [`func F` `V`] `expre` := F V -> expre
 template(func) [`func F` `T`, `func G` `S`] `expre` := (F T, G S) -> expre
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
+
+/*
+ * Tutorials
+ *
+ * Before starting, you should note that everything in funcy language are called funcy.
+ * It is similar with function, but can be virtual.
+ */
+TF := Bool switch -> switch? 1 : 0
+// `:=` is the declaration operator, which declares the funcy in the right with the name `TF` on the left.
+// `Bool` is a funcy which serves as a type for booleans.
+// `Bool switch` part declares switch as a boolean parameter, which can be used on the latter expression.
+// You should know what's `switch? 1 : 0` by this point.
+
+ThisIsOne := TF(TRUE)
+// Substitutes the parameter with actual boolean value, which evaluates the funcy as well.
+
+TF2 := (Int i -> i + 1, thisIsZero -> TF(FALSE))
+// `Int` is a funcy for integers. Then first expression `Int i -> i+1` part will make sense.
+// `thisIsZero` is the field name - it doesn't have the type declared, if you look at it carefully.
+// So second expression `thisIsZero -> TF(FALSE)` maps field $thisIsZero to TF(FALSE) which is 0.
+// The compound `(Expr1, Expr2)` means it can map both of the inputs of Expr1 and Expr2 to their outputs.
+// This means they should both have disjoint input. (Mainly, differing type)
+
+ThisIsTwo := TF2(1)
+ThisIsZero := TF2($thisIsZero)
+// This is what I meant.
+
+// The number of expression is not limited to two.
+TF3 := (Int i -> i * 2, what -> 3,  "Hello" -> "World")
+ThisIsThree := TF3($what)
+ThisIsFour := TF3(2)
+ThisIsWorld := TF3("Hello") // "World"
+// ThisIsError := TF3("Welp") gives error because it does not have any mapping
+
+// Now take a look at mundane declaration! Typedef, maybe?
+TF3 := TF2
+
+// From now on, virtual functions would be discussed.
+TF4 := Int -> Bool
+// Parameter name is omitted. This imply it takes integer parameters, which gives boolean output.
+
+TF5 := Int i -> i != 0 inherits TF4
+// inherits declares the inheritance. Here it means TF5 can be used in the place of TF4 in substitution.
+
+TF6 := Int value
+// This means field $value will give integers.
+// TF4($value) will give error, as it's not specified.
+// Instead, it could be used to call inherited funcies with virtual type.
+TF7 := value -> 7 inherits TF6
+TF8 := TF6 V -> V($value)
+// You can look at the usage here
+ThisIsSeven := TF8(TF7)
+
+// Everything from now on is just shortcuts.
+// TODO - describe shortcuts, especially with compounds - because they are annoying to write as whole.
+
+
 
 // Lambda - (func V) -> (V v -> v) means template<typename V> anonymous(V v) { return v; } except it has no name
 Self    := [V] V -> V

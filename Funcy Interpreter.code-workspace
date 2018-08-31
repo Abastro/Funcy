@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "interpreter"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"set": "cpp",
+			"xstring": "cpp",
+			"string": "cpp"
+		}
+	}
+}

@@ -8,17 +8,14 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Mathematical
 
-1. A ***funcy*** is a set of a pair (I, O), where all such I are distinct to each other and all such O are different.
-  Here, I is called an *inset*, and O is called *outset*.
+1. A ***funcy*** is a set of a pair (I, O), where all such I are distinct to each other and all such O are different. Here, I is called an *inset*, and O is called *outset*.
 
     1. Here union of insets I is called *domain*, and union of outsets O is called *image*.
 
     2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element.
       It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
-      Only simple funcies are recommended to be used as a parameter.
 
-2. A ***type*** T of funcy F is a prototype funcy where for any pair (I, O) in F, there is a unique (J, P) in T
-  where J contains I and P contains O. This implies funcy F can be used in place of funcy T - this meaning will be explained later.
+2. A ***type*** T of funcy F is a prototype funcy where for any pair (I, O) in F, there is a unique (J, P) in T where J contains I and P contains O. This implies funcy F can be used in place of funcy T - this meaning will be explained later.
 
     * It is said that F *inherits* T in this case.
 
@@ -30,57 +27,54 @@ It's capable of all things programming languages can do, because it includes lam
 
 5. ***Constant funcy*** is a special funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
 
-5. ***Substitution*** F(V) where F is a declared funcy and V is a funcy is defined to be outset O if and only if
+5. ***Substitution*** F(V), where F is a declared funcy and V is a simple funcy, is defined to be outset O if and only if
   there is a pair (I, O) in F where inset I contains V and O is a singleton.
 
 ## Specification
 
 1. ***Declared funcy*** is a funcy with its name given - those funcies are said to be *declared*.
 
-1. ***Native funcy*** is a special funcy which is defined internally.
-  This includes `Bool`, `Int`, `Float`, `Reference`(parent of references e.g. `$name`), and such constants.
-  Also, basic arithmetic operators and control statements are included.
+2. ***Internal funcy*** is a special funcy which is declared internally. This includes `Bool`, `Int`, `Float`, `Reference`(parent of references e.g. `$name`), and such constants. Also, basic arithmetic operators and control statements are included. (Reference might be deferred later)
 
     * `Bool`, `Int`, `Float` sends the total set to set of `Bool`/`Int`/`Float` and its inheritors itself
 
-    * any boolean, integer, floating point constants sends the total set to the constant. They are simple funcies.
+    * any boolean, integer, floating point constants sends the total set to the constant. They are constant funcies.
 
-    * Reference sends {TRUE} to set of String and its inheritors.
+    * Reference sends {`TRUE`} to set of String and its inheritors.
 
-  * any reference sends {TRUE} to the name of the reference. It is a simple funcy.
+    * any reference sends {`TRUE`} to the name of the reference. It is a constant funcy.
 
-  * Basic arithmetic operators are self-explanatory.
+    * Basic arithmetic operators are self-explanatory - Some does take more than one parameters, which are modeled as compound containments. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
 
-2. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the parameters.
+3. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the parameters.
   The expression is, basically, a declaration of another funcy when parameters are declared.
 
-3. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple parameters.
+4. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple parameters.
 
-4. ***Containment funcy*** usually serves the purpose to simulate member funcies and better type system.
+5. ***Containment funcy*** usually serves the purpose to simulate member funcies and better type system.
+
+6. ***Native funcy*** is a special funcy which is declared to use native implementations.
 
 # Syntax
 
-1. ***Declared funcy*** requires the syntax `F := (Funcy expression here)` to declare the funcy with the name `F`.
+0. Every lines of funcy represents *declared funcy* - this is called ***declaration***, opposed to ***expression*** which represents the actual funcy.
 
-2. ***Lambda funcy*** can have either of the corresponding forms:
+1. ***Declared funcy*** requires the syntax `name := (expression)` to declare the funcy with the name `name`. Its name forms an *expression*.
 
-  1. `F := P param -> (Function description here)`
+2. All of ***Internal funcy*** are internally declared, so that its name can be used to form *expression*
 
-  2. `F := P param ~ { Parameter-dependent function definitions here } -> (Function description here)`
+3. ***Lambda funcy*** forms an *expression*. This takes these syntax:
 
-2. A type of certain function F means set of functions which has maapping from F's domain into F's codomain.
-For any function G which is typed as F, domain of G contains domain of F and codomain of G is contsined in codomain of F.
-This allows G to be called with specifications of F without determination problem.
+    * `P param -> (expression)` for simplistic ones - param is assumed to be declared here.
 
-3. Using F as a type like `F G`, it's explicitly stated that G is typed as F. In this case, it is said that G inherits F.
+    * `P param ~ {declaration(s)} -> (expression)` for complex ones - param is assumed to be declared here.
 
-4. There is a virtual function to help defining generalized statements. It declares the parameter type and result type.
-It can be simply defined with parameter and return types, as in `F = (P | R)` where P and R are the parameter and return types(functions).
+    * `P -> (expression)`
 
-5. Compound is a special function which usually serve the purpose of easier code and benefits of compile-time validity check.
-It's a mapping from Field to typed values, where field is usually a name to query the value.
-It looks like this: `(name1 -> value1 , name2 -> value2)`
-There's also virtual compound, where it contains undefined values. It looks like this: `(name1 -> Type1, name2 -> Type2)`.
-This locks the mapping from name1 and name2 to inherit Type1, Type2. (explicitly)
+    * Note that `func` is used when there is no type to specify.
 
-* I have generics now, but looking forward to remove it - anyone know how?
+4. ***Compound funcy*** forms an *expression* requiring `(expression_1, expression_2, ..., expression_n)` where n can be any positive integer, which means union of these funcies given by each expression.
+
+5. ***Containment funcy*** forms an *expression* requiring `name : expression` where funcy `name` is declared. Note that this doesn't introduce confusion.
+
+6. 

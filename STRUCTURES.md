@@ -1,9 +1,7 @@
 # Preface
 
-Funcy is an unusual functional programming language, which doesn't have anything other than functions and forces you to use singular parameters and return to the functions.
-Also, functions are generally not allowed to have any variables involved.
-One of its specialty is that it does not allow multiline expression containing semicolon. The result should be singular, composite function calls.
-Still, it's capable of all things programming languages can do, because it includes lambda calculus as its subset.
+Funcy is an unusual functional programming language, which doesn't have anything other than *funcies* and forces you to use singular parameters and return to the functions. Here, the result should be singular, composite function calls.
+It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
 # Definitions
@@ -30,7 +28,7 @@ Still, it's capable of all things programming languages can do, because it inclu
 
 4. ***Containment funcy*** is a special funcy which is simply {(I, O))} where I is a singleton.
 
-5. ***Constant funcy** is a special funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
+5. ***Constant funcy*** is a special funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
 
 5. ***Substitution*** F(V) where F is a declared funcy and V is a funcy is defined to be outset O if and only if
   there is a pair (I, O) in F where inset I contains V and O is a singleton.
@@ -40,8 +38,18 @@ Still, it's capable of all things programming languages can do, because it inclu
 1. ***Declared funcy*** is a funcy with its name given - those funcies are said to be *declared*.
 
 1. ***Native funcy*** is a special funcy which is defined internally.
-  This includes Bool, Int, Float, Reference(e.g. $name), and such constants.
+  This includes `Bool`, `Int`, `Float`, `Reference`(parent of references e.g. `$name`), and such constants.
   Also, basic arithmetic operators and control statements are included.
+
+    * `Bool`, `Int`, `Float` sends the total set to set of `Bool`/`Int`/`Float` and its inheritors itself
+
+    * any boolean, integer, floating point constants sends the total set to the constant. They are simple funcies.
+
+    * Reference sends {TRUE} to set of String and its inheritors.
+
+  * any reference sends {TRUE} to the name of the reference. It is a simple funcy.
+
+  * Basic arithmetic operators are self-explanatory.
 
 2. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the parameters.
   The expression is, basically, a declaration of another funcy when parameters are declared.
@@ -52,7 +60,9 @@ Still, it's capable of all things programming languages can do, because it inclu
 
 # Syntax
 
-1. ***Lambda funcy*** can have either of the corresponding forms:
+1. ***Declared funcy*** requires the syntax `F := (Funcy expression here)` to declare the funcy with the name `F`.
+
+2. ***Lambda funcy*** can have either of the corresponding forms:
 
   1. `F := P param -> (Function description here)`
 

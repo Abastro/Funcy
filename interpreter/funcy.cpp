@@ -6,67 +6,103 @@
 // TODO Pre-evaluating certain routines
 // Declared funcies will have its value stored, while anonymous funcies will just have the temporal value.
 
+class Funcy;
 class FuncyFrame;
+template<typename N>
+class NativeTypeFuncy;
+template<typename N>
+class NativeValueFuncy;
+
+// Interpretation part
+
+
+
+// Running part
 
 class Funcy {
 public:
-    Funcy(FuncyFrame* frame) : frame(frame), blueprint(NULL) { }
-    Funcy(FuncyFrame* frame, Funcy* blueprint) : frame(frame), blueprint(blueprint) {}
+    Funcy(FuncyFrame* frame) : frame(frame) { }
 
-    virtual bool match(Funcy*);
+    // Evaluation of the new Funcy
     virtual Funcy* evaluate(Funcy*);
+
+    FuncyFrame* getFrame() { return this->frame; }
 private:
-    const FuncyFrame* const frame;
-    const Funcy* const blueprint; // For anonymous funcies which doesn't get any references
+    FuncyFrame* const frame;
 };
 
 class FuncyFrame {
+public:
+    FuncyFrame(std::set<Funcy> inheritedTypes) : inheritedTypes(inheritedTypes) {}
+
+    // Construct the new funcy with given parameters
+    virtual Funcy* construct(std::vector<Funcy*>& params);
+
+    // Find matching input type
+    virtual Funcy* matchingInputType(Funcy*);
+
+    // Find output type - maybe not needed
+    virtual Funcy* outputType(Funcy*);
+
+    // Check for inheritance
     bool inherits(Funcy* funcy) { return inheritedTypes.find(*funcy) != inheritedTypes.end(); }
 private:
-    std::map<Funcy, Funcy> ios;
-    std::set<Funcy> inheritedTypes;
+    const std::set<Funcy> inheritedTypes;
 };
 
-
-
-class NativeFuncy : Funcy {
+// Natives
+template<typename N>
+class NativeTypeFuncy : Funcy {
 public:
-    bool match(Funcy& funcy) { return true; }
-    Funcy& evaluate(Funcy& funcy) { return *this; }
+    Funcy& evaluate(Funcy& funcy) { throw 1; }
 };
 
+template<typename N>
+class NativeValueFuncy : Funcy {
+public:
+    NativeFuncy(N value) : value(value) { }
+
+    Funcy* evaluate(Funcy* funcy) { return this; }
+private:
+    const N value;
+};
+
+// Lambda
+class LambdaFuncy : Funcy {
+public:
+    virtual Funcy* evaluate(Funcy* funcy);
+private:
+};
+
+// Reference
 class ReferenceFuncy : Funcy {
 public:
-    bool match(Funcy& funcy) { return true; }
 private:
     std::string name;
 };
 
+// Containment
 class ContainmentFuncy : Funcy {
 public:
-    ContainmentFuncy(ReferenceFuncy* refName, Funcy* value) : Funcy(NULL), refName(refName), value(value) { }
+    ContainmentFuncy(ReferenceFuncy* refName, Funcy* value) : Funcy((FuncyFrame*)NULL), refName(refName), value(value) { }
 
-    bool match(Funcy* funcy) { return funcy == (Funcy*)this->refName; }
     Funcy* evaluate(Funcy* funcy) { return this->value; }
 private:
     ReferenceFuncy *const refName;
     Funcy *const value;
 };
 
+// Compound
 // A class which won't be used frequently - What's needed will be pre-selected.
 class CompoundFuncy : Funcy {
 public:
-    bool match(Funcy* funcy) {
-        for(int i = 0; i < internals.size(); i++)
-            if(internals[i].match(funcy))
-                return true;
-        return false;
-    }
-
     Funcy* evaluate(Funcy* funcy) {
-        for(int i = 0; i < internals.size(); i++)
-            if(internals[i].match(funcy))
-                return internals[i].evaluate(funcy);
+        for(int i = 0; i < internals.size(); i++) {
+            Funcy& func = internals[i];
+            Funcy* inputType = func.getFrame()->matchingInputType(funcy);
+            if(inputType != NULL)
+                return func.evaluate(funcy);
+        }
         throw 1;
     }
 private:

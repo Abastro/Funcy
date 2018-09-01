@@ -11,16 +11,15 @@
 // Implementation of Immutable Array on Funcy
 
 // Basics
-// TODO Declaration of Set of which inherits the type
-syntax Reference := TRUE -> String                 // Can't set it to String, ofc, as a Reference is different
-Containment := func V -> (Field -> V)       // Syntax here allows the containment
+// TODO To make inheritance sets, use %
+syntax Reference := TRUE -> String           // Can't set it to String, ofc, as a Reference is different
 
 // Templates here
-native template(expr) $`v` -> Reference
-template(func) `F` `v` := % ($v -> F) inherits Containment(F) // $ Declares the set which inherits all of it
+native template(expr) $`v` := Reference
+native template(expr) `v` := $v
 
-template(func) [`func F` `V`] `expre` := F V -> expre
-template(func) [`func F` `T`, `func G` `S`] `expre` := (F T, G S) -> expre
+template(expr) [`func F` `V`] `expr expre` := F V -> expre
+template(expr) [`func F` `T`, `func G` `S`] `expr expre` := (F T, G S) -> expre
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
 
 // Tutorials - Surely, a bad one, which means you won't get it if you're five
@@ -43,14 +42,14 @@ ThisIsOne := TF(TRUE)
 // So second expression `thisIsZero -> TF(FALSE)` maps field $thisIsZero to TF(FALSE) which is 0.
 // The compound `(Expr1, Expr2)` means it can map both of the inputs of Expr1 and Expr2 to their outputs.
 // This means they should both have disjoint input. (Usually it means differing type)
-TF2 := (Int i -> i + 1, thisIsZero -> TF(FALSE))
+TF2 := (Int i -> i + 1, thisIsZero : TF(FALSE))
 
 // This is what I meant. Don't ask why these are named like that.
 ThisIsTwo := TF2(1)
 ThisIsZero := TF2($thisIsZero)
 
 // The number of expression is not limited to two.
-TF3 := (Int i -> i * 2, what -> 3,  "Hello" -> "World")
+TF3 := (Int i -> i * 2, what : 3,  "Hello" : "World")
 ThisIsThree := TF3($what)
 ThisIsFour := TF3(2)
 ThisIsWorld := TF3("Hello") // "World"
@@ -92,8 +91,8 @@ ThisIsSeven := TF9(TF8)
 
 // Now compounds being virtual: It's just compound of virtual funcies.
 // No comments for this, figure it out yourself.
-TF9 := (Int number, Int -> Int)
-TF10 := (number -> 10, Int i -> i / 2) inherits TF10
+TF9 := (number : %Int, Int -> Int)
+TF10 := (number : 10, Int i -> i / 2) inherits TF10
 
 TF11 := TF9 val -> val($number)
 TF12 := TF9 val -> val(11)

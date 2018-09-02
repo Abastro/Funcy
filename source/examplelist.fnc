@@ -11,7 +11,6 @@
 // Implementation of Immutable Array on Funcy
 
 // Basics
-// TODO To make inheritance sets, use %
 syntax Reference := TRUE -> String           // Can't set it to String, ofc, as a Reference is different
 
 // Templates here

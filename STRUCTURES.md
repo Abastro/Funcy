@@ -10,12 +10,11 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A ***funcy*** is a set of a pair (I, O), where all such I are distinct to each other and all such O are different. Here, I is called an *inset*, and O is called *outset*.
 
-    1. Here union of insets I is called *domain*, and union of outsets O is called *image*.
+    1. Here union of insets I is called *domain*, and union of outsets O is called *image*. Also, there is a unique pair (I, O) for any x in the domain. Here I is called *domain of x*, and O is called *image of x*.
 
-    2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element.
-      It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
+    2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element. It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
 
-2. A ***type*** T of funcy F is a prototype funcy where for any pair (I, O) in F, there is a unique (J, P) in T where J contains I and P contains O. This implies funcy F can be used in place of funcy T - this meaning will be explained later.
+2. A ***type*** T of funcy F is a prototype funcy, where for any x in the domain of T, domain of x for F is a subset of domain of x for T, and image of x for F is also a subset of image of x for T. This means F can be used in place of T - this meaning will be explained later.
 
     * It is said that F *inherits* T in this case.
 

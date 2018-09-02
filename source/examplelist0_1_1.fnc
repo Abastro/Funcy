@@ -16,11 +16,13 @@ syntax Reference := TRUE -> String           // Can't set it to String, ofc, as 
 
 // Templates here
 native template(expr) $`v` := Reference
-native template(expr) `v` := $v
+template(expr) `v`:`A` := $`v` : `A`
 
+template(expr) `func F` `V` := `V` : %`F`
 template(expr) [`func F` `V`] `expr expre` := F V -> expre
 template(expr) [`func F` `T`, `func G` `S`] `expr expre` := (F T, G S) -> expre
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
+// Syntax for this of an array?
 
 // Tutorials - Surely, a bad one, which means you won't get it if you're five
 // Ah, right. You need to know programming basics for this.
@@ -62,7 +64,7 @@ TF3 := TF2
 // Here, the parameter name is omitted. This imply it takes integer parameters, which gives boolean output.
 // Of course, TF4(0) will give error as it does not have such mapping specified.
 // Wait, you don't get why it's undefined? Screw that, kiddos. Stop reading this.
-TF4 := Int -> Bool
+TF4 := Int -> %Bool
 
 // inherits declares the inheritance. Here it means TF5 can be used in the place of TF4 in substitution.
 // It is applied to the last expression which is grouped.
@@ -79,7 +81,7 @@ ThisISFalse := TF6(TF5)
 // This means field $value will give integers.
 // TF4($value) will give error, as it's not specified.
 // Instead, it could be used to call inherited funcies with virtual type.
-TF7 := Int value
+TF7 := value : Int
 
 TF8 := (value -> 7) inherits TF7
 
@@ -91,7 +93,7 @@ ThisIsSeven := TF9(TF8)
 
 // Now compounds being virtual: It's just compound of virtual funcies.
 // No comments for this, figure it out yourself.
-TF9 := (number : %Int, Int -> Int)
+TF9 := (number : %Int, Int -> %Int)
 TF10 := (number : 10, Int i -> i / 2) inherits TF10
 
 TF11 := TF9 val -> val($number)
@@ -114,36 +116,36 @@ TFLong := Int num ~ {
 
 
 // Lambda - (func V) -> (V v -> v) means template<typename V> anonymous(V v) { return v; } except it has no name
-Self    := [V] V -> V
+Self    := [V] V -> %V
 Id      := [V] (V v -> v) inherits Self(V)      // Function definition. Generics are simply function calls
-FromInt := [V] Int -> V
-ToBool  := [V] V -> Bool
+FromInt := [V] Int -> %V
+ToBool  := [V] V -> % Bool
 
-native For := [F] (F initial, ToBool(F) condition, Self(F) increase) -> F
+native For := [F] (F initial, ToBool(F) condition, Self(F) increase) -> %F
 
-toString := [V] V -> String
+toString := [V] V -> % String
 
-Consumer := [V, I] (V value, I input) -> C // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
+Consumer := [V, I] (V value, I input) -> %C // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
 
 Pair := [T, S] (T left, S right)     // Interface. Could be a type as well
 
 
 // Pointer
-native Pointer := [F] F value
+native Pointer := [F] value : %F
 
-native NullPointer := [F] Pointer(F)
-native NewPointer := [F] (String id) -> Pointer(F)
-native NewPointer := [F] (String id, Int size) -> Pointer     // Can assign another when the Parameter Type anywhere is different
+native NullPointer := [F] % Pointer(F)
+native NewPointer := [F] (func id) -> % Pointer(F)
+native NewPointer := [F] (func id, Int size) -> % Pointer     // Can assign another when the Parameter Type anywhere is different
 
-native OffsetGet := [F] (Pointer(F) pointer, Int offset) -> Pointer    // Anonymous compound declaration to easily specify parameters (and result later)
-native OffsetSet := [F] (Pointer(F) pointer, Int offset, V value) -> Pointer
+native OffsetGet := [F] (Pointer(F) pointer, Int offset) -> % Pointer    // Anonymous compound declaration to easily specify parameters (and result later)
+native OffsetSet := [F] (Pointer(F) pointer, Int offset, V value) -> % Pointer
 
 // Iterators
-Ite := [F] (F value)     // Virtual Funcy declared as a virtual compound
+Ite := [F] value : %F     // Virtual Funcy declared as a virtual compound
 
-HasNext := [Ite(?) I] (I -> Bool) // No need to specify the parameter here - thus wildcard it (It's folded)
-Next := [Ite(?) I] (I -> I) // Virtual Funcy
-Iterable := [Ite(?) I] (I head, HasNext hasNext, Next next) // Virtual Funcy declaration as a virtual compound - (Type1 name1, Type2 name2)
+HasNext := [Ite(?) I] (I -> % Bool) // No need to specify the parameter here - thus wildcard it (It's folded)
+Next := [Ite(?) I] (I -> %I) // Virtual Funcy
+Iterable := [Ite(?) I] (head : %I, hasNext : % HasNext(I), next : % Next(I)) // Virtual Funcy declaration as a virtual compound - (Type1 name1, Type2 name2)
 
 ItePair := [F, V] Pair(Ite(F) ite, V val)
 // Parameter is automatically wrapped into compound
@@ -155,16 +157,13 @@ Loop := [V, F] (Iterable(F) iterable, V initial, Consumer(V, F) consumer)
                 ) // Auto-complete things here
 
 // Buffer
-StringState;                               // Well, this is just a name
+StringState;                               // Well, this is just a name - needs to improve this
 Printer := Consumer(StringState, String)    // Un-genericized interface
 OutSite := (Printer print, StringState initial)
 native Console := (OutSite)() inherits OutSite     // Synthetic Sugar
 
 Print := [OutSite site] (StringState state, func printed) -> site(print)(state, toString(printed)))
                 inherits Consumer(StringState, func)
-
-VarState = Field -> func;
-Set := [V] (VarState state, Field field, ) -> 
 
 namespace Array {
     Ite := [F] (Int size, Int index, Pointer pointer,
@@ -203,8 +202,8 @@ Array::Set := [F] (Array(F) array, Integer index, F value) ~ {
     newHead := Setter(array(head), index, value);
 } -> (Array(F)) (array, head -> newHead) // Syntax sugar for compound creation
 
-AsArray = [F] (String id, F a1, F a2, F a3) ~ {
-    pointer := NewPointer(F)(id, 3);
+AsArray = [F] (F a1, F a2, F a3) ~ {
+    pointer := NewPointer(F)((p1 : a1, p2 : a2, p3 : a3), 3);
 } -> (Array) (3, -1, pointer)
 
-Main = String par -> Loop(AsArray("arr", 1, 2, 3), Console($initial), Print(Console)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas
+Main = String par -> Loop(AsArray(1, 2, 3), Console($initial), Print(Console)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

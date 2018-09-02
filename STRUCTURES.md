@@ -1,6 +1,6 @@
 # Preface
 
-Funcy is an unusual functional programming language, which doesn't have anything other than *funcies* and forces you to use singular parameters and return to the functions. Here, the result should be singular, composite function calls.
+Funcy is an unusual functional programming language, which doesn't have anything other than *funcies* and forces you to use singular arguments and return to the functions. Here, the result should be singular, composite function calls.
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
@@ -43,12 +43,12 @@ It's capable of all things programming languages can do, because it includes lam
 
     * any reference sends {`TRUE`} to the name of the reference. It is a constant funcy.
 
-    * Basic arithmetic operators are self-explanatory - Some does take more than one parameters, which are modeled as compound containments. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
+    * Basic arithmetic operators are self-explanatory - Some does take more than one arguments, which are modeled as compound containments. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
 
-3. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the parameters.
-  The expression is, basically, a declaration of another funcy when parameters are declared.
+3. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the arguments.
+  The expression part is, basically, a declaration of another funcy when arguments are declared.
 
-4. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple parameters.
+4. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple arguments.
 
 5. ***Containment funcy*** usually serves the purpose to simulate member funcies and better type system.
 
@@ -60,11 +60,13 @@ It's capable of all things programming languages can do, because it includes lam
 
 0. Every lines of funcy represents *declared funcy* - this is called ***declaration***, opposed to ***expression*** which represents an actual funcy and ***presentation*** which represents a set of funcy. *expression* can be regarded as singleton *presentation*
 
+1 ***type*** requires an expression which represents declared funcy.
+
 1. ***Declared funcy*** requires the syntax `name := (expression)` to declare the funcy given by expression with the name `name`. Its name forms an *expression*.
 
 2. All of ***Internal funcy*** are internally declared, so that its name can be used to form *expression*
 
-3. ***Lambda funcy*** forms an *expression*. This takes these syntax:
+3. ***Lambda funcy*** forms an *expression*. This takes these syntax when `P` is a declared funcy:
 
     * `P param -> (presentation)` for simplistic ones - param is assumed to be declared in the scope. Sends param to the set given by the presentation.
 
@@ -78,16 +80,32 @@ It's capable of all things programming languages can do, because it includes lam
 
 5. ***Containment funcy*** forms an *expression* requiring `name : (presentation)` where funcy `name` is declared.
 
-6. ***Substitution*** forms an *expression* requiring `name(expression)` where the (simple) expression is applied to the declared funcy `name`.
+6. ***Substitution*** forms an *expression* requiring `name(expression)` where the (simple) expression is applied to the declared funcy `name`. It gives a *declared funcy* when the expression argument is also declared.
 
-7. ***Inheritance Operator*** is used to create *presentation* from an expression, with syntax of `%(expression)`. It gives a set of funcies which inherits the funcy given by the expression.
+7. ***Inheritance*** is used to declare inheritance. `expression inherits name` declares the expression to inherit the declared funcy of `name` - it's useful when the expression represents a *declared funcy*.
 
-8. ***Native funcy*** forms an *declaration* requiring `native name := (expression)` to declare funcy with the name `name`, where the expression represents *virtual funcy*. This gets the implementation from other language.
+8. ***Inheritance Operator*** is used to create *presentation* from an expression, with syntax of `%(expression)`. It gives a set of funcies which inherits the funcy given by the expression.
+
+9. ***Native funcy*** forms an *declaration* requiring `native name := (expression)` to declare funcy with the name `name`, where the expression represents *virtual funcy*. This gets the implementation from other language.
+
+10. ***Wildcard funcy*** `?` forms an *expression* representing declared funcies which is used as types to reduce additional bloats. Can be applied when the parameter is not involved in the syntax being used.
 
 ## Shortcut Syntax
 
-1. ***Template Statement*** is used to make a shortcuts for *declaration / expression / presentation*. It requires t syntax of `template(tmpltype) syntaxPre := syntaxPost`. This applies additional conversion rule for less bloats.
+1. ***Template Statement*** is used to make a shortcuts for *declaration / expression / presentation*. It requires the syntax of `template(tmpltype) syntaxPre := syntaxPost` which converts the `syntaxPre` in `tmpltype` scope to `syntaxPost`. This applies additional conversion rule for less bloats.
 
-2. ***Referential Containment Compound Expansion(RCCE)*** is used to cull the parameter name out from the lambda when unnecessary. Field inspection of the parameter `param($ref)` becomes `ref` instead.
+    * `tmpltype` defines the scope to check for the syntax.
 
-3. ***Declared Parameter Prediction*** is used to cull the obvious parameters out so the code could be more readable with less parenthesis.
+    * `syntaxPre` could involve `argument` to match names and such. It could be either name(`T`), funcy(`func F`), or expression(`expr E`). It is used in the `syntaxPost`
+
+2. ***Referential Containment Compound(RCC) Inlining*** is used to inline the RCC funcy declaration/expression.
+
+    * When used as an *argument*, declaration of RCC is inlined in an argument, and cull the argument name out from the lambda funcy. Because the name to reference is missing, expression of the argument `param($ref)` becomes `ref` instead. (This feature might be in additional module)
+
+    * When used as an *input* of substitution, expression of RCC is automatically inherits the argument type if it wasn't. Also it could make use of the format described below.
+
+    * Any *expression* of RCC can be simplified. E.g. `(rcc) inherits P` could be `(P) (rcc)`. Moreover, if it matches the format of P, it can be simplified further to remove the reference names. Order becomes important in this case.
+
+3. ***Declared argument Prediction*** is used to cull the obvious arguments from a substitution out so the code could be less verbose. It predicts arguments in these cases:
+
+    * When a lambda function uses the argument to specify the type in its expression (In this case, declared funcy is favored as an argument). It guesses from the type required, and latter expressions if it uses more substitution.

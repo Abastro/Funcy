@@ -4,107 +4,93 @@ Funcy is an unusual functional programming language, which doesn't have anything
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
-# Definitions
+# Basis Module
 
-## Mathematical
+## Definitions
+
+### Mathematical
+
+0. Let's assume the *set of everything* or the *whole set* exists. This is possible because only finite instructions could be added, thus the set of everything which can be expressed via code is also not too big to introduce contradiction.
 
 1. A ***funcy*** is a set of a pair (I, O), where all such I are distinct to each other and all such O are different. Here, I is called an *inset*, and O is called *outset*.
 
-    1. Here union of insets I is called *domain*, and union of outsets O is called *image*. Also, there is a unique pair (I, O) for any x in the domain. Here I is called *domain of x*, and O is called *image of x*.
+    1. Here union of insets I is called *domain*, and union of outsets O is called *image*. Also, there is a unique pair (I, O) for any x in the domain. Here I is called *domain of x*, and O is called *image of x*. It could be easily proved that this is equivalent with a function which sends x to the image of x.
 
     2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element. It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
 
-2. A ***type*** T of funcy F is a prototype funcy, where for any x in the domain of T, domain of x for F is a subset of domain of x for T, and image of x for F is also a subset of image of x for T. This means F can be used in place of T - this meaning will be explained later.
+2. ***Set funcy*** is a kind of simple funcy where the domain is the whole set whose outsets are either {TRUE} or {FALSE}. It represents the inset which corresponds to {TRUE}.
 
-    * It is said that F *inherits* T in this case.
+3. funcy F is said to ***inherit*** funcy T, where for any x in the domain of T, domain of x for F is a subset of domain of x for T, and image of x for F is also a subset of image of x for T. This means F can be used in place of T - this meaning will be explained later.
 
-    * A type needs to be explicitly stated if a function has a given type, as such check is not feasible.
+    * T could be used as a *type* of F in this case.
 
-3. ***Compound funcy*** is a special funcy which is defined as a union of several funcies. All of them should have disjoint insets.
+    * Inheritance needs to be explicitly stated, as such check is not feasible.
 
-4. ***Containment funcy*** is a special funcy which is simply {(I, O))} where I is a singleton.
+4. ***Compound funcy*** is a kind of funcy which is defined as a union of several funcies. Prior set takes advantage of deciding the image of x for any x in the union of domain.
 
-5. ***Constant funcy*** is a special funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
+5. ***Containment funcy*** is a kind of funcy which is simply {(I, O))} where I is a singleton.
 
-5. ***Substitution*** F(V), where F is a declared funcy and V is a simple funcy, is defined to be an element of outset O if and only if there is a pair (I, O) in F where inset I contains V and O is a singleton.
+6. ***Constant funcy*** is a kind of funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
 
-## Specification
+7. ***Substitution*** F(v), where F is a funcy and v is a funcy, is defined to be the outset O for a pair (I, O) in F where inset I contains v as an element.
 
-1. ***Declared funcy*** is a funcy with its name given - those funcies are said to be *declared*.
+### Specification
 
-2. ***Internal funcy*** is a special funcy which is declared internally. This includes `Bool`, `Int`, `Float`, `Reference`(parent of references e.g. `$name`), and such constants. Also, basic arithmetic operators and control statements are included. (Reference might be deferred later)
+1. ***Declared funcy*** is a funcy which can be referenced. These funcies are said to be *declared*. It could either be fully defined or defined in a limited way.
 
-    * `Bool`, `Int`, `Float`, `Byte`, `String` sends the total set to set of `Bool`/`Int`/`Float`/`Byte`/`String` and its inheritors itself
+2. ***Internal funcy*** is a kind of funcy which is declared internally. This includes `Bool`, `Int`, `Float`, `Character`, `String`. Also, basic arithmetic operators and control statements are included.
+
+    * `Bool`, `Int`, `Float`, `Character`, `String` sends the total set to set of `Bool`/`Int`/`Float`/`Character`/`String` and its inheritors itself.
 
     * any boolean, integer, floating point constants sends the total set to the constant. They are constant funcies.
 
-    * Reference sends {`TRUE`} to set of String and its inheritors.
+    * Basic arithmetic operators are self-explanatory - Some does take more than one arguments, which are modeled as compound containers. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
 
-    * any reference sends {`TRUE`} to the name of the reference. It is a constant funcy.
-
-    * Basic arithmetic operators are self-explanatory - Some does take more than one arguments, which are modeled as compound containments. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
-
-3. ***Lambda funcy*** is a typical funcy where the result is given by expression based on the arguments.
+3. ***Lambda funcy*** is a kind of funcy where the result is given by expression based on the argument.
   The expression part is, basically, a declaration of another funcy when arguments are declared.
 
 4. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple arguments.
 
-5. ***Containment funcy*** usually serves the purpose to simulate member funcies and better type system.
+5. ***Container funcy*** usually serves the purpose to simulate member funcies and better type system.
 
-6. ***Native funcy*** is a special funcy which is declared to use native implementations.
+6. ***Native funcy*** is a special funcy which is declared to use native implementations or inter-operations.
 
-# Syntax
+## Syntax
 
-## Basic Syntax
+### Basic Syntax
 
-0. Every lines of funcy represents *declared funcy* - this is called ***declaration***, opposed to ***expression*** which represents an actual funcy and ***presentation*** which represents a set of funcy. *expression* can be regarded as singleton *presentation*
+0. Every lines of funcy represents *declaration* of funcy, which links it with certain name so it could be referenced by the name.
 
-1 ***type*** requires an expression which represents declared funcy.
+1. ***Declared funcy*** requires the syntax `(name) := (funcy)` to declare the *funcy* with the name `name`. This forms *declaration*.
 
-1. ***Declared funcy*** requires the syntax `name := (expression)` to declare the funcy given by expression with the name `name`. Its name forms an *expression*.
+2. All of ***Internal funcy*** are internally declared.
 
-2. All of ***Internal funcy*** are internally declared, so that its name can be used to form *expression*
+3. ***Funcy Conditional*** is used to declare the funcy in a limited way. It takes `name -= (set)` to declare the funcy with the name which is within the set represented by the set funcy. The declared funcy in this way is quite restricted on usage.
 
-3. ***Lambda funcy*** forms an *expression*. This takes these syntax when `P` is a declared funcy:
+4. ***Native funcy*** forms an *declaration* requiring `native (conditional(name))` where conditional represents *funcy conditional*, to declare funcy with the name `name` which is guaranteed to be in the set represented by the set funcy. This allows to lack implementation, so that it could get the implementation from basis / other language.
 
-    * `P param -> (presentation)` for simplistic ones - param is assumed to be declared in the scope. Sends param to the set given by the presentation.
+5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
 
-    * `P param ~ {declaration(s)} -> (presentation)` for complex ones - param is assumed to be declared in the scope. Does the same as above.
+    * `(conditional(arg)) -> (set(arg))` for simplistic ones - arg is assumed to be declared in the scope. Sends arg to the set described with the argument.
 
-    * `P -> (presentation)` for constant/virtual - sends set of funcies which inherits P to the presentation.
+    * `(conditional(arg)) ~ {decls(arg)} -> (set(arg))` for complex ones - arg is assumed to be declared in the scope. Does the same as above.
 
-    * Note that `func` is used when there is no type to specify.
+    * `conditional(arg)` could be replaced by the argument restricting set itself when the result set is constant to the arguemtn.
 
-4. ***Compound funcy*** forms an *expression* requiring `(expression_1, expression_2, ..., expression_n)` where n can be any positive integer, which means union of these funcies given by each expression.
+5. ***Compound funcy*** requires `funcy_1, funcy_2, ..., funcy_n` where n can be any positive integer, which means union of these funcies given by each expression. Things on the left have higher priority.
 
-5. ***Containment funcy*** forms an *expression* requiring `name : (presentation)` where funcy `name` is declared.
+6. ***Substitution*** gives a set funcy which represents the outset of the funcy. This requires `name-(funcy)` where the expression is applied to the declared funcy `name`. In case of `name` declared with funcy conditional, it can only be applied in the parent form which all elements of the set inherit. In case of `funcy` declared with funcy conditional, it can only be applied when  It gives a declared funcy when the expression argument is also declared.
 
-6. ***Substitution*** forms an *expression* requiring `name(expression)` where the (simple) expression is applied to the declared funcy `name`. It gives a *declared funcy* when the expression argument is also declared.
+7. ***Inheritance*** is used to declare inheritance. `(funcy) inherits (name)` declares the funcy to inherit the declared funcy of `name`. The funcy defined by this syntax itself should be declared, i.e. can be referenced as well.
 
-7. ***Inheritance*** is used to declare inheritance. `expression inherits name` declares the expression to inherit the declared funcy of `name` - it's useful when the expression represents a *declared funcy*.
+8. ***Inheritance operator*** requires `%(name)`, which gives a set funcy which represents the set of funcy which inherits the declared funcy `name`. When `name` is the native ones, the set does not include the native one.
 
-8. ***Inheritance Operator*** is used to create *presentation* from an expression, with syntax of `%(expression)`. It gives a set of funcies which inherits the funcy given by the expression.
+9. ***Singleton opearator*** requires `{name}`, which gives a set funcy which represents the singleton containing the funcy `name`.
 
-9. ***Native funcy*** forms an *declaration* requiring `native name := (expression)` to declare funcy with the name `name`, where the expression represents *virtual funcy*. This gets the implementation from other language.
-
-10. ***Wildcard funcy*** `?` forms an *expression* representing declared funcies which is used as types to reduce additional bloats. Can be applied when the parameter is not involved in the syntax being used.
-
-## Shortcut Syntax
+### Shortcut Syntax
 
 1. ***Template Statement*** is used to make a shortcuts for *declaration / expression / presentation*. It requires the syntax of `template(tmpltype) syntaxPre := syntaxPost` which converts the `syntaxPre` in `tmpltype` scope to `syntaxPost`. This applies additional conversion rule for less bloats.
 
     * `tmpltype` defines the scope to check for the syntax.
 
     * `syntaxPre` could involve `argument` to match names and such. It could be either name(`T`), funcy(`func F`), or expression(`expr E`). It is used in the `syntaxPost`
-
-2. ***Referential Containment Compound(RCC) Inlining*** is used to inline the RCC funcy declaration/expression.
-
-    * When used as an *argument*, declaration of RCC is inlined in an argument, and cull the argument name out from the lambda funcy. Because the name to reference is missing, expression of the argument `param($ref)` becomes `ref` instead. (This feature might be in additional module)
-
-    * When used as an *input* of substitution, expression of RCC is automatically inherits the argument type if it wasn't. Also it could make use of the format described below.
-
-    * Any *expression* of RCC can be simplified. E.g. `(rcc) inherits P` could be `(P) (rcc)`. Moreover, if it matches the format of P, it can be simplified further to remove the reference names. Order becomes important in this case.
-
-3. ***Declared argument Prediction*** is used to cull the obvious arguments from a substitution out so the code could be less verbose. It predicts arguments in these cases:
-
-    * When a lambda function uses the argument to specify the type in its expression (In this case, declared funcy is favored as an argument). It guesses from the type required, and latter expressions if it uses more substitution.

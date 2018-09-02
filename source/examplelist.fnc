@@ -1,25 +1,30 @@
 /* 
- * Funcy is a language around idea of mathematical functions
- * Also, Compound is important in funcy - it's an easy way to introduce normal code for one-parameter function world
- * Also there is an interface function and simple function - interface function usually serves its role as a type
- * Here, 'Type value' means : the function 'value' inherits the function 'Type'. Surprisingly, it works well as traditional view on type
- * Inheritance is like this: The child function needs to be defined for all domain of the parent function, mapping all value to the codomain of the parent function.
- * Take a look!
+ * Funcy is a language based on funcy, set-to-set functions.
  * (It has LGPL v3.0 license)
  */
 
 // Implementation of Immutable Array on Funcy
 
 // Basics
-syntax Reference := TRUE -> String           // Can't set it to String, ofc, as a Reference is different
+syntax NativeSet := value -> % Bool
+
+&match := TRUE
+&replace := FALSE
 
 // Templates here
-native template(expr) $`v` := Reference
-template(expr) `v`:`A` := $`v` : `A`
+// Makes it possible to use more heuristic way to define conditional for typed funcy
+template(cond) ( &match -> "\p{decl} +\p{name}", &replace -> "\2 -= %\1" )
+// How to declare the template which involves the target?
 
-template(expr) `func F` `V` := `V` : %`F`
-template(expr) [`func F` `V`] `expr expre` := F V -> expre
-template(expr) [`func F` `T`, `func G` `S`] `expr expre` := (F T, G S) -> expre
+syntax Reference := TRUE -> % String           // Can't set it to String, ofc, as a Reference is different
+
+template(func) EasyReference := ( &match -> "$\p{name}", &replace -> "(TRUE -> \"\1\") inherits Reference" )
+template(func)  ( &match -> "\p{name} *: *\p{func}", &replace -> "$\1:\2" )
+
+template(func) VirtContainer := ( &match -> "\p{decl} +\p{name}", &replace -> "\2 : %\1" )
+template(func) Generics := ( &match -> "[(\p{decl} +\p{name})*] \p{func}", &replace -> "\1 \2 -> \3")
+// Welp, how to formulate this in right way
+template(func) [`func F` `T`, `func G` `S`] `expr expre` := (F T, G S) -> expre
 //template [F T, G S, H U] := expr -> ((F T, G S, H U) -> expr)
 // Syntax for this of an array?
 
@@ -31,12 +36,11 @@ template(expr) [`func F` `T`, `func G` `S`] `expr expre` := (F T, G S) -> expre
 // `:=` is the declaration operator, which declares the funcy in the right with the name `TF` on the left.
 // `Bool` is a funcy which serves as a type for booleans.
 // `Bool switch` part declares switch as a boolean parameter, which can be used on the latter expression.
-// Btw, you know what 'switch? 1 : 0'? No? Then halt reading and go back to programming basics.
-TF := Bool switch -> switch? 1 : 0
+TF := Bool switch -> !switch
 
 // Substitutes the parameter with actual boolean value, which evaluates the funcy as well.
 // Instructions unclear? Then just don't post issues on my github pls
-ThisIsOne := TF(TRUE)
+ThisIsFalse := TF(TRUE)
 
 // `Int` is a funcy for integers - now first expression `Int i -> i+1` part *should* make sense.
 // `thisIsZero` is the field name - it doesn't have the type declared, if you look at it carefully.

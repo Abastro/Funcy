@@ -33,11 +33,11 @@
 			"patterns": [
 				{
 					"name": "keyword.other",
-					"match": "\\b(If|While|For|Bool|Int|Float|String|Pointer)\\b"
+					"match": "\\b(If|While|For|Bool|Int|Float|String)\\b"
 				},
 				{
 					"name": "keyword.control",
-					"match": "\\b(import|as|inherits|template|syntax|obj|func|var|void|native)\\b"
+					"match": "\\b(import|export|as|inherits|template|syntax|obj|func|var|void|native)\\b"
 				},
 				{
 					"name":"constant",

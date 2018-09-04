@@ -1,8 +1,5 @@
-(inc -= &Inclusions) ~ {
-    import {
-        #common.basis.Import
-    }
-} -> export {
+import #common.basis.Import
+(import inc) -> export {
     // Basics
     syntax NativeSet := value -> % Bool
 

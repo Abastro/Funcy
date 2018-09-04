@@ -1,8 +1,8 @@
-(inc -= &Inclusions) -> export {
-    import (
-        #common.basis.Import,
-        #common.basis.Format,
-        #common.basis.Types
+import #common.basis.Import
+(import inc) -> export {
+    import None := (
+        #common/basis/Format,
+        #common/basis/Types
     )
     // Definition of Pointer for certain type.
     Pointer := F -> &($value -> &F)

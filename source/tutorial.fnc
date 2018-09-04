@@ -1,9 +1,8 @@
-{
-
-}
-() ~ {
-    // Tutorials - Surely, a bad one, which means you won't get it if you're five
-    // Ah, right. You need to know programming basics for this.
+// Tutorials - Surely, a bad one, which means you won't get it if you're five
+// Ah, right. You need to know programming basics for this.
+import lib(#common.basis.Import)
+(import inc) -> export {
+    import None := #common.basis.Format
 
     // This is a common syntax to declare a 'funcy'. It describes, basically, every object in this language.
     // Here, you can see a funcy is declared with the name on the left('TF') to have value on the right.
@@ -60,7 +59,7 @@
     // Instead, it could be used to call inherited funcies with virtual type.
     TF7 := value : Int
 
-    TF8 := (value -> 7) inherits TF7
+    TF8 := (value : 7) inherits TF7
 
     // Again, V($value) could exist as val is not determined.
     TF9 := TF7 val -> val($value)
@@ -89,5 +88,4 @@
     // Basics are all covered now.
     // Everything from now on is just shortcuts.
     // TODO - describe shortcuts, especially with compounds - because they are annoying to write as whole.
-
-} -> FALSE
+}

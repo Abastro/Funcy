@@ -4,12 +4,15 @@ import -> export {
     // In buffer
     InState -= TRUE
 
-    // Out Buffer
-    // How to declare an opaque type?
-    OutState -= TRUE                  // OutState needs to be opaque
-    Printer := Consumer(OutState, String)
-    OutSite := (Printer print, OutState initial)
-    Console -= &OutSite
+    // Opaque OutState
+    OutState -= TRUE
+
+    // Out-related interfaces
+    Writer := Consumer(OutState, String)
+    OutStream := (Writer writer, OutState current)
+
+    Console -= #OutSite
+
     Print := [OutSite site] (StringState state, func printed) ->
         site(print)(state, toString(printed))) inherits Consumer(StringState, func)
 }

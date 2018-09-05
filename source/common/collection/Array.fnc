@@ -3,48 +3,68 @@ import "common.basis.Import"
     import None := import "common.basis.format", "common.basis.Types", "common,basis.Pointer", "common.collection.Ites"
 
     ArrayIte := [F] (
-        Int size, Int index, Pointer pointer,
-        value -> OffsetGet(F)(value(pointer), index)
+        Int size,
+        Int index,
+        Pointer(F) head,
+        value : OffGet(F)(head, index)($value)
     ) inherits Ite(F)     // Mixed interface compound declaration
     NullArrayIte := [F] (0, 0, NullPointer(F)) inherits ArrayIte(F)
 
+    hid Setter := [F] (ArrayIte(F) ite, Int index, F val) ~ {
+        newp := OffSet(ite(pointer), index, value)
+    } -> (ArrayIte(F)) (ite, pointer -> newp) // Syntax sugar for compound declaration
+
     Array := [F] (
         ArrayIte(F) head,
+
         hasNext : [F] (ArrayIte(F) ite -> ite(size) < ite(index)) inherits Iterable(Ite(F))($hasNext),
+
         next : [F] ~ {
             I := ArrayIte(F)
-            internal := (I ite ~ {
-                len := ite(size)
-                ind := ite(index) + 1
-                newp := OffsetGet(ite(pointer), 1)
-            } -> Choose(len < ind)((I) (len, ind, newp), NullIte(F))) inherits Iterable(Ite(F))($next)
-        },
-        indexer : FromInteger(F),
-        setter : Setter(F),
-    ) inherits Iterable(Ite(F)), FromInteger(F)
+        } -> (I ite ~ {
+            len := ite(size)
+            ind := ite(index) + 1
+            newp := OffGet(ite(pointer), 1)
+        } -> Choose(len < ind) ((I) (len, ind, newp), NullArrayIte(F))) inherits Iterable(Ite(F))($next),
 
-    hid Setter := [F] (ArrayIte(F) ite, Int index, F val) ~ {
-        newp := OffsetSet(ite(pointer), index, value)
-    } -> (ArrayIte(F)) (ite, pointer -> newp) // Syntax sugar for compound declaration
+        indexer : [F]  FromInteger(F),
+        setter : (ArrayIte(F) ite, Int index, F val),
+    ) inherits Iterable(Ite(F)), FromInteger(F)
 
     Set := [F] (Array(F) array, Integer index, F value) ~ {
         newHead := Setter(array(head), index, value);
-    } -> (Array(F)) (array, head -> newHead) // Syntax sugar for compound creation
+    } -> (Array(F)) (array, head -> newHead)
 
-    NewArray := [F] (func id, Int size) ~ {
-        pointer := NewPointer(F)(id, size)
-    } -> (Array(F)) (Ite(F)) (size, -1, pointer)
+
+    NewArray := [F] Int size -> Comp(
+        WrapS(NewPointer(F)),
+        WrapT(Pointer(F) pointer -> (Array(F)) (Ite(F)) (size, -1, pointer))
+    )
+
+    DelArray := [F] Comp(
+        WrapT(Array(F) array -> array($head)($pointer)),
+        WrapC(DelPointer(F))
+    )
 
     AsArray := [F] (
-        (F a1) -> Set(NewArray(a1), , )
-        (F a1, F a2) ~ {
-            pointer := NewPointer(F)((p1 : a1, p2 : a2), 2);
-        } -> (Array(F)) (Ite(F)),
-        (F a1, F a2, F a3) ~ {
-            pointer := NewPointer(F)((p1 : a1, p2 : a2, p3 : a3), 3);
-            pointer1 := OffsetSet(ite(pointer), 0, a1)
-            pointer2 := OffsetSet(ite(pointer), 1, a2)
-            pointer3 := OffsetSet(ite(pointer), 2, a3)
-        } -> (Array(F)) (Ite(F)) (3, -1, pointer3)
+        (F a1) -> Comp(
+            NewArray(F)(1),
+            WrapT(Array(F) array -> Set(array, 0, a1))
+        ),
+        (F a1, F a2) -> Comp(
+            NewArray(F)(2),
+            WrapT(Comp(
+                Array(F) array -> Set(array, 0, a1),
+                Array(F) array -> Set(array, 1, a2)
+            ))
+        ),
+        (F a1, F a2, F a3) -> Comp(
+            NewArray(F)(3),
+            WrapT(Comp(
+                Array(F) array -> Set(array, 0, a1),
+                Array(F) array -> Set(array, 1, a2),
+                Array(F) array -> Set(array, 2, a3)
+            ))
+        ),
     )
 }

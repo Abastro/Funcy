@@ -5,10 +5,12 @@ import -> export {
     Pointer := [F] F value
 
     // Evaluates Null Pointer when the type is given.
-    NullPointer -= &(F -> &Pointer(F))
-    NewPointer -= &[F] (id) -> &Pointer(F)
-    NewPointer -= &[F] (id, Int size) -> &Pointer(F)     // Can assign another when the Parameter Type anywhere is different
+    NullPointer -= #(F -> #Pointer(F))
+    NewPointer -= #[F] (
+        id -> #Pointer(F),
+        (id, Int size) -> #Pointer(F)
+    )
 
-    OffsetGet -= &[F] (Pointer(F) pointer, Int offset) -> &Pointer(F)    // Anonymous compound declaration to easily specify parameters (and result later)
-    OffsetSet -= &[F] (Pointer(F) pointer, Int offset, V value) -> &Pointer(F)
+    OffsetGet -= #[F] (Pointer(F) pointer, Int offset) -> #Pointer(F)    // Anonymous compound declaration to easily specify parameters (and result later)
+    OffsetSet -= #[F] (Pointer(F) pointer, Int offset, V value) -> #Pointer(F)
 }

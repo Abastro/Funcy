@@ -1,5 +1,5 @@
 import #common.basis.Import
-(import inc) -> export {
+import -> export {
     // Basics
     syntax NativeSet := value -> % Bool
 

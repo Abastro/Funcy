@@ -3,11 +3,7 @@
  * (It has LGPL v3.0 license)
  */
 
-{ import None := #common.basis.Import }
-(import inc) ~ {
-    import None := (
-        #common.basis.Import,
-        #common.basis.Format,
-        #common.basis.Types
-    )
+import "common.basis.Import"
+import ~ {
+    import None := import "common.basis.Format", "common.basis.Types", "common.basis.Buffer", "common.basis.Ites", "common.basis.Array"
 } -> Loop(AsArray(1, 2, 3), Console($initial), Print(Console)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

@@ -1,12 +1,6 @@
-import #common.basis.Import
+import "common.basis.Import"
 (import inc) export {
-    import None := (
-        #common.basis.Import,
-        #common.basis.Format,
-        #common.basis.Types,
-        #common.basis.Pointer,
-        #common.collection.Ites
-    )
+    import None := import "common.basis.format", "common.basis.Types", "common,basis.Pointer", "common.collection.Ites"
 
     Ite := [F] (
         Int size, Int index, Pointer pointer,

@@ -1,9 +1,7 @@
-(inc -= &Inclusions) ~ {
-    import {
-        #common.basis.Format
-        #common.basis.Format
-    }
-} -> export {
+import "#common.basis.Import"
+import -> export {
+    import None := import "common.basis.Format"
+
     Self    := [V] &V -> &V
     Id      := [V] (V v -> v) inherits Self(V)      // Function definition. Generics are simply function calls
     FromBool := [V] &Bool -> &V

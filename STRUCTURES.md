@@ -40,7 +40,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 2. ***Internal funcy*** is a kind of funcy which is declared internally. This includes `Bool`, `Int`, `Float`, `Character`, `String`. Also, basic arithmetic operators and control statements are included.
 
-    * `Bool`, `Int`, `Float`, `Character`, `String` sends the total set to set of `Bool`/`Int`/`Float`/`Character`/`String` and its inheritors itself.
+    * `Bool`, `Int`, `Float`, `Char` sends the total set to set of `Bool`/`Int`/`Float`/`Char` and its inheritors itself.
 
     * any boolean, integer, floating point constants sends the total set to the constant. They are constant funcies.
 
@@ -66,6 +66,8 @@ It's capable of all things programming languages can do, because it includes lam
 2. All of ***Internal funcy*** are internally declared.
 
 3. ***Funcy Conditional*** is used to declare the funcy in a limited way. It takes `name -= (set)` to declare the funcy with the name which is within the set represented by the set funcy. The declared funcy in this way is quite restricted on usage.
+
+    * Can be replaced with the `name` itself when the set is the total set.
 
 4. ***Native funcy*** forms an *declaration* requiring `native (conditional(name))` where conditional represents *funcy conditional*, to declare funcy with the name `name` which is guaranteed to be in the set represented by the set funcy. This allows to lack implementation, so that it could get the implementation from basis / other language.
 

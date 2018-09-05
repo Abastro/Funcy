@@ -1,17 +1,11 @@
-{
-    Inclusions := (
-        lib(#common.basis.Import),
-        lib(#common.basis.Format),
-        lib(#common.basis.Types),
-    )
-}
-(inc -= &Inclusions) ~ {
-    import inc(#common.basis.Import),
-    import inc(#common.basis.Format),
-    import inc(#common.basis.Types)
-} -> export {
+import "common/basis/Import"
+import -> export {
+    import None := import "common/basis/Format", "common/basis/Types"
+
     // Iterators
     Ite := [F] value : %F     // Virtual Funcy declared as a virtual compound
+
+    Iterable := [Ite(?) I] (I head, $hasNext -> #(I -> #Bool), $next -> #(#I -> #I)
 
     HasNext := [Ite(?) I] (I -> % Bool) // No need to specify the parameter here - thus wildcard it (It's folded)
     Next := [Ite(?) I] (I -> %I) // Virtual Funcy

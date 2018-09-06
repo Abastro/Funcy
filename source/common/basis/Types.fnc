@@ -22,22 +22,32 @@ import -> export {
     Consumer := [V] [I] (V value, I input) -> #V // Maps to nothing here - an interface is first shown here. Native means it's fullfiled
     Supplier := [V] [O] #V -> (V value, O output)
 
+    // States
+    State := [C] [S] (C const, S var)
+
+    StateT := [C] [S] Consumer(S)(C) consumer -> (
+        State(C)(S) state -> (State(C)(S)) (
+            state($const),
+            consumer(state($var), state($const))
+        )
+    ) inherits Id(State(C)(S))
+
+    // Wraps
     Wrap := [V] [C] (V value, C content)
 
-    WrapC := [V] [I] (Wrap(V)(I) wrapped) -> (
-        Consumer(V)(I) consumer -> (Wrap(V)(FALSE)) (
-            consumer(wrapped($value), wrapped($content)),
-            FALSE
+    WrapC := [V] [I] Consumer(V)(I) consumer -> (
+        Wrap(V)(I) wrapped -> (Wrap(V)(FALSE)) (
+            consumer(wrapped($value), wrapped($content)), FALSE
         )
     )
 
-    WrapS := [V] [O] (Wrap(V)(?) wrapped) -> (
-        Supplier(V)(O) supplier ~ {
+    WrapS := [V] [O] Supplier(V)(O) supplier -> (
+        Wrap(V)(?) wrapped ~ {
             pair := supplier(wrapped($value))
         } -> (Wrap(V)(O)) (pair($value), pair($content))
     )
 
-    WrapT := [V] [I, O] (Wrap(V)(I) wrapped) -> (
-        Transform(I, O) transform -> (Wrap(V)(O)) (wrapped($value), transform(wrapped($content)))
+    WrapT := [V] [I, O] Transform(I, O) transform -> (
+        Wrap(V)(I) wrapped -> (Wrap(V)(O)) (wrapped($value), transform(wrapped($content)))
     )
 }

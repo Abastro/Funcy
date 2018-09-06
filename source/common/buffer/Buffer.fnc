@@ -9,10 +9,13 @@ import -> export {
 
     // Out-related interfaces
     Writer := Consumer(OutState, String)
-    OutStream := (Writer writer, OutState current)
+    OutStream := State(Writer, OutState)
 
-    Console -= #OutSite
+    GetConsole -= #(#String -> #OutStream)
 
-    Print := [OutSite site] (StringState state, func printed) ->
-        site(print)(state, toString(printed))) inherits Consumer(StringState, func)
+    Print := [T] ToString(T) toString -> (
+        (OutStream stream, T toPrint) -> StateT(
+            (OutState state, Writer writer) -> writer(state, toString(toPrint))
+        )(stream)
+    ) inherits Consumer(OutStream, T)
 }

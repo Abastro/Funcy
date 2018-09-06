@@ -11,8 +11,6 @@ import -> export {
     Writer := Consumer(OutState, String)
     OutStream := State(Writer, OutState)
 
-    GetConsole -= #(#String -> #OutStream)
-
     Print := [T] ToString(T) toString -> (
         (OutStream stream, T toPrint) -> StateT(
             (OutState state, Writer writer) -> writer(state, toString(toPrint))

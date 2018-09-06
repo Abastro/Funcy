@@ -1,0 +1,2 @@
+
+    GetConsole -= #(#String -> #OutStream)

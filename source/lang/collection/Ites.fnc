@@ -7,8 +7,8 @@ import -> export {
 
     Iterable := [Ite(?) I] (
         I head,
-        hasNext :: #I -> #Bool,
-        next :: #I -> #I
+        hasNext :; #I -> #Bool,
+        next :; #I -> #I
     )
 
     ItePair := [F, V] Pair(Ite(F) ite, V val)

@@ -1,4 +1,4 @@
-import #common.basis.Import
+import "lang/format/Format"
 import -> export {
     // Basics
     syntax NativeSet := value -> % Bool

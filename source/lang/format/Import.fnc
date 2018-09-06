@@ -1,5 +1,7 @@
 // Basis for everything, because this deals with import statements.
 NativeBasisImport inc ~ {
+    // Needs lazy evaluation!
+
     // CodeSet..?
     CodeSet -= Syntax -> NativeSet
 

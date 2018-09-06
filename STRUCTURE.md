@@ -3,6 +3,7 @@
 Funcy is an unusual functional programming language, which doesn't have anything other than *funcies* and forces you to use singular arguments and return to the functions. Here, the result should be singular, composite function calls.
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
+(Maybe it will have two objects, funcies and sets)
 
 # Basis Module
 
@@ -85,7 +86,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 7. ***Inheritance*** is used to declare inheritance. `(funcy) inherits (name)` declares the funcy to inherit the declared funcy of `name`. The funcy defined by this syntax itself should be declared, i.e. can be referenced as well.
 
-8. ***Inheritance operator*** requires `%(name)`, which gives a set funcy which represents the set of funcy which inherits the declared funcy `name`. When `name` is the native ones, the set does not include the native one.
+8. ***Inheritance operator*** requires `%(name)`, which gives a set funcy which represents the set of funcy which inherits the declared funcy `name` excluding itself.
 
 9. ***Singleton opearator*** requires `{name}`, which gives a set funcy which represents the singleton containing the funcy `name`.
 

@@ -1,60 +1,51 @@
 # Preface
 
-Funcy is an unusual functional programming language, which doesn't have anything other than *funcies* and forces you to use singular arguments and return to the functions. Here, the result should be singular, composite function calls.
+Funcy is an unusual programming language, which doesn't have anything other than *sets*.
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
-(Maybe it will have two objects, funcies and sets)
 
 # Basis Module
 
-## Definitions
-
-### Mathematical
+## Mathematical Basis
 
 0. Let's assume the *set of everything* or the *whole set* exists. This is possible because only finite instructions could be added, thus the set of everything which can be expressed via code is also not too big to introduce contradiction.
 
-1. A ***funcy*** is a set of a pair (I, O), where all such I are distinct to each other and all such O are different. Here, I is called an *inset*, and O is called *outset*.
+1. A ***Set*** is a group of objects. It has containment relationship, which is represented as .
 
-    1. Here union of insets I is called *domain*, and union of outsets O is called *image*. Also, there is a unique pair (I, O) for any x in the domain. Here I is called *domain of x*, and O is called *image of x*. It could be easily proved that this is equivalent with a function which sends x to the image of x.
+2. A ***Tuple*** (i1, i2, ..., in) is a set {i1, {i1, i2}, {i1, i2, i3}, ..., {i1, i2, ..., in}}. It has a clearly defined order.
 
-    2. A *funcy* is called a *simple funcy*, when any outset of it is a singleton i.e. a set with exactly one element. It defines an unique function, and is equivalent with that one. The other funcies are called *virtual funcy*.
+    * A *Pair* is a tuple with 2 elements. For a pair (i, o), i is called as *input* and o is called as *output*.
 
-2. ***Set funcy*** is a kind of simple funcy where the domain is the whole set whose outsets are either {TRUE} or {FALSE}. It represents the inset which corresponds to {TRUE}.
+3. A ***Relation*** is a set of pairs.
 
-3. funcy F is said to ***inherit*** funcy T, where for any x in the domain of T, domain of x for F is a subset of domain of x for T, and image of x for F is also a subset of image of x for T. This means F can be used in place of T - this meaning will be explained later.
+4. A ***Function*** is a relation, where the input of every pair element is distinct.
 
-    * T could be used as a *type* of F in this case.
+5. A ***Substitution*** is a process to get an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
 
-    * Inheritance needs to be explicitly stated, as such check is not feasible.
+6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
-4. ***Compound funcy*** is a kind of funcy which is defined as a union of several funcies. Prior set takes advantage of deciding the image of x for any x in the union of domain.
+7. These sets are defined:
 
-5. ***Containment funcy*** is a kind of funcy which is simply {(I, O))} where I is a singleton.
+    * *Empty Set* is a set which doesn't contain any elements.
 
-6. ***Constant funcy*** is a kind of funcy which is simply {(I, O)} where O is a singleton. It's a *simple funcy* as well.
+    * *Whole Set* is a set which contains all elements.
 
-7. ***Substitution*** F(v), where F is a funcy and v is a funcy, is defined to be the outset O for a pair (I, O) in F where inset I contains v as an element.
+    * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
 
-### Specification
+## Segments
 
-1. ***Declared funcy*** is a funcy which can be referenced. These funcies are said to be *declared*. It could either be fully defined or defined in a limited way.
+0. ***Segment*** is part of a code which specifies/evaluates some set / condition / process.
 
-2. ***Internal funcy*** is a kind of funcy which is declared internally. This includes `Bool`, `Int`, `Float`, `Character`, `String`. Also, basic arithmetic operators and control statements are included.
+1. ***Declaration*** is a segment which declares a set to be an element of another set. (`(name) -= (set)`)
 
-    * `Bool`, `Int`, `Float`, `Char` sends the total set to set of `Bool`/`Int`/`Float`/`Char` and its inheritors itself.
+2. ***Definition*** is a segment which links certain name with a set. (`(name) := (set)`)
 
-    * any boolean, integer, floating point constants sends the total set to the constant. They are constant funcies.
+3. ***Set builder notation*** is a segment which builds a set with certain condition(function to bool).
 
-    * Basic arithmetic operators are self-explanatory - Some does take more than one arguments, which are modeled as compound containers. You can't reference them directly, anyway. (This could change, so that these operators could be a syntax sugar)
+4. ***Lambda*** is a segment which evaluates certain relation. It evaluates the set by given elements. (`(declaration(arg)) -> (set(arg))`)
 
-3. ***Lambda funcy*** is a kind of funcy where the result is given by expression based on the argument.
-  The expression part is, basically, a declaration of another funcy when arguments are declared.
+5. ***Compound*** is a segment which evaluates 
 
-4. ***Compound funcy*** usually serves the purpose of easier code and simulation of muliple arguments.
-
-5. ***Container funcy*** usually serves the purpose to simulate member funcies and better type system.
-
-6. ***Native funcy*** is a special funcy which is declared to use native implementations or inter-operations.
 
 ## Syntax
 

@@ -24,6 +24,8 @@ It's capable of all things programming languages can do, because it includes lam
 
 6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
+    * *Application* of a relation F is a set of all relations which applies F.
+
 7. These sets are defined:
 
     * *Empty Set* is a set which doesn't contain any elements.
@@ -40,28 +42,15 @@ It's capable of all things programming languages can do, because it includes lam
 
 2. ***Definition*** is a segment which links certain name with a set. (`(name) := (set)`)
 
-3. ***Set builder notation*** is a segment which builds a set with certain condition(function to bool).
+3. ***Set builder notation*** is a segment which evaluates a set with parent set and certain condition(function to bool). (`{declaration(arg) | condition(arg)}`)
 
-4. ***Lambda*** is a segment which evaluates certain relation. It evaluates the set by given elements. (`(declaration(arg)) -> (set(arg))`)
+4. ***Set enumeration*** is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
 
-5. ***Compound*** is a segment which evaluates 
-
+5. ***Substitution*** is a segment which (`(name) join (set)`)
 
 ## Syntax
 
 ### Basic Syntax
-
-0. Every lines of funcy represents *declaration* of funcy, which links it with certain name so it could be referenced by the name.
-
-1. ***Declared funcy*** requires the syntax `(name) := (funcy)` to declare the *funcy* with the name `name`. This forms *declaration*.
-
-2. All of ***Internal funcy*** are internally declared.
-
-3. ***Funcy Conditional*** is used to declare the funcy in a limited way. It takes `name -= (set)` to declare the funcy with the name which is within the set represented by the set funcy. The declared funcy in this way is quite restricted on usage.
-
-    * Can be replaced with the `name` itself when the set is the total set.
-
-4. ***Native funcy*** forms an *declaration* requiring `native (conditional(name))` where conditional represents *funcy conditional*, to declare funcy with the name `name` which is guaranteed to be in the set represented by the set funcy. This allows to lack implementation, so that it could get the implementation from basis / other language.
 
 5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
 

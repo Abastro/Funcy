@@ -2,6 +2,10 @@
 NativeBasisImport inc ~ {
     // Needs lazy evaluation!
 
+    Bool := TotalSet |-> BoolSet
+    Int := TotalSet |-> IntSet
+    Float := TotalSet |-> FloatSet
+
     // CodeSet..?
     CodeSet -= Syntax -> NativeSet
 

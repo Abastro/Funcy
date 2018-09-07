@@ -2,11 +2,11 @@ import "common/format/Import"
 import -> export {
     import None := import "common/format/Format"
 
-    Transform := [I, O] #I -> #O
+    Transform := (SI, SO) -> (SI |-> SO)
 
     // Self Transformation
-    Self := [V] Transform(V, V)
-    Id := [V] (V v -> v) inherits Self(V)      // Function definition. Generics are simply function calls
+    Self := [T] Transform(#T, #T)
+    Id := [V] (V v -> v) -= %Self(V)      // Function definition. Generics are simply function calls
 
     // Pair
     Pair := [T, S] (T left, S right)

@@ -30,7 +30,7 @@ It's capable of all things programming languages can do, because it includes lam
 
     * *Empty Set* is a set which doesn't contain any elements.
 
-    * *Whole Set* is a set which contains all elements.
+    * *Whole Set* is a set which contains every elements.
 
     * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
 
@@ -42,11 +42,12 @@ It's capable of all things programming languages can do, because it includes lam
 
 2. ***Definition*** is a segment which links certain name with a set. (`(name) := (set)`)
 
-3. ***Set builder notation*** is a segment which evaluates a set with parent set and certain condition(function to bool). (`{declaration(arg) | condition(arg)}`)
+3. ***Set builder notation*** is a segment which evaluates a set with parent set and certain condition(boolean which is dependent on the argument). (`{declaration(arg) | condition(arg)}`)
 
 4. ***Set enumeration*** is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
 
-5. ***Substitution*** is a segment which (`(name) join (set)`)
+`(X, Y) := {X, {X, Y}}`
+`{Y|(X, Y) -= P}`
 
 ## Syntax
 

@@ -12,9 +12,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A ***Set*** is a group of objects. It has containment relationship, which is represented as .
 
-2. A ***Tuple*** (i1, i2, ..., in) is a set {i1, {i1, i2}, {i1, i2, i3}, ..., {i1, i2, ..., in}}. It has a clearly defined order.
-
-    * A *Pair* is a tuple with 2 elements. For a pair (i, o), i is called as *input* and o is called as *output*.
+2. A ***Pair*** (i, o) is a set {i, {i, o}}. i is called as *input* and o is called as *output*.
 
 3. A ***Relation*** is a set of pairs.
 
@@ -36,22 +34,31 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Segments
 
-0. ***Segment*** is part of a code which specifies/evaluates some set / condition / process.
+0. ***Segment*** is part of a code which specifies / evaluates some set / condition / process.
 
-1. ***Declaration*** is a segment which declares a set to be an element of another set. (`(name) -= (set)`)
+1. ***Declaration*** is a segment which declares a set with certain name to be an element of another set. (`(name) -= (set)`)
 
-2. ***Definition*** is a segment which links certain name with a set. (`(name) := (set)`)
+2. ***Definition*** is a segment which defines a set with certain name. (`(name) := (set)`)
 
-3. ***Set builder notation*** is a segment which evaluates a set with parent set and certain condition(boolean which is dependent on the argument). (`{declaration(arg) | condition(arg)}`)
+3. ***Set*** is a segment which evaluates a set.
 
-4. ***Set enumeration*** is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
+    1. *Enumeration* is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
 
-`(X, Y) := {X, {X, Y}}`
-`{Y|(X, Y) -= P}`
+    2. *Predicate* is a segment which evaluates a set with parent set and certain boolean dependent on the argument. (`declaration(arg) | condition(arg)`)
 
-## Syntax
+    3. *Operation* is a segment which evaluates a set as a operation of its elements.
 
-### Basic Syntax
+        1. *Union* is a operation segment for union. `@u(set)`
+
+        2. *Intersection* is a operation segment for intersection. `@n(set)`
+
+`Ex-=S p(x) <=> {x-=S|p(x)} != {}`
+`Ax-=S p(x) <=> {x-=S|p(x)} == S`
+`(x, y) -> {{x}, {x, y}}`
+`{P| }`
+`{R -= Pairs}`
+`{y|(x, y) -= R}`
+
 
 5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
 

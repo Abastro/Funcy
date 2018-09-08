@@ -1,7 +1,51 @@
-// Basis for everything, because this deals with import statements.
-NativeBasisImport inc ~ {
-    // Needs lazy evaluation!
+// This is the capture structure
+("code(?<1>)code", ({1} -> "string"))
 
+{
+    
+} ~ syntax {
+    // simple string to capture structure
+    {
+        0,
+        StringPair ~ {
+
+        } | (
+            // String syntax set in the pair
+            ( StringSyntax |
+                // String capture set in the pair
+                ( StringCapture |
+                    (
+                        StringPair == {{StringSyntax}, {StringSyntax, StringCapture}} /\
+                        ..
+                    )
+                ) != {}
+            ) != {}
+        )
+    },
+
+    // Interpretation
+    {
+        1,
+        FunctionPair ~ {
+
+        } | (
+            ( FunctionSyntax |
+                ( FunctionCapture |
+                    (
+                        FunctionPair == {{FunctionSyntax}, {FunctionSyntax, FunctionCapture}} /\
+                        FunctionSyntax -= parse(".*->.*")
+                    )
+                ) != {} 
+            ) != {}
+        )
+    }
+
+}
+(x, y) -> {{x}, {x, y}}
+
+
+// Basis for everything, because this deals with import statements.
+inc -= InternalImports ~ {
     Bool := TotalSet |-> BoolSet
     Int := TotalSet |-> IntSet
     Float := TotalSet |-> FloatSet

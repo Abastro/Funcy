@@ -5,7 +5,7 @@ header data
 }
 LayoutHor(SPACING) [
     (
-        (GuiData guiData, ElementID id, BoolState local)~ {
+        (GuiData guiData, ElementID id, BoolState local) ~ {
             Bool sign := local($bool)
         } -> (
             name -> sign? "foo" : "bar",
@@ -13,22 +13,23 @@ LayoutHor(SPACING) [
 
             partition -> 0.5    
             onPressed -> Watch (
-                MessageBox(state, "foo", "bar"), GuiState prev -> (
-                    Bool result -> Wrap(prev, prev(id)($bool) = result)
+                MessageBox(state, "foo", "bar"),
+                GuiState prev -> (
+                    Bool result -> Wrap(prev, id, local($bool) = result)
                 )
             )
         )
     ) inherits (GuiButton(BoolState), HasPartition),
     (
         (GuiData guiData, ElementID id, BoolState local) ~ {
-            Bool sign := local($bool0)
+            Bool sign := local($bool)
         } -> (
             name -> sign? "f" : "b"
             color -> 0xffdddddd
 
             partition -> 1.0
             onPressed -> (
-                GuiState prev -> Wrap(prev, prev(id)($bool) = !sign)
+                GuiState prev -> Wrap(prev, id, local($bool) = !sign)
             )
         )
     ) inherits (GuiButton(BoolState), HasParition)

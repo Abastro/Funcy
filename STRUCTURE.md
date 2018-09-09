@@ -46,12 +46,6 @@ It's capable of all things programming languages can do, because it includes lam
 
     2. *Predicate* is a segment which evaluates a set with parent set and certain boolean dependent on the argument. (`declaration(arg) | condition(arg)`)
 
-    3. *Operation* is a segment which evaluates a set as a operation of its elements.
-
-        1. *Union* is a operation segment for union. `@u(set)`
-
-        2. *Intersection* is a operation segment for intersection. `@n(set)`
-
 `Ex-=S p(x) <=> {x-=S|p(x)} != {}`
 `Ax-=S p(x) <=> {x-=S|p(x)} == S`
 `(x, y) -> {{x}, {x, y}}`

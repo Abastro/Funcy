@@ -9,6 +9,9 @@
 			"include": "#keywords"
 		},
 		{
+			"include": "#characters"
+		},
+		{
 			"include": "#strings"
 		},
 		{
@@ -42,6 +45,15 @@
 				{
 					"name":"constant",
 					"match": "\\b(FALSE|TRUE)\\b"
+				}
+			]
+		},
+		"characters": {
+			"name": "character.funcy",
+			"patterns": [
+				{
+					"name": "constant.character",
+					"match": "'([^\\\\]|\\\\.)'"
 				}
 			]
 		},

@@ -1,27 +1,47 @@
-// This is the capture structure
-("code(?<1>)code", ({1} -> "string"))
+// This is the capture structure composed of sets
+Capture{
+    "code @<string|0> anothercode @<parens|0> morecode",
+    Args{"string", Indexed{0, Capture{"ThisIsString"}}},
+    Args{"parens", Indexed{0, Capture{"inParenthesis"}}}
+}
 
 {
-    
+    SingletonSet := singleton | (x | singleton == {x}) != {}
+
+    IndexedCharSet := indexed | (
+        index -= IntSet | (
+            char -= CharSet | indexed == {index, char}
+        ) != {}
+    ) != {}
+
+    StringSet := string | (ic -= string | ic -= IndexedCharSet) == string
 } ~ syntax {
-    // simple string to capture structure
     {
         0,
-        StringPair ~ {
-
-        } | (
-            // String syntax set in the pair
-            ( StringSyntax |
-                // String capture set in the pair
-                ( StringCapture |
-                    (
-                        StringPair == {{StringSyntax}, {StringSyntax, StringCapture}} /\
-                        ..
-                    )
+        stringPair | (
+            prev -= CaptureSet ~ {
+                prevString := element | (str -= (str -= StringSet | str -= prev) | element -= str) != {}
+                indexSet := index -= IntSet | {index, '"'} -= prevString
+                indexList := indexed | {indexSet, indexed} -= SortInt
+                replaceInfo := repDesc | (
+                    strIndex -= IntSet ~ {
+                        beginIndex := @(IntSet) @u (index -= IntSet | {{2*strIndex}, {2*strIndex, index}} -= indexList)
+                        endIndex := @(IntSet) @u (index -= IntSet | {{2*strIndex+1}, {2*strIndex+1, index}} -= indexList)
+                        replaced := @(StringSet) @u (replacing -= StringSet | {{"string", strIndex}, replacing} -= ArgDescription)
+                    } | repDesc == {beginIndex, endIndex, replaced} // Simple equality check, Easy to resolve
                 ) != {}
-            ) != {}
-        )
+                replaceArgs := @u (replacer | {replaceInfo, replacer} -= Replace)
+                replaced := @(StringSet) @u (repStr | {index, repStr} -= replaceArgs)
+                @u {prev, @c(StringSet)}
+            } | stringPair == {{prev}, {prev, capture}} // Simple equality check, Easy to resolve
+        ) != {}
     },
+    {
+        1,
+        bracketPair ~ {
+
+        }
+    }
 
     // Interpretation
     {

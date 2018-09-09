@@ -15,6 +15,7 @@ Capture{
     ) != {}
 
     StringSet := string | (ic -= string | ic -= IndexedCharSet) == string
+
 } ~ syntax {
     {
         0,

@@ -1,9 +1,10 @@
 // This is the capture structure composed of sets
 Capture{
-    "code @<string|0> anothercode @<parens|0> morecode",
-    Args{"string", Indexed{0, Capture{"ThisIsString"}}},
+    "thecode @<string|0> anothercode @<parens|0> morecode",
+    Args{"string", Indexed{0, String{"ThisIsString"}}},
     Args{"parens", Indexed{0, Capture{"inParenthesis"}}}
 }
+
 
 {
     SingletonSet := singleton | (x | singleton == {x}) != {}
@@ -16,9 +17,11 @@ Capture{
 
     StringSet := string | (ic -= string | ic -= IndexedCharSet) == string
 
+    CaptureSet := 
 } ~ syntax {
-    {
+    internal { // String Capture
         0,
+        'o',
         stringPair | (
             prev -= CaptureSet ~ {
                 prevString := element | (str -= (str -= StringSet | str -= prev) | element -= str) != {}
@@ -33,16 +36,27 @@ Capture{
                 ) != {}
                 replaceArgs := @u (replacer | {replaceInfo, replacer} -= Replace)
                 replaced := @(StringSet) @u (repStr | {index, repStr} -= replaceArgs)
-                @u {prev, @c(StringSet)}
             } | stringPair == {{prev}, {prev, capture}} // Simple equality check, Easy to resolve
         ) != {}
     },
-    {
+    internal { // Bracket Capture
         1,
         bracketPair ~ {
 
         }
-    }
+    },
+    internal { // Set description
+
+    },
+    { // Function substitution
+        3,
+        subPair | (
+            prev -= SetDescSet ~ {
+                prevString := // Singleton getting code
+
+            } | subPair == {{prev}, {prev, next}}
+        ) != {}
+    },
 
     // Interpretation
     {

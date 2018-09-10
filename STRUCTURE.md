@@ -6,11 +6,74 @@ It's capable of all things programming languages can do, because it includes lam
 
 # Basis Module
 
-## Mathematical Basis
+## Mathematics
 
 0. Let's assume the *set of everything* or the *whole set* exists. This is possible because only finite instructions could be added, thus the set of everything which can be expressed via code is also not too big to introduce contradiction.
 
-1. A ***Set*** is a group of objects. It has containment relationship, which is represented as .
+1. A ***Set*** is a group of objects. It has containment relationship as a predicate.
+
+2. These sets are defined:
+
+    * *Empty Set* is a set which doesn't contain any elements.
+
+    * *Whole Set* is a set which contains every elements.
+
+    * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
+
+## Segments
+
+0. ***Segment*** is part of a code which specifies / evaluates some set / condition / process.
+
+1. ***Declaration*** is a segment which declares a set with certain name to be an element of another set.
+
+    * Syntax : `(name) -= (set)` where `name` is the name of the element, and the `set` is the set containing the element. 
+
+2. ***Definition*** is a segment which defines a set with certain name. (`(name) := (set)`)
+
+    * Syntax : `(name) := (set)` where `name` is the name of the set, and the `set` is the evaluation of the set.
+
+3. ***Set*** is a segment which evaluates a set.
+
+    1. *Enumeration Set* is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
+
+        * Syntax : `{set_1, set_2, ..., set_n}` where `set_i` is the set 
+
+        * `{}` could be used to evaluate the empty set.
+
+    2. *Predicate Set* is a segment which evaluates a set with parent set and certain predicate on the argument. (`declaration(arg) | predicate(arg)`)
+
+        * Syntax I : `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` 
+
+        * Syntax II : `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definition(arg)` is the definitions.
+
+    3. *Operator* is a segment which evaluate a set based on operators. This can only be applied to some sets.
+
+        1. *Basic Arithmetic Operator* is addition, subtraction, multiplication, division defined on Int / Float.
+
+        2. 
+
+4. ***Predicate*** is a segment which a set.
+
+    1. *Equality* and ** is that
+
+    2. 
+
+## Code Unit
+
+0. ***Code Unit*** is the unit of a code which is represented as a file. 
+
+1. A single code unit has a single set in it.
+
+`Ex-=S p(x) <=> {x-=S|p(x)} != {}`
+`Ax-=S p(x) <=> {x-=S|p(x)} == S`
+`(x, y) -> {{x}, {x, y}}`
+`{P| }`
+`{R -= Pairs}`
+`{y|(x, y) -= R}`
+
+# Import Module
+
+## Mathematics
 
 2. A ***Pair*** (i, o) is a set {i, {i, o}}. i is called as *input* and o is called as *output*.
 
@@ -23,36 +86,6 @@ It's capable of all things programming languages can do, because it includes lam
 6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
     * *Application* of a relation F is a set of all relations which applies F.
-
-7. These sets are defined:
-
-    * *Empty Set* is a set which doesn't contain any elements.
-
-    * *Whole Set* is a set which contains every elements.
-
-    * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
-
-## Segments
-
-0. ***Segment*** is part of a code which specifies / evaluates some set / condition / process.
-
-1. ***Declaration*** is a segment which declares a set with certain name to be an element of another set. (`(name) -= (set)`)
-
-2. ***Definition*** is a segment which defines a set with certain name. (`(name) := (set)`)
-
-3. ***Set*** is a segment which evaluates a set.
-
-    1. *Enumeration* is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
-
-    2. *Predicate* is a segment which evaluates a set with parent set and certain boolean dependent on the argument. (`declaration(arg) | condition(arg)`)
-
-`Ex-=S p(x) <=> {x-=S|p(x)} != {}`
-`Ax-=S p(x) <=> {x-=S|p(x)} == S`
-`(x, y) -> {{x}, {x, y}}`
-`{P| }`
-`{R -= Pairs}`
-`{y|(x, y) -= R}`
-
 
 5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
 

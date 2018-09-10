@@ -44,7 +44,7 @@ It's capable of all things programming languages can do, because it includes lam
 
         * Syntax I : `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` 
 
-        * Syntax II : `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definition(arg)` is the definitions.
+        * Syntax II : `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definition(arg)` is the mukl definitions.
 
     3. *Operator* is a segment which evaluate a set based on operators. This can only be applied to some sets.
 

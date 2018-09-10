@@ -20,49 +20,43 @@ It's capable of all things programming languages can do, because it includes lam
 
     * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
 
-## Segments
+## Clause
 
-0. ***Segment*** is part of a code which specifies / evaluates some set / condition / process.
+1. ***Set*** is a clause which evaluates a set.
 
-1. ***Declaration*** is a segment which declares a set with certain name to be an element of another set.
+2. ***Declaration*** is a clause which declares a set with certain name to be an element of another set.
 
-    * Syntax : `(name) -= (set)` where `name` is the name of the element, and the `set` is the set containing the element. 
+4. ***Definition*** is a clause which defines a set with certain name.
 
-2. ***Definition*** is a segment which defines a set with certain name. (`(name) := (set)`)
+3. ***Definitions*** is a clause for a sequence of definitions.
 
-    * Syntax : `(name) := (set)` where `name` is the name of the set, and the `set` is the evaluation of the set.
+5. ***Predicate*** is a clause which specifies a condition where argument needs to .
 
-3. ***Set*** is a segment which evaluates a set.
+## Syntax
 
-    1. *Enumeration Set* is a segment which evaluates a set of finite sets. (`{set_1, set_2, ..., set_n}`)
+1. *Declaration*
 
-        * Syntax : `{set_1, set_2, ..., set_n}` where `set_i` is the set 
+    * `(name) -= (set)` where `name` is the name of the element, and the `set` is the set clause containing the element. 
 
-        * `{}` could be used to evaluate the empty set.
+2. *Definition*
 
-    2. *Predicate Set* is a segment which evaluates a set with parent set and certain predicate on the argument. (`declaration(arg) | predicate(arg)`)
+    * `(name) := (set)` where `name` is the name of the set, and the `set` is the evaluation of the set.
 
-        * Syntax I : `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` 
+3. *Set*
 
-        * Syntax II : `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definition(arg)` is the mukl definitions.
+    1. Defined by *Enumeration*: `{set_1, set_2, ..., set_n}` where `set_i` is the set clause for i-th element. (`{}` becomes the empty set)
 
-    3. *Operator* is a segment which evaluate a set based on operators. This can only be applied to some sets.
+    2. Defined by *Predicate*
 
-        1. *Basic Arithmetic Operator* is addition, subtraction, multiplication, division defined on Int / Float.
+        * `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` 
 
-        2. 
-
-4. ***Predicate*** is a segment which a set.
-
-    1. *Equality* and ** is that
-
-    2. 
+        * `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definitions(arg)` is the multiple definitions separated by semicolon `;`.
 
 ## Code Unit
 
 0. ***Code Unit*** is the unit of a code which is represented as a file. 
 
-1. A single code unit has a single set in it.
+1. A single code unit has a header and a single set in it.
 
 `Ex-=S p(x) <=> {x-=S|p(x)} != {}`
 `Ax-=S p(x) <=> {x-=S|p(x)} == S`

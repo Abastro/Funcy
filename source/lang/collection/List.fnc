@@ -1,15 +1,15 @@
-import "common/basis/Import"
+import "lang/format/Import"
 import -> export {
-    import None := import "common/basis/Format", "common/basis/Types"
+    import None := import "lang/format/Format", "lang/generics/Generics", "lang/collection/Ites";
 
     ListIte := [T] (
         T value,
 
-    ) inherits Ite(T)
+    ) inherits Ite(T);
 
     List := [T] (
         ListIte(T) ite,
         hasNext : [T] LiteIte(T) ite -> 
-    ) inherits Iterable(ListIte(T))
+    ) inherits Iterable(ListIte(T));
 
 }

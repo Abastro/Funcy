@@ -1,56 +1,5 @@
-// Code -> Token -> AST
-
-{
-    SingletonSet := singleton | (x | singleton == {x}) != {};
-
-    IndexedCharSet := indexed | (
-        index -= IntSet | (
-            char -= CharSet | indexed == {index, char}
-        ) != {}
-    ) != {};
-
-    //StringSet := string | (ic -= string | ic -= IndexedCharSet) == string;
-
-} ~ syntax {
-    internal {
-        "state",
-        {
-            "\"((\\\\)\"|[^\\n\"])*\"",
-            {"literalString"}
-        }
-    }
-
-    { // Function substitution
-        3,
-        subPair | (
-            prev -= SetDescSet ~ {
-
-            } | subPair == {{prev}, {prev, next}}
-        ) != {}
-    },
-
-    // Interpretation
-    {
-        1,
-        FunctionPair ~ {
-
-        } | (
-            ( FunctionSyntax |
-                ( FunctionCapture |
-                    (
-                        FunctionPair == {{FunctionSyntax}, {FunctionSyntax, FunctionCapture}} /\
-                        FunctionSyntax -= parse(".*->.*")
-                    )
-                ) != {} 
-            ) != {}
-        )
-    }
-
-}
-(x, y) -> {{x}, {x, y}}
-
-
 // Basis for everything, because this deals with import statements.
+"Import" in "lang.import"
 {
     Reference := {TRUE} -> #String;
 

@@ -22,29 +22,47 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Word
 
-1. ***Identifier*** is a word which represents certain identifier for a set.
+0. Generally, ***Whitespace*** and ***Newline*** characters are used to segregate 
 
-2. ***Integer Literal*** is a word which represents certain set of an integer.
+1. ***Identifier*** is a word to represent certain identifier for a set.
 
-3. ***Floating Point Literal*** is a word which represents certain set of a floating point number.
+    * All characters comprising an identifier needs to be a normal character.
 
-4. ***Character Literal*** is a word which represents certain set of a character.
+2. ***Integer Literal*** is a word to represent certain set of an integer.
 
-5. ***String Literal*** is a word which represents certain set of a string.
+    * Decimal form: All characters comprising this literal needs to be numbers between 0 to 9. It needs to begin with nonzero value.
 
-6. ***Operator*** is a word to represent operators.
+3. ***Floating Point Literal*** is a word to represent certain set of a floating point number.
 
-    1. Basic arithmetic operators.
+    * Normal form: all number comprising this literal needs to have exactly one 
 
-        * `+` for addition
-        
-        * `-` for subtraction
-        
-        * `*` for multiplication
-        
-        * `/` for division
-        
-        * `%` for mod
+4. ***Character Literal*** is a word to represent certain set for a character.
+
+    * It's in the form of `'c'` where the character replaces `c`.
+
+    * `'\"'` can be used for a quotation mark. Also special characters using backslash is accepted.
+
+5. ***String Literal*** is a word to represent certain set of a string.
+
+    * This should begin and end with `"`. Also it shouldn't involve a newline.
+    
+    * `\"` can be used to put a quotation mark. Also special characters using backslash is accepted.
+
+6. ***Brackets*** are words to represent certain groups/sequences.
+
+    1. *Parenthesis*, `(` for opening and `)` for closing
+
+    2. *Braces*, `{` for opening and `}` for closing
+
+    3. *Brackets*, `[` for opening and `]` for closing
+
+7. ***Comma*** is a word to represent separation. It's simply `,`
+
+8. ***Equation*** are words to represent equality, which comprises the predicates.
+
+    1. *Equality*, which is `==`. Comprises predicate for an equality
+
+    2. *Inequality*, which is `!=`. Comprises predicate for an inequality.
 
 ## Clause
 
@@ -52,39 +70,55 @@ It's capable of all things programming languages can do, because it includes lam
 
 2. ***Declaration*** is a clause which declares a set with certain name to be an element of another set.
 
-4. ***Definition*** is a clause which defines a set with certain name.
+3. ***Definition*** is a clause which defines a set with certain name.
 
-3. ***Block*** is a clause for a sequence of declarations and definitions.
+4. ***Block*** is a clause for a sequence of declarations and definitions.
 
 5. ***Predicate*** is a clause which specifies a condition where an argument needs to suffice.
 
 ## Syntax
 
-1. *Declaration*
+1. *Set*
 
-    * `(identifier) -= (set)` where `identifier` is the identifier for the element, and the `set` is the set clause containing the element. 
-
-2. *Definition*
-
-    * `(identifier) := (set)` where `identifier` is the identifier for the set, and the `set` is the evaluation of the set.
-
-3. *Set*
-
-    0. *Identifier*
+    0. Referenced by *Identifier*: a set can simply referenced by its identifier, with `(identifier)`.
 
     1. Defined by *Enumeration*: `{set_1, set_2, ..., set_n}` where `set_i` is the set clause for i-th element. (`{}` becomes the empty set)
 
     2. Defined by *Predicate*
 
-        * `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` 
+        * `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
 
-        * `declaration(arg) ~ { definitions(arg) } | predicate(arg)` where `definitions(arg)` is the multiple definitions separated by semicolon `;`.
+        * `declaration(arg) ~ { block(arg) } | predicate(arg)` where it's the same with the above with `block(arg)` being the block dependent on the argument.
+
+2. *Declaration*
+
+    * `(identifier) -= (set)` where `identifier` is the identifier for the element, and the `set` is the set clause containing the element.
+
+3. *Definition*
+
+    * `(identifier) := (set)` where `identifier` is the identifier for the set, and the `set` is the evaluation of the set.
+
+4. *Block*
+
+    * `(definition_1|declaration_1); (definition_2|declaration_2); ... (definition_n|declaration_n);` where `definition_i` or `declaration_i` is the defition/declaration clause for i-th element.
+
+5. *Predicate*
+
+    * `(set_1) (equation) (set_2)`
 
 ## Code Unit
 
 0. ***Code Unit*** is the unit of a code which is represented as a file. 
 
 1. A single code unit has a header and a single set in it.
+
+
+## Interaction
+
+1. *Scope*
+
+2. Any reference by identifier should be declared before its usage in the scope.
+
 
 # Function Module
 
@@ -98,11 +132,17 @@ It's capable of all things programming languages can do, because it includes lam
 
 5. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
 
-## Syntax
-
 6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
     * *Application* of a relation F is a set of all relations which applies F.
+
+## Syntax
+
+1. *Set*
+
+    1. ***Lambda*** takes these syntax
+
+    2. ***Compound*** requires `(set_1, set_2, ..., set_n)`
 
 5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
 

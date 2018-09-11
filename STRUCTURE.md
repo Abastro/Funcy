@@ -20,6 +20,32 @@ It's capable of all things programming languages can do, because it includes lam
 
     * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
 
+## Word
+
+1. ***Identifier*** is a word which represents certain identifier for a set.
+
+2. ***Integer Literal*** is a word which represents certain set of an integer.
+
+3. ***Floating Point Literal*** is a word which represents certain set of a floating point number.
+
+4. ***Character Literal*** is a word which represents certain set of a character.
+
+5. ***String Literal*** is a word which represents certain set of a string.
+
+6. ***Operator*** is a word to represent operators.
+
+    1. Basic arithmetic operators.
+
+        * `+` for addition
+        
+        * `-` for subtraction
+        
+        * `*` for multiplication
+        
+        * `/` for division
+        
+        * `%` for mod
+
 ## Clause
 
 1. ***Set*** is a clause which evaluates a set.
@@ -28,21 +54,23 @@ It's capable of all things programming languages can do, because it includes lam
 
 4. ***Definition*** is a clause which defines a set with certain name.
 
-3. ***Definitions*** is a clause for a sequence of definitions.
+3. ***Block*** is a clause for a sequence of declarations and definitions.
 
-5. ***Predicate*** is a clause which specifies a condition where argument needs to .
+5. ***Predicate*** is a clause which specifies a condition where an argument needs to suffice.
 
 ## Syntax
 
 1. *Declaration*
 
-    * `(name) -= (set)` where `name` is the name of the element, and the `set` is the set clause containing the element. 
+    * `(identifier) -= (set)` where `identifier` is the identifier for the element, and the `set` is the set clause containing the element. 
 
 2. *Definition*
 
-    * `(name) := (set)` where `name` is the name of the set, and the `set` is the evaluation of the set.
+    * `(identifier) := (set)` where `identifier` is the identifier for the set, and the `set` is the evaluation of the set.
 
 3. *Set*
+
+    0. *Identifier*
 
     1. Defined by *Enumeration*: `{set_1, set_2, ..., set_n}` where `set_i` is the set clause for i-th element. (`{}` becomes the empty set)
 
@@ -58,14 +86,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A single code unit has a header and a single set in it.
 
-`Ex-=S p(x) <=> {x-=S|p(x)} != {}`
-`Ax-=S p(x) <=> {x-=S|p(x)} == S`
-`(x, y) -> {{x}, {x, y}}`
-`{P| }`
-`{R -= Pairs}`
-`{y|(x, y) -= R}`
-
-# Import Module
+# Function Module
 
 ## Mathematics
 
@@ -75,7 +96,9 @@ It's capable of all things programming languages can do, because it includes lam
 
 4. A ***Function*** is a relation, where the input of every pair element is distinct.
 
-5. A ***Substitution*** is a process to get an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
+5. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
+
+## Syntax
 
 6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 

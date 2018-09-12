@@ -4,7 +4,7 @@ Funcy is an unusual programming language, which doesn't have anything other than
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
-# Basis Module
+# Language Frame (Basis Module)
 
 ## Mathematics
 
@@ -12,13 +12,23 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A ***Set*** is a group of objects. It has containment relationship as a predicate.
 
-2. These sets are defined:
+2. A ***Pair*** (i, o) is a set {{i}, {i, o}}. i is called as *input* and o is called as *output*.
+
+3. A ***Recursive Sequence*** of a set V is a set representation of a sequence, which is recursively defined in this way:
+
+    * An empty set is a recursive sequence.
+
+    * For a recursive sequence S, (v, S) is a recursive sequence.
+
+4. These sets are defined:
 
     * *Empty Set* is a set which doesn't contain any elements.
 
     * *Whole Set* is a set which contains every elements.
 
     * *Named Set* is a set of named sets, *Referenced Set* is a set of sets which can be referenced. Reference will be defined later. Note, that these are dynamic sets.
+
+    * *Char* is a set of all kinds of possible glyphs in unicode.
 
 ## Word
 
@@ -28,21 +38,13 @@ It's capable of all things programming languages can do, because it includes lam
 
     * All characters comprising an identifier needs to be a normal character.
 
-2. ***Integer Literal*** is a word to represent certain set of an integer.
-
-    * Decimal form: All characters comprising this literal needs to be numbers between 0 to 9. It needs to begin with nonzero value.
-
-3. ***Floating Point Literal*** is a word to represent certain set of a floating point number.
-
-    * Normal form: all number comprising this literal needs to have exactly one 
-
 4. ***Character Literal*** is a word to represent certain set for a character.
 
     * It's in the form of `'c'` where the character replaces `c`.
 
     * `'\"'` can be used for a quotation mark. Also special characters using backslash is accepted.
 
-5. ***String Literal*** is a word to represent certain set of a string.
+5. ***String Literal*** is a word to represent certain set of a string, which is a *recursive sequence* of characters.
 
     * This should begin and end with `"`. Also it shouldn't involve a newline.
     
@@ -60,9 +62,11 @@ It's capable of all things programming languages can do, because it includes lam
 
 8. ***Equation*** are words to represent equality, which comprises the predicates.
 
-    1. *Equality*, which is `==`. Comprises predicate for an equality
+    1. *Equality*, which is `==`. Comprises a predicate for an equality
 
-    2. *Inequality*, which is `!=`. Comprises predicate for an inequality.
+    2. *Inequality*, which is `!=`. Comprises a predicate for an inequality.
+
+9. ***Char*** is a word for the *Char* set.
 
 ## Clause
 
@@ -104,7 +108,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 5. *Predicate*
 
-    * `(set_1) (equation) (set_2)`
+    * `(set_1)(equation)(set_2)` where set_1 and set_2 is the set clause to check equality for.
 
 ## Code Unit
 
@@ -112,19 +116,142 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A single code unit has a header and a single set in it.
 
-
 ## Interaction
 
-1. *Scope*
+1. *Scope* is a range of a code where certain identifier reference could be used. E.g. Anything defined in set clause can't be used outside.
 
-2. Any reference by identifier should be declared before its usage in the scope.
+2. Any reference by identifier should be declared before its usage in the scope, and should be defined later.
 
 
-# Function Module
+# Standard Module
 
-## Mathematics
+***Standard Module*** is a standard module which is included in the language by default.
 
-2. A ***Pair*** (i, o) is a set {i, {i, o}}. i is called as *input* and o is called as *output*.
+## Set Arithmetics Submodule
+
+A submodule which introduces set arithmetics.
+
+### Mathematics
+
+1. Union, which gives union of elements of a set.
+
+    * The set `Union` is defined as `pair | (arg | pair == {{arg}, {arg, result}})`
+
+2. Intersection, which gives intersection of elements of a set.
+
+3. Complement, which gives complement of certain set.
+
+
+## Boolean Submodule
+
+A submodule which introduces boolean arithmetics.
+
+### Mathematics
+
+1. These are defined as an alias - these are called as boolean sets.
+
+    1. ***FALSE*** for an empty set
+
+    2. ***TRUE*** for a whole set
+
+2. ***Bool*** is defined as a set of two elements, which are *TRUE* and *FALSE*
+
+3. Operator ***And*** is an intersection of two boolean sets.
+
+4. Operator ***Or*** is an union of two boolean sets.
+
+5. Operator ***Not*** is a complement of a boolean set.
+
+### Word
+
+1. ***Bool Literals*** are either `TRUE` or `FALSE`. Self-explanatory.
+
+2. ***Bool ***
+
+2. *And*, `/\` for and operator
+
+3. *Or*, `\/` for or operator
+
+4. *Not*, `-` for not operator
+
+### Syntax
+
+1. *Boolean Set* (Comprises *Set* clause)
+
+    1. Evaluated by *Predicate*
+
+        * `(predicate)` where `predicate` is the predicate clause (which is independent). This gives `(x | predicate)`.
+
+    2. Evaluated by *Operation*
+
+        * `(set_1)(operator)(set_2)` where `set_1` and `set_2` are set clause representing a boolean set.
+
+
+## Integer Submodule
+
+A submodule which introduces integer arithmetics and literals.
+
+### Mathematics
+
+1. ***Integer*** is a set of all integers.
+
+2. These sets for integers represented by IEEE standard are defined:
+
+    1. ***Byte*** is a set of signed integers in 8bit.
+
+    2. ***UByte*** is a set of unsigned integers in 8bit.
+
+    3. ***Short*** is a set of signed integers in 16bit.
+
+    4. ***UShort*** is a set of unsigned integers in 16bit.
+
+    5. ***Int*** is a set of signed integers in 32bit.
+
+    6. ***UInt*** is a set of unsigned integers in 32bit.
+
+    7. ***Long*** is a set of signed integers in 64bit.
+
+    8. ***ULong*** is a set of unsigned integers in 64bit.
+
+3. These operators are defined:
+
+    1. ***Addition***
+
+    2. ***Subtraction***
+
+    3. ***Multiplication***
+
+    4. ***Division*** or *quotient*
+
+    5. 
+
+### Words
+
+1. ***Integer Literal*** is a word to represent certain set of an integer.
+
+    * Decimal form: All characters comprising this literal needs to be numbers between 0 to 9. It needs to begin with nonzero value.
+
+2. ***Operators***
+
+### 
+
+## Float Submodule
+
+
+
+### Mathematics
+
+### Words
+
+1. ***Floating Point Literal*** is a word to represent certain set of a floating point number.
+
+    * Normal form: all number comprising this literal needs to have exactly one 
+
+## Function Submodule
+
+A submodule which introduces concept of functions, and convenience syntax for function definitions.
+
+### Mathematics
 
 3. A ***Relation*** is a set of pairs.
 
@@ -136,15 +263,11 @@ It's capable of all things programming languages can do, because it includes lam
 
     * *Application* of a relation F is a set of all relations which applies F.
 
-## Syntax
+### Syntax
 
 1. *Set*
 
-    1. ***Lambda*** takes these syntax
-
-    2. ***Compound*** requires `(set_1, set_2, ..., set_n)`
-
-5. ***Lambda funcy*** takes these syntax, when conditional represents *funcy conditional*, set represents *set funcy* and decl represents *declarations*:
+    1. ***Lambda*** takes these syntax.
 
     * `(conditional(arg)) -> (set(arg))` for simplistic ones - arg is assumed to be declared in the scope. Sends arg to the set described with the argument.
 
@@ -152,20 +275,18 @@ It's capable of all things programming languages can do, because it includes lam
 
     * `conditional(arg)` could be replaced by the argument restricting set itself when the result set is constant to the arguemtn.
 
+    2. ***Compound*** requires `(set_1, set_2, ..., set_n)`
+
+    3. ***Substitution***
+
 5. ***Compound funcy*** requires `funcy_1, funcy_2, ..., funcy_n` where n can be any positive integer, which means union of these funcies given by each expression. Things on the left have higher priority.
 
-6. ***Substitution*** gives a set funcy which represents the outset of the funcy. This requires `name-(funcy)` where the expression is applied to the declared funcy `name`. In case of `name` declared with funcy conditional, it can only be applied in the parent form which all elements of the set inherit. In case of `funcy` declared with funcy conditional, it can only be applied when  It gives a declared funcy when the expression argument is also declared.
+6. ***Substitution*** gives a set funcy which represents the outset of the funcy. This requires `name(funcy)` where the expression is applied to the declared funcy `name`. In case of `name` declared with funcy conditional, it can only be applied in the parent form which all elements of the set inherit. In case of `funcy` declared with funcy conditional, it can only be applied when  It gives a declared funcy when the expression argument is also declared.
 
 7. ***Inheritance*** is used to declare inheritance. `(funcy) inherits (name)` declares the funcy to inherit the declared funcy of `name`. The funcy defined by this syntax itself should be declared, i.e. can be referenced as well.
 
 8. ***Inheritance operator*** requires `%(name)`, which gives a set funcy which represents the set of funcy which inherits the declared funcy `name` excluding itself.
 
-9. ***Singleton opearator*** requires `{name}`, which gives a set funcy which represents the singleton containing the funcy `name`.
+## Type Submodule
 
-### Shortcut Syntax
-
-1. ***Template Statement*** is used to make a shortcuts for *declaration / expression / presentation*. It requires the syntax of `template(tmpltype) syntaxPre := syntaxPost` which converts the `syntaxPre` in `tmpltype` scope to `syntaxPost`. This applies additional conversion rule for less bloats.
-
-    * `tmpltype` defines the scope to check for the syntax.
-
-    * `syntaxPre` could involve `argument` to match names and such. It could be either name(`T`), funcy(`func F`), or expression(`expr E`). It is used in the `syntaxPost`
+A submodule for type system.

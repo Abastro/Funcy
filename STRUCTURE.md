@@ -4,6 +4,8 @@ Funcy is an unusual programming language, which doesn't have anything other than
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
+(At some point would make a language based on sequences)
+
 # Language Frame (Basis Module)
 
 ## Mathematics
@@ -18,7 +20,7 @@ It's capable of all things programming languages can do, because it includes lam
 
     * An empty set is a recursive sequence.
 
-    * For a recursive sequence S, (v, S) is a recursive sequence.
+    * For a recursive sequence S, (v, S) is a recursive sequence when v is an element of V.
 
 4. These sets are defined:
 
@@ -84,11 +86,11 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. *Set*
 
-    0. Referenced by *Identifier*: a set can simply referenced by its identifier, with `(identifier)`.
+    1. Referenced by *Identifier*: a set can simply referenced by its identifier, with `(identifier)`.
 
-    1. Defined by *Enumeration*: `{set_1, set_2, ..., set_n}` where `set_i` is the set clause for i-th element. (`{}` becomes the empty set)
+    2. Defined by *Enumeration*: `{set_1, set_2, ..., set_n}` where `set_i` is the set clause for i-th element. (`{}` becomes the empty set)
 
-    2. Defined by *Predicate*
+    3. Defined by *Predicate*
 
         * `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
 
@@ -135,12 +137,15 @@ A submodule which introduces set arithmetics.
 
 1. Union, which gives union of elements of a set.
 
-    * The set `Union` is defined as `pair | (arg | pair == {{arg}, {arg, result}})`
+    * The set `Union` is defined as a set of pairs (C, U) where U is the union of elements of C.
 
 2. Intersection, which gives intersection of elements of a set.
 
+    * The set `Intersection` is defined as a set of pairs (C, I) where I is the intersection of elements of C.
+
 3. Complement, which gives complement of certain set.
 
+    * The set `Complement` is defined as a set of pairs (S, C) where C is the complement of S.
 
 ## Boolean Submodule
 
@@ -156,23 +161,25 @@ A submodule which introduces boolean arithmetics.
 
 2. ***Bool*** is defined as a set of two elements, which are *TRUE* and *FALSE*
 
-3. Operator ***And*** is an intersection of two boolean sets.
+3. These *operators* are defined:
 
-4. Operator ***Or*** is an union of two boolean sets.
+    1. ***And*** is an intersection of two boolean sets.
 
-5. Operator ***Not*** is a complement of a boolean set.
+    2. ***Or*** is an union of two boolean sets.
+
+    3. ***Not*** is a complement of a boolean set.
 
 ### Word
 
 1. ***Bool Literals*** are either `TRUE` or `FALSE`. Self-explanatory.
 
-2. ***Bool ***
+2. *Operators*
 
-2. *And*, `/\` for and operator
+    1. *And*, `/\` for and operator
 
-3. *Or*, `\/` for or operator
+    2. *Or*, `\/` for or operator
 
-4. *Not*, `-` for not operator
+    3. *Not*, `-` for not operator
 
 ### Syntax
 

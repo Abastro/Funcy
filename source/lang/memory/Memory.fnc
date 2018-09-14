@@ -1,25 +1,25 @@
 import "common.basis.Import"
 import -> export {
     import None := import "common/basis/Format", "common/basis/Types"
-    // Definition of Pointer for certain type.
-    Pointer := [F] F value
+
+    Ptr := F -> F value;
 
     // Evaluates Null Pointer when the type is given.
-    NullPointer -= #(F -> #Pointer(F))
+    NullPtr -= F |-> Ptr(F);
 
-    MemStack -= TRUE
-    GetStack -= #Transform(String, MemStack)
+    MemStack;
+    GetStack -= Supplier(System)(MemStack);
 
-    NewPointer -= #[F] #Supplier(MemStack)(Pointer(F))
-    NewArrPointer -= #[F] #( #Int -> #Supplier(MemStack)(Pointer(F)) )
+    NewPtr -= F -> Supplier(MemStack)(Ptr(F));
+    NewArrPtr -= F -> ( Int |-> Supplier(MemStack)(Ptr(F)) )
 
-    DelPointer -= #[F] #Consumer(MemStack)(Pointer(F))
-    DelArrPointer -= #[F] #Int -> #Consumer(MemStack)(Pointer(F))
+    DelPtr -= F -> Consumer(MemStack)(Pointer(F))
+    DelArrPtr -= F -> ( Int |-> Consumer(MemStack)(Pointer(F)) )
 
 
-    Set -= #[F] (Pointer(F) pointer, F value)
-    OffGet -= #[F] (Pointer(F) pointer, Int offset) -> #Pointer(F)    // Anonymous compound declaration to easily specify parameters (and result later)
-    OffSet -= #[F] (Pointer(F) pointer, Int offset, F value) -> #Pointer(F)
+    Set -= F -> #(Pointer(F) pointer, F value)
+    OffGet -= F -> #(Pointer(F) pointer, Int offset) |-> Pointer(F)    // Anonymous compound declaration to easily specify parameters (and result later)
+    OffSet -= F -> #(Pointer(F) pointer, Int offset, F value) |-> Pointer(F)
 
 
     // Utilities

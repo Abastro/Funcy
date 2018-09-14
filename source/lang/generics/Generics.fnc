@@ -2,17 +2,26 @@ import "common/format/Import"
 import -> export {
     import None := import "common/format/Format";
 
-    Transform := (SI, SO) -> (SI |-> SO);
+    /*
+     * @arg set of input and output
+     * @ret { Set of Transforms from the specified input to the specified output. }
+     */
+    Transform := (I, O) -> (I |-> O);
 
-    // Self Transformation
-    Self := [T] Transform(#T, #T);
-    Id := [V] (V v -> v) -= #Self(V);
+    /*
+     * @arg certain set
+     * @ret { Set of transformation on the certain type }
+     */
+    Self := T -> Transform(T, T);
+
+    // Identity
+    Id := T -> (Self(T))(T v -> v);
 
     // Pair
     Pair := [T, S] (T left, S right);
 
     // Consumer and Supplier
-    Consumer := [V] [I] (V collect, I input) -> #V;
-    Supplier := [V] [O] #V -> (V collect, O output);
+    Consumer := [V] [I] (V collect, I input) |-> V;
+    Supplier := [V] [O] V |-> (V collect, O output);
 
 }

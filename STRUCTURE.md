@@ -98,6 +98,8 @@ It's capable of all things programming languages can do, because it includes lam
 
     * `(identifier) -= (set)` where `identifier` is the identifier for the element, and the `set` is the set clause containing the element.
 
+    * `(identifier)` in short, if the set is the whole set.
+
 3. *Definition*
 
     * `(identifier) := (set)` where `identifier` is the identifier for the set, and the `set` is the evaluation of the set.
@@ -116,7 +118,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A single code unit has a header and a single set in it.
 
-## Interaction
+## Behavior
 
 1. *Scope* is a range of a code where certain identifier reference could be used. E.g. Anything defined in set clause can't be used outside.
 
@@ -253,13 +255,15 @@ A submodule which introduces concept of functions, and convenience syntax for fu
 
 ### Mathematics
 
-3. A ***Relation*** is a set of pairs.
+1. A ***Relation*** is a set of pairs.
 
-4. A ***Function*** is a relation, where the input of every pair element is distinct.
+2. A ***Function*** is a relation, where the input of every pair element is distinct.
 
-5. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
+3. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
 
-6. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
+4. ***Domain-Codomain*** is an operation which for a pair (I, O) gives a set of functions, where each element F is a function where set of all inputs comprises I, and all outputs are in O.
+
+5. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
     * *Application* of a relation F is a set of all relations which applies F.
 
@@ -267,26 +271,50 @@ A submodule which introduces concept of functions, and convenience syntax for fu
 
 1. *Set*
 
-    1. ***Lambda*** takes these syntax.
+    1. ***Lambda*** is used to define a function.
 
-    * `(conditional(arg)) -> (set(arg))` for simplistic ones - arg is assumed to be declared in the scope. Sends arg to the set described with the argument.
+        * `(declaration(arg)) -> (set(arg))` where `declaration(arg)` is the declaration of the argument `arg`, and `set(arg)` is the set clause for the function evaluation.
 
-    * `(conditional(arg)) ~ {decls(arg)} -> (set(arg))` for complex ones - arg is assumed to be declared in the scope. Does the same as above.
+        * `(declaration(arg)) ~ {block(arg)} -> (set(arg))` where it's the same as above with `block(arg)` being a block dependent on the argument.
 
-    * `conditional(arg)` could be replaced by the argument restricting set itself when the result set is constant to the arguemtn.
+    2. ***Domain-Codomain*** is used to define sets of functions using domain-codomain.
 
-    2. ***Compound*** requires `(set_1, set_2, ..., set_n)`
+        * `(set_arg) |-> (set_ret)` where `set_arg` is the domain and `set_ret` is the codomain.
 
-    3. ***Substitution***
+    3. ***Substitution*** is used to evaluate substitution.
 
-5. ***Compound funcy*** requires `funcy_1, funcy_2, ..., funcy_n` where n can be any positive integer, which means union of these funcies given by each expression. Things on the left have higher priority.
+        * `(set_rel)(set_arg)` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
 
-6. ***Substitution*** gives a set funcy which represents the outset of the funcy. This requires `name(funcy)` where the expression is applied to the declared funcy `name`. In case of `name` declared with funcy conditional, it can only be applied in the parent form which all elements of the set inherit. In case of `funcy` declared with funcy conditional, it can only be applied when  It gives a declared funcy when the expression argument is also declared.
+    4. ***Image Evaluation*** is ued to evaluate the image for certain subset of the domain.
 
-7. ***Inheritance*** is used to declare inheritance. `(funcy) inherits (name)` declares the funcy to inherit the declared funcy of `name`. The funcy defined by this syntax itself should be declared, i.e. can be referenced as well.
+        * `(set_rel)##(set_arg)` where `set_rel` is the set clause and ``
 
-8. ***Inheritance operator*** requires `%(name)`, which gives a set funcy which represents the set of funcy which inherits the declared funcy `name` excluding itself.
+### Behavior
+
+1. *Substitution* only works for relations 
+
+## Compound Submodule
+
+A submodule for function compounds.
+
+### Dependencies
+
+* ***Function Submodule***
+
+    * `((set_1), (set_2), ..., (set_n))` where each `set_i` is the set clause which is being included in the union.
+
+### Mathematics
+
+1. A ***Compound*** is an operation which gives a set from a sequence of sets.
+
 
 ## Type Submodule
 
 A submodule for type system.
+
+
+## Power Set Submodule
+
+`@(set)`
+
+## Conversion Submodule

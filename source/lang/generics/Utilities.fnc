@@ -3,10 +3,18 @@ import -> export {
     import None := import "lang/format/Format", "lang/generics/Generics"
 
     // Optionals
-    Optional := [T] (T value);
+    Optional := T -> (
+        $value :: T | { {} },
+        $getOrDef : (
+            T def -> (
+                TRUE : ,
+                FALSE : 
+            )($value == {})
+        )
+    );
 
     // States
-    State := [C] [S] (C const, S var);
+    State := [C] [S] (C $const, S $var);
 
     // State Transition
     StateT := [C] [S] Consumer(S)(C) consumer -> (

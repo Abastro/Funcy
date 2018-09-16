@@ -1,4 +1,5 @@
 import "common/basis/Import"
 import -> export {
-    System -= {@}
+    // System object
+    System;
 }

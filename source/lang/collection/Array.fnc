@@ -4,49 +4,52 @@ import -> export {
 
     /*
      * @arg The type set of the array
-     * @ret { arrays }
+     * @ret { Set of arrays on the type }
      */
-    Array := F -> #(
+    Array := F -> (
+        // Length
+        Int length,
+
+        // Head pointer
+        Ptr(F) headPtr,
+
         // Array Iterator Implementation
         IteImpl : (
-            Int size, Int index,
-            Pointer(F) pointer,
-            value : OffGet(head, index)($value)
+            Int index,
+            value : OffGet(headPtr, index)($value)
         ),
 
         // Null Iterator
-        NullIte : (0, 0, NullPointer(F)) -= IteImpl,
+        NullIte : (IteImpl) (length),
 
         // Head
-        IteImpl head,
+        head : (IteImpl) (0),
 
         // Array hasNext Implementation
-        hasNext : (ArrayIte(F) ite -> ite(size) < ite(index)),
+        hasNext : (IteImpl ite -> ite(index) < length),
 
         // Array next Implementation
         next : (IteImpl ite ~ {
-            len := ite(size);
             ind := ite(index) + 1;
-            newp := OffGet(ite(pointer), 1);
-        } -> Choose(len < ind) ((IteImpl) (len, ind, newp), NullIte),
+        } -> Choose(ind < length) ((IteImpl) (ind), NullIte),
 
-        indexer : Int index -> OffGet(head($pointer), index)($value)
-    ) -= (Iterable(F) & FromInteger(F));
+        indexer : Int index -> OffGet(headPtr, index)($value)
+    ) -= (Iterable(F) & FromInt(F));
 
-    Set := F -> (Array(F) array, Int index, F value) ~ {
+    Set := F -> (#Array(F) array, Int index, F value) ~ {
         newp := OffSet(array($head)($pointer), index, value);
-        newHead := (Array($IteImpl)) (array($head), pointer : newp);
-    } -> (Array(F)) (array, head : newHead);
+        newHead := (array($IteImpl)) (pointer : newp, array($head));
+    } -> (Array(F)) (head : newHead, array);
 
 
     NewArray := F -> Int size -> Comp(
-        WrapS(NewPointer(F)),
-        WrapT(Pointer(F) pointer -> (Array(F)) (Ite(F)) (size, -1, pointer))
+        WrapS(NewPtr(F)),
+        WrapT(Ptr(F) pointer -> (Array(F)) (Ite(F)) (size, -1, pointer))
     );
 
     DelArray := F -> Comp(
         WrapT(Array(F) array -> array($head)($pointer)),
-        WrapC(DelPointer(F))
+        WrapC(DelPtr(F))
     );
 
     AsArray := F -> (

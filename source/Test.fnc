@@ -3,8 +3,19 @@
  * (It has LGPL v3.0 license)
  */
 
-import "common.basis.Import"
+import "lang.format.Import"
 import ~ {
-    import None := import "common.basis.Format", "common.basis.Types", "common.basis.Buffer", "common.basis.Ites", "common.basis.Array"
-    stack := AsArray(1, 2, 3)(GetStackWrap(""))
-} -> Loop(stack($data), Console($initial), Print(Console)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas
+    import None := import {
+        "lang.format.Format",
+        "lang.generics.Generics",
+        "lang.system.System",
+        "lang.io.InOut",
+        "lang.io.Console",
+        "lang.memory.Memory",
+        "lang.collection.Ites",
+        "lang.collection.Array"
+    }
+
+    console := Console(System);
+    populated := AsArray(1, 2, 3)(GetStack(System));
+} -> Loop(populated($output), console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

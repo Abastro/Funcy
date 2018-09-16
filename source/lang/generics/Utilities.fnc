@@ -4,8 +4,8 @@ import -> export {
 
     // Optionals
     Optional := T -> (
-        $value :: T | { {} },
-        $getOrDef : (
+        value :: (T, { {} }),
+        getOrDef : (
             T def -> (
                 TRUE : ,
                 FALSE : 
@@ -14,7 +14,7 @@ import -> export {
     );
 
     // States
-    State := [C] [S] (C $const, S $var);
+    State := C -> S -> (C const, S var);
 
     // State Transition
     StateT := [C] [S] Consumer(S)(C) consumer -> (

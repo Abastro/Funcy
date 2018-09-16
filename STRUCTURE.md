@@ -14,13 +14,13 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. A ***Set*** is a group of objects. It has containment relationship as a predicate.
 
-2. A ***Pair*** (i, o) is a set {{i}, {i, o}}. i is called as *input* and o is called as *output*.
+2. A ***Pair*** (I, O) is a set {{I}, {I, O}}. I is called as *input* and O is called as *output*.
 
 3. A ***Recursive Sequence*** of a set V is a set representation of a sequence, which is recursively defined in this way:
 
     * An empty set is a recursive sequence.
 
-    * For a recursive sequence S, (v, S) is a recursive sequence when v is an element of V.
+    * For a recursive sequence S, (E, S) is a recursive sequence when E is an element of V.
 
 4. These sets are defined:
 
@@ -74,13 +74,10 @@ It's capable of all things programming languages can do, because it includes lam
 
 1. ***Set*** is a clause which evaluates a set.
 
-2. ***Declaration*** is a clause which declares a set with certain name to be an element of another set.
+2. ***Predicate*** is a clause which specifies a condition where an argument needs to suffice.
 
-3. ***Definition*** is a clause which defines a set with certain name.
+3. ***Declaration*** is a clause which declares a set with certain name to be an element of another set.
 
-4. ***Block*** is a clause for a sequence of declarations and definitions.
-
-5. ***Predicate*** is a clause which specifies a condition where an argument needs to suffice.
 
 ## Syntax
 
@@ -131,6 +128,23 @@ It's capable of all things programming languages can do, because it includes lam
 
 ***Standard Module*** is a standard module which is included in the language by default.
 
+
+## Definition Submodule
+
+### Clause
+
+1. ***Definition*** is a clause which defines a set with certain name.
+
+
+## Block Submodule
+
+A submodule which introduces block for convenience of definition.
+
+### Clause
+
+1. ***Block*** is a clause for a sequence of declarations and definitions.
+
+
 ## Set Arithmetics Submodule
 
 A submodule which introduces set arithmetics.
@@ -148,6 +162,7 @@ A submodule which introduces set arithmetics.
 3. Complement, which gives complement of certain set.
 
     * The set `Complement` is defined as a set of pairs (S, C) where C is the complement of S.
+
 
 ## Boolean Submodule
 
@@ -242,7 +257,8 @@ A submodule which introduces integer arithmetics and literals.
 
 2. ***Operators***
 
-### 
+### Syntax
+
 
 ## Float Submodule
 
@@ -256,21 +272,20 @@ A submodule which introduces integer arithmetics and literals.
 
     * Normal form: all number comprising this literal needs to have exactly one 
 
-## Function Submodule
 
-A submodule which introduces concept of functions, and convenience syntax for function definitions.
+## Relation Submodule
+
+A submodule which introduces concept of relations, and convenience syntax for relation definitions.
 
 ### Mathematics
 
 1. A ***Relation*** is a set of pairs.
 
-2. A ***Function*** is a relation, where the input of every pair element is distinct.
+2. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
 
-3. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
+3. ***Domain-Codomain*** is an operation which for a pair (I, O) gives a set of functions, where each element F is a function where set of all inputs comprises I, and all outputs are in O.
 
-4. ***Domain-Codomain*** is an operation which for a pair (I, O) gives a set of functions, where each element F is a function where set of all inputs comprises I, and all outputs are in O.
-
-5. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
+4. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
 
     * *Application* of a relation F is a set of all relations which applies F.
 
@@ -290,7 +305,7 @@ A submodule which introduces concept of functions, and convenience syntax for fu
 
     3. ***Substitution*** is used to evaluate substitution.
 
-        * `(set_rel)(set_arg)` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
+        * `(set_rel)((set_arg))` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
 
     4. ***Image Evaluation*** is ued to evaluate the image for certain subset of the domain.
 
@@ -299,6 +314,7 @@ A submodule which introduces concept of functions, and convenience syntax for fu
 ### Behavior
 
 1. *Substitution* only works for relations 
+
 
 ## Compound Submodule
 
@@ -323,5 +339,6 @@ A submodule for type system.
 ## Power Set Submodule
 
 `@(set)`
+
 
 ## Conversion Submodule

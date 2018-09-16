@@ -8,20 +8,16 @@ import -> export {
     NullPtr -= F |-> Ptr(F);
 
     MemStack;
-    GetStack -= Supplier(System)(MemStack);
+    GetStack -= {System} |-> MemStack;
 
-    NewPtr -= F -> Supplier(MemStack)(Ptr(F));
-    NewArrPtr -= F -> ( Int |-> Supplier(MemStack)(Ptr(F)) )
+    NewPtr -= #( F -> Supplier(MemStack)(Ptr(F)) );
+    NewArrPtr -= #( F -> ( Int |-> Supplier(MemStack)(Ptr(F)) ) )
 
-    DelPtr -= F -> Consumer(MemStack)(Pointer(F))
-    DelArrPtr -= F -> ( Int |-> Consumer(MemStack)(Pointer(F)) )
-
-
-    Set -= F -> #(Pointer(F) pointer, F value)
-    OffGet -= F -> #(Pointer(F) pointer, Int offset) |-> Pointer(F)    // Anonymous compound declaration to easily specify parameters (and result later)
-    OffSet -= F -> #(Pointer(F) pointer, Int offset, F value) |-> Pointer(F)
+    DelPtr -= #( F -> Consumer(MemStack)(Pointer(F)) )
+    DelArrPtr -= #( F -> ( Int |-> Consumer(MemStack)(Pointer(F)) ) )
 
 
-    // Utilities
-    GetStackWrap := String id -> ( Wrap(MemStack)(FALSE) ) (GetStack(id), FALSE)
+    Set -= #( F -> (Pointer(F) pointer, F value) |-> Pointer(F) )
+    OffGet -= #( F -> (Pointer(F) pointer, Int offset) |-> Pointer(F) )
+    OffSet -= #( F -> (Pointer(F) pointer, Int offset, F value) |-> Pointer(F) )
 }

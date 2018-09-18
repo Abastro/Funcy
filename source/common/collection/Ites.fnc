@@ -1,5 +1,5 @@
-import "lang/format/Import"
-import -> export {
+include "lang/format/Import"
+{
     import None := import {"lang/format/Format", "lang/generics/Generics", "lang/generics/Commons"}
 
     /*
@@ -14,7 +14,7 @@ import -> export {
      */
     Iterable := T -> (
         // Iterator implementation, which is a subset of Ite
-        IteImpl -: @Ite(T),
+        IteImpl <: @Ite(T),
 
         // An iterator for the head of this iterable
         IteImpl head,
@@ -23,13 +23,13 @@ import -> export {
          * @arg the iterator in this iterable
          * @ret if the iterator has next position available
          */
-        hasNext -: ToBool(IteImpl),
+        hasNext <: ToBool(IteImpl),
 
         /*
          * @arg the iterator in this iterable
          * @ret the iterator denoting the next position
          */
-        next -: Self(IteImpl)
+        next <: Self(IteImpl)
     );
 
     // Loops through the iterable.

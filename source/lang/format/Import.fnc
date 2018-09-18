@@ -1,5 +1,6 @@
 // Basis for everything, because this deals with import statements.
-"Import" in "lang.import"
+// TODO Assertions
+"Import" in "lang.format"
 {
     Reference := {TRUE} -> #String;
 

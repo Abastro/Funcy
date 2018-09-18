@@ -1,8 +1,9 @@
 "Basis" in "lang.basis"
 
+// Code -> Token -> AST
 // Just the code which represents the basis module.
-basisSyntax ~ {
-    ResultSet := {
+{ basisSyntax ||
+    ResultSet -= {{
         { "token",
             {"(\\s|\\n)+", {"ignored"}},
 
@@ -57,5 +58,5 @@ basisSyntax ~ {
                 }
             }
         }
-    }
-} | (x -= ResultSet | x == basisSyntax) != {}
+    }} || {x -= ResultSet || x == basisSyntax} != {}
+}

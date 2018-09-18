@@ -2,8 +2,7 @@
 header data
 {
     SPACING := 6
-}
-LayoutHor(SPACING) [
+} ~ LayoutHor(SPACING) [
     (
         (GuiData guiData, ElementID id, BoolState local) ~ {
             Bool sign := local($bool)
@@ -19,7 +18,7 @@ LayoutHor(SPACING) [
                 )
             )
         )
-    ) inherits (GuiButton(BoolState), HasPartition),
+    ) -= GuiButton(BoolState) & HasPartition,
     (
         (GuiData guiData, ElementID id, BoolState local) ~ {
             Bool sign := local($bool)
@@ -32,5 +31,5 @@ LayoutHor(SPACING) [
                 GuiState prev -> Wrap(prev, id, local($bool) = !sign)
             )
         )
-    ) inherits (GuiButton(BoolState), HasParition)
+    ) -= GuiButton(BoolState) & HasParition
 ]

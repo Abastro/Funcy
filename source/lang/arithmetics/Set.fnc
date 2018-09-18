@@ -1,6 +1,6 @@
-// Code -> Token -> AST
+"Sets" in "lang.arithmetics"
 
-funcSyntax ~ {
+funcSyntax || {
     // Being empty / nonempty is heavily optimized
     SingletonSet := { singleton || {x || singleton == {x}} != {} };
 
@@ -42,4 +42,4 @@ funcSyntax ~ {
         
     }
 
-} | (x -= ResultSet | x == funcSyntax) != {}
+} || (x -= ResultSet | x == funcSyntax) != {}

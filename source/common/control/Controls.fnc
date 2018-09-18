@@ -15,7 +15,7 @@ import -> export {
 
     // Loop statements
 
-    For := I -> (ToBool(I) condition, Self(I) increase) ~ {
+    For := I -> (ToBool(I) condition, Self(I) increase) -> {
         // Declaration
         Self(I) impl;
 
@@ -24,7 +24,7 @@ import -> export {
             impl(increase(value)),
             value
         );
-    } -> impl;
+    } ~ impl;
 
     For := (C, I) -> (
         (ToBool(State(C)(I)) condition, Consumer(I)(C) consumer) -> (

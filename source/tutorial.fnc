@@ -1,8 +1,8 @@
 // Tutorials - Surely, a bad one, which means you won't get it if you're five
 // Ah, right. You need to know programming basics for this.
-import lib(#common.basis.Import)
-(import inc) -> export {
-    import None := #common.basis.Format
+include "lang.basis.Import"
+{
+    import None := import {"common.basis.Format"}
 
     // This is a common syntax to declare a 'funcy'. It describes, basically, every object in this language.
     // Here, you can see a funcy is declared with the name on the left('TF') to have value on the right.
@@ -40,7 +40,7 @@ import lib(#common.basis.Import)
     // Here, the parameter name is omitted. This imply it takes integer parameters, which gives boolean output.
     // Of course, TF4(0) will give error as it does not have such mapping specified.
     // Wait, you don't get why it's undefined? Screw that, kiddos. Stop reading this.
-    TF4 := Int -> %Bool
+    TF4 := Int |-> Bool
 
     // inherits declares the inheritance. Here it means TF5 can be used in the place of TF4 in substitution.
     // It is applied to the last expression which is grouped.
@@ -87,5 +87,4 @@ import lib(#common.basis.Import)
 
     // Basics are all covered now.
     // Everything from now on is just shortcuts.
-    // TODO - describe shortcuts, especially with compounds - because they are annoying to write as whole.
 }

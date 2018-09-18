@@ -40,7 +40,7 @@
 				},
 				{
 					"name": "keyword.control",
-					"match": "\\b(internal|syntax|import|export|as|inherits|template|hid|func)\\b"
+					"match": "\\b(include|import|export|as|inherits|template|hid|func)\\b"
 				},
 				{
 					"name":"constant",

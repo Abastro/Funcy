@@ -22,7 +22,9 @@ It's capable of all things programming languages can do, because it includes lam
 
     * For a recursive sequence S, (E, S) is a recursive sequence when E is an element of V.
 
-4. These sets are defined:
+4. A ***Relation*** is a set of pairs.
+
+5. These sets are defined:
 
     * *Empty Set* is a set which doesn't contain any elements.
 
@@ -76,8 +78,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 2. ***Predicate*** is a clause which specifies a condition where an argument needs to suffice.
 
-3. ***Declaration*** is a clause which declares a set with certain name to be an element of another set.
-
+3. ***Declaration*** is a clause which declares a set with certain identifier to be an element of another set.
 
 ## Syntax
 
@@ -89,27 +90,17 @@ It's capable of all things programming languages can do, because it includes lam
 
     3. Defined by *Predicate*
 
-        * `declaration(arg) | predicate(arg)` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
+        * `{declaration(arg) | predicate(arg)}` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
 
-        * `declaration(arg) ~ { block(arg) } | predicate(arg)` where it's the same with the above with `block(arg)` being the block dependent on the argument.
+2. *Predicate*
 
-2. *Declaration*
+    * `(set_1)(equation)(set_2)` where set_1 and set_2 is the set clause to check equality for.
+
+3. *Declaration*
 
     * `(identifier) -= (set)` where `identifier` is the identifier for the element, and the `set` is the set clause containing the element.
 
     * `(identifier)` in short, if the set is the whole set.
-
-3. *Definition*
-
-    * `(identifier) := (set)` where `identifier` is the identifier for the set, and the `set` is the evaluation of the set.
-
-4. *Block*
-
-    * `(definition_1|declaration_1); (definition_2|declaration_2); ... (definition_n|declaration_n);` where `definition_i` or `declaration_i` is the defition/declaration clause for i-th element.
-
-5. *Predicate*
-
-    * `(set_1)(equation)(set_2)` where set_1 and set_2 is the set clause to check equality for.
 
 ## Code Unit
 
@@ -119,7 +110,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Behavior
 
-1. *Scope* is a range of a code where certain identifier reference could be used. E.g. Anything defined in set clause can't be used outside.
+1. *Scope* is a range of a code where certain identifier reference could be used. E.g. Anything declared in set clause can't be used outside.
 
 2. Any reference by identifier should be declared before its usage in the scope, and should be defined later.
 
@@ -131,18 +122,108 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Definition Submodule
 
-### Clause
+### Syntax
 
-1. ***Definition*** is a clause which defines a set with certain name.
+1. *Declaration*
+
+    1. *Definition*
+
+        * `(identifier) := (set)` is equivalent with `(identifier) -= {(set)}`, which fixes the set with the identifier.
+
+## Reference Submodule
+
+A submodule which introduces references.
+
+### Word
+
+1. ***Reference Literal*** is a word to represent specific reference for certain identifier.
+
+### Syntax
+
+1. *Set*
+
+    1. Defined as *Reference*
+
+        * `(reference)` 
+
+
+## Compound Submodule
+
+A submodule for function compounds.
+
+### Mathematics
+
+1. A ***Compound*** is an operation which gives a set from a sequence of sets.
+
+### Syntax
+
+1. *Set*
+
+    1. Defined by *Compound*
+
+        * `((set_1), (set_2), ..., (set_n))` where each `set_i` is the set clause which is being included in the union.
 
 
 ## Block Submodule
 
 A submodule which introduces block for convenience of definition.
 
-### Clause
+### Mathematics
 
-1. ***Block*** is a clause for a sequence of declarations and definitions.
+Where (S1, S2, ..., Sn)
+
+### Syntax
+
+1. *Set*
+
+    1. Defined by *Block*
+
+        * `{(declaration_1); (declaration_2); ...; (declaration_n)}` where `declaration_i` is a declaration clause for i-th element.
+
+2. *Declaration*
+
+
+## Function Submodule
+
+A submodule which introduces concept of functions, and convenience syntax for function definitions.
+
+### Mathematics
+
+1. A ***Function*** is a relation where for every input I there is at most one output O where (I, O) is in it.
+
+2. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
+
+3. ***Domain-Codomain*** is an operation which for a pair (I, O) gives a set of functions, where each element F is a function where set of all inputs comprises I, and all outputs are in O.
+
+4. (Isn't this obsolete?)A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
+
+    * *Application* of a relation F is a set of all relations which applies F.
+
+### Syntax
+
+1. *Set*
+
+    1. ***Lambda*** is used to define a function.
+
+        * `(declaration(arg)) -> (set(arg))` where `declaration(arg)` is the declaration of the argument `arg`, and `set(arg)` is the set clause for the function evaluation.
+
+        * `(declaration(arg)) ~ {block(arg)} -> (set(arg))` where it's the same as above with `block(arg)` being a block dependent on the argument.
+
+    2. ***Domain-Codomain*** is used to define sets of functions using domain-codomain.
+
+        * `(set_arg) |-> (set_ret)` where `set_arg` is the domain and `set_ret` is the codomain.
+
+    3. ***Substitution*** is used to evaluate substitution.
+
+        * `(set_rel)((set_arg))` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
+
+    4. ***Image Evaluation*** is ued to evaluate the image for certain subset of the domain.
+
+        * `(set_rel)##(set_arg)` where `set_rel` is the set clause and ``
+
+### Behavior
+
+1. *Substitution* only works for relations 
 
 
 ## Set Arithmetics Submodule
@@ -271,64 +352,6 @@ A submodule which introduces integer arithmetics and literals.
 1. ***Floating Point Literal*** is a word to represent certain set of a floating point number.
 
     * Normal form: all number comprising this literal needs to have exactly one 
-
-
-## Relation Submodule
-
-A submodule which introduces concept of relations, and convenience syntax for relation definitions.
-
-### Mathematics
-
-1. A ***Relation*** is a set of pairs.
-
-2. A ***Substitution*** is a process of getting an output for certain input from a function, that is, finding output o from input i where pair (i, o) is in the function F. If it exists, the output is unique by definition of function. The output is represented as f(i).
-
-3. ***Domain-Codomain*** is an operation which for a pair (I, O) gives a set of functions, where each element F is a function where set of all inputs comprises I, and all outputs are in O.
-
-4. A relation F ***applies*** another relation G when for every input i of G, any pair (i, o) in F is also in G. This relation is transitive.
-
-    * *Application* of a relation F is a set of all relations which applies F.
-
-### Syntax
-
-1. *Set*
-
-    1. ***Lambda*** is used to define a function.
-
-        * `(declaration(arg)) -> (set(arg))` where `declaration(arg)` is the declaration of the argument `arg`, and `set(arg)` is the set clause for the function evaluation.
-
-        * `(declaration(arg)) ~ {block(arg)} -> (set(arg))` where it's the same as above with `block(arg)` being a block dependent on the argument.
-
-    2. ***Domain-Codomain*** is used to define sets of functions using domain-codomain.
-
-        * `(set_arg) |-> (set_ret)` where `set_arg` is the domain and `set_ret` is the codomain.
-
-    3. ***Substitution*** is used to evaluate substitution.
-
-        * `(set_rel)((set_arg))` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
-
-    4. ***Image Evaluation*** is ued to evaluate the image for certain subset of the domain.
-
-        * `(set_rel)##(set_arg)` where `set_rel` is the set clause and ``
-
-### Behavior
-
-1. *Substitution* only works for relations 
-
-
-## Compound Submodule
-
-A submodule for function compounds.
-
-### Dependencies
-
-* ***Function Submodule***
-
-    * `((set_1), (set_2), ..., (set_n))` where each `set_i` is the set clause which is being included in the union.
-
-### Mathematics
-
-1. A ***Compound*** is an operation which gives a set from a sequence of sets.
 
 
 ## Type Submodule

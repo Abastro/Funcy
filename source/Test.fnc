@@ -2,9 +2,10 @@
  * Funcy is a language based on funcy, set-to-set functions.
  * (It has LGPL v3.0 license)
  */
+"Test" in "test"
+include "lang.format.Import"
 
-import "lang.format.Import"
-import ~ {
+{
     import None := import {
         "lang.format.Format",
         "lang.generics.Generics",
@@ -18,4 +19,4 @@ import ~ {
 
     console := Console(System);
     populated := AsArray(1, 2, 3)(GetStack(System));
-} -> Loop(populated($output), console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas
+} ~ Loop(populated($output), console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

@@ -1,5 +1,5 @@
-import "common/format/Import"
-import -> export {
+include "common/format/Import"
+{
     import None := import "common/format/Format";
 
     /*

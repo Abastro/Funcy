@@ -1,5 +1,5 @@
-import "lang/format/Import"
-import -> export {
+include "lang/format/Import"
+{
     import None := import {"lang/format/Format", "lang/generics/Generics", "lang/generics/Utilities"}
     // Opaque InState
     InState;

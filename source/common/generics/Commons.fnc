@@ -1,6 +1,6 @@
-include "lang/format/Import"
+include "lang.format.Import"
 {
-    import None := import "lang/format/Format", "lang/generics/Generics"
+    import None := import {"lang.format.Format", "commons.generics.Generics"}
 
     // From native types
     FromBool := V -> Transform(Bool, V)

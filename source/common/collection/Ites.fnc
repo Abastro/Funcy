@@ -1,7 +1,7 @@
-include "lang/format/Import"
-{
-    import None := import {"lang/format/Format", "lang/generics/Generics", "lang/generics/Commons"}
+"Ites" in "common.collection"
+include "lang.format.Import"
 
+import {"common.generics.Generics", "common.generics.Commons"} ~ {
     /*
      * @arg the type set of Iterator
      * @ret { Set of Iterators. Denotes certain position in the Iterable. }

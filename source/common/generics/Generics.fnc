@@ -1,6 +1,6 @@
 include "common/format/Import"
 {
-    import None := import "common/format/Format";
+    import None := import {"common/format/Format"};
 
     /*
      * @arg set of input and output
@@ -15,13 +15,13 @@ include "common/format/Import"
     Self := T -> Transform(T, T);
 
     // Identity
-    Id := T -> (Self(T))(T v -> v);
+    Id := T -> (Self(T)) (T v -> v);
 
     // Pair
     Pair := (T, S) -> (T left, S right);
 
     // Consumer and Supplier
-    Consumer := (V) -> (I) -> ( (V mass, I input) |-> V );
-    Supplier := (V) -> (O) -> ( V |-> (V mass, O output) );
+    Consumer := (V) -> (I) -> ( (V mass, I input) ~> V );
+    Supplier := (V) -> (O) -> ( V ~> (V mass, O output) );
 
 }

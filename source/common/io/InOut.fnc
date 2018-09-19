@@ -11,12 +11,12 @@ include "lang/format/Import"
     Writer := Consumer(OutState, String);
     OutStream := State(Writer, OutState);
 
-    Print := T -> (ToString(T) toString) -> (
+    Print := T -> (ToString(T) toString) -> (Consumer(OutStream, T)) (
         (OutStream stream, T toPrint) -> (
             // Transition of the stream
             StateT(
                 (OutState state, Writer writer) -> writer(state, toString(toPrint))
-            ) (stream)
+            )(stream)
         )
-    ) -= Consumer(OutStream, T);
+    )
 }

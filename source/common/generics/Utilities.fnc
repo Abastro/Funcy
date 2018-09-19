@@ -1,23 +1,18 @@
-include "lang/format/Import"
+include "lang.format.Import"
 {
-    import None := import "lang/format/Format", "lang/generics/Generics"
+    import None := import {"lang.format.Format", "commons.generics.Generics"}
 
     // Optionals
     Optional := T -> (
         value <: T | { {} },
-        getOrDef : (
-            T def -> (
-                TRUE : def,
-                FALSE : (value -= T)
-            )(value == {})
-        )
+        getOrDef : T def -> (T) ( TRUE : def, FALSE : value )(value == {})
     );
 
     // States
     State := C -> S -> (C const, S var);
 
     // State Transition
-    StateT := C -> S -> Consumer(S)(C) consumer -> (
+    StateT := C -> S -> Consumer(S)(C) consumer -> (Id(State(C)(S))) (
         State(C)(S) state -> (State(C)(S)) (
             state($const),
             consumer(state($var), state($const))
@@ -36,9 +31,9 @@ include "lang/format/Import"
 
     // Wrap Expansion
     WrapS := V -> O -> Supplier(V)(O) supplier -> (
-        Wrap(V)(?) wrapped ~ {
+        Wrap(V)(?) wrapped -> {
             pair := supplier(wrapped($value));
-        } -> (Wrap(V)(O)) (pair($value), pair($content))
+        } ~ (Wrap(V)(O)) (pair($value), pair($content))
     );
 
     // Wrap Transformation

@@ -36,7 +36,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Word
 
-0. Generally, ***Whitespace*** and ***Newline*** characters are used to segregate 
+0. Generally, ***Whitespace*** and ***Newline*** characters are used to segregate expressions.
 
 1. ***Identifier*** is a word to represent certain identifier for a set.
 
@@ -90,7 +90,11 @@ It's capable of all things programming languages can do, because it includes lam
 
     3. Defined by *Predicate*
 
-        * `{declaration(arg) | predicate(arg)}` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
+        * `{declaration(arg) || predicate(arg)}` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
+
+    4. Defined by *Word*
+
+        * Character Literal, String Literal and Char represents certain set.
 
 2. *Predicate*
 
@@ -115,9 +119,9 @@ It's capable of all things programming languages can do, because it includes lam
 2. Any reference by identifier should be declared before its usage in the scope, and should be defined later.
 
 
-# Standard Module
+# Format Module
 
-***Standard Module*** is a standard module which is included in the language by default.
+***Format Module*** is a standard module for formatting, which is included in the language by default.
 
 
 ## Definition Submodule
@@ -130,13 +134,22 @@ It's capable of all things programming languages can do, because it includes lam
 
         * `(identifier) := (set)` is equivalent with `(identifier) -= {(set)}`, which fixes the set with the identifier.
 
+
 ## Reference Submodule
 
 A submodule which introduces references.
 
+### Mathematics
+
+1. Reference is represented as a pair ({}, ID) when ID is the String which represents certain identifier.
+
 ### Word
 
 1. ***Reference Literal*** is a word to represent specific reference for certain identifier.
+
+    * Starts with `$`, with preceding normal characters.
+
+2. ***Expression*** `~` is a word to redirect to certain expression.
 
 ### Syntax
 
@@ -144,8 +157,13 @@ A submodule which introduces references.
 
     1. Defined as *Reference*
 
-        * `(reference)` 
+        * Reference Literal represents the reference.
 
+    2. Defined by *Expression*
+
+        * `(set_rel) ~ (set_expr)` where `set_rel` is the relation R, and `set_expr` is the expression with some unknown identifiers. For any of these identifiers ID, let REF the reference corresponding to the ID. The set represented by the identifier ID is then declared to be in set T, which is a set of S where (REF, S) is in R.
+
+2. *Predicate*
 
 ## Compound Submodule
 
@@ -155,22 +173,22 @@ A submodule for function compounds.
 
 1. A ***Compound*** is an operation which gives a set from a sequence of sets.
 
+### Clause
+
+1. ***Mapping*** is a clause which represents a set of pair.
+
 ### Syntax
 
 1. *Set*
 
     1. Defined by *Compound*
 
-        * `((set_1), (set_2), ..., (set_n))` where each `set_i` is the set clause which is being included in the union.
+        * `((mapping_1), (mapping_2), ..., (mapping_n))` where each `mapping_i`
 
 
 ## Block Submodule
 
 A submodule which introduces block for convenience of definition.
-
-### Mathematics
-
-Where (S1, S2, ..., Sn)
 
 ### Syntax
 
@@ -178,7 +196,7 @@ Where (S1, S2, ..., Sn)
 
     1. Defined by *Block*
 
-        * `{(declaration_1); (declaration_2); ...; (declaration_n)}` where `declaration_i` is a declaration clause for i-th element.
+        * `{(declaration_1); (declaration_2); ...; (declaration_n);}` where `declaration_i` is a declaration clause for i-th element.
 
 2. *Declaration*
 
@@ -207,23 +225,28 @@ A submodule which introduces concept of functions, and convenience syntax for fu
 
         * `(declaration(arg)) -> (set(arg))` where `declaration(arg)` is the declaration of the argument `arg`, and `set(arg)` is the set clause for the function evaluation.
 
-        * `(declaration(arg)) ~ {block(arg)} -> (set(arg))` where it's the same as above with `block(arg)` being a block dependent on the argument.
-
     2. ***Domain-Codomain*** is used to define sets of functions using domain-codomain.
 
-        * `(set_arg) |-> (set_ret)` where `set_arg` is the domain and `set_ret` is the codomain.
+        * `(set_arg) ~> (set_ret)` where `set_arg` is the domain and `set_ret` is the codomain.
+
+        * `(declaration(arg)) ~> (set_ret(arg))`
 
     3. ***Substitution*** is used to evaluate substitution.
 
         * `(set_rel)((set_arg))` where `set_rel` is the set clause representing the relation and `set_arg` is the set clause used as an argument.
 
-    4. ***Image Evaluation*** is ued to evaluate the image for certain subset of the domain.
+    4. ***Image Evaluation*** is used to evaluate the image for certain subset of the domain.
 
         * `(set_rel)##(set_arg)` where `set_rel` is the set clause and ``
 
 ### Behavior
 
 1. *Substitution* only works for relations 
+
+
+# Arithmetics Module
+
+***Arithmetics Module*** is a standard module for various arithmetics, which is included in the language by default.
 
 
 ## Set Arithmetics Submodule
@@ -365,3 +388,5 @@ A submodule for type system.
 
 
 ## Conversion Submodule
+
+Type conversion don't need the decided elements.

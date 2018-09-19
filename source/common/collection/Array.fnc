@@ -1,14 +1,12 @@
 "Array" in "common.collection"
-
 include "lang.format.Import"
-{
-    import None := import {"lang.format.Format", "common.generics.Generics", "common.memory.Memory", "common.collection.Ites"};
 
+import {"lang.format.Format", "common.generics.Generics", "common.memory.Memory", "common.collection.Ites"} ~ {
     /*
      * @arg The type set of the array
      * @ret { Set of arrays on the type }
      */
-    Array := F -> (
+    Array := F -> (Iterable(F) & FromInt(F)) (
         // Length
         Int length,
 
@@ -21,25 +19,20 @@ include "lang.format.Import"
             value : OffGet(headPtr, index)($value)
         ),
 
-        // Null Iterator
-        NullIte : (IteImpl) (length),
-
         // Head
         head : (IteImpl) (0),
 
         // Array hasNext Implementation
-        hasNext : ( IteImpl ite -> ite(index) < length ),
+        hasNext : ( IteImpl ite -> ite($index) < length ),
 
         // Array next Implementation
-        next : IteImpl ite -> {
-            ind := ite(index) + 1;
-        } ~ Choose(ind < length) ((IteImpl) (ind), NullIte),
+        next : ( IteImpl ite -> (IteImpl) (ite($index)+1) ),
 
-        indexer : Int index -> OffGet(headPtr, index)($value)
-    ) -= (Iterable(F) & FromInt(F));
+        Int index -> OffGet(headPtr, index)($value)
+    )
 
     // Set function
-    Set := F -> (#Array(F) array, Int index, F value) -> {
+    Set := F -> (Array(F) array, Int index, F value) -> {
         newp := OffSet(array($head)($pointer), index, value);
         newHead := (array($IteImpl)) (pointer : newp, array($head));
     } ~ (Array(F)) (head : newHead, array);

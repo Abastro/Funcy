@@ -1,5 +1,5 @@
 // Bloats to be reduced since this is about scripting
-header data
+header gui.data
 {
     SPACING := 6
 } ~ LayoutHor(SPACING) [

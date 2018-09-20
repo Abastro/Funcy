@@ -70,7 +70,9 @@ It's capable of all things programming languages can do, because it includes lam
 
     2. *Inequality*, which is `!=`. Comprises a predicate for an inequality.
 
-9. ***Char*** is a word for the *Char* set.
+9. ***Mapper*** is a word to represent a pair. It's simply `:`.
+
+9. ***Char*** is a word for the *Char* set. It's simply `Char`.
 
 ## Clause
 
@@ -92,7 +94,11 @@ It's capable of all things programming languages can do, because it includes lam
 
         * `{declaration(arg) || predicate(arg)}` where `declaration(arg)` is the declaration of the argument, and `predicate(arg)` is the predicate on the argument.
 
-    4. Defined by *Word*
+    4. Defined by *Pair*
+
+        * `(set_input) : (set_output)` where `set_input` is the input set of the pair, and `set_output` is the output set of the pair.
+
+    5. Defined by *Word*
 
         * Character Literal, String Literal and Char represents certain set.
 
@@ -111,6 +117,8 @@ It's capable of all things programming languages can do, because it includes lam
 0. ***Code Unit*** is the unit of a code which is represented as a file. 
 
 1. A single code unit has a header and a single set in it.
+
+2. First line of the header which is not a comment 
 
 ## Behavior
 

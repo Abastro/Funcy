@@ -1,9 +1,8 @@
 "Function" in "lang.arithmetics"
 
-funcSyntax ~ {
+{ funcSyntax ||
+    { ResultSet -= {
 
-    ResultSet := {
-        
+        } || (x -= ResultSet || x == funcSyntax) != {}
     }
-
-} | (x -= ResultSet | x == funcSyntax) != {}
+}

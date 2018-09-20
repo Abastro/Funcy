@@ -5,8 +5,7 @@
 "Test" in "test"
 include "lang.format.Import"
 
-{
-    import None := import {
+import {
         "lang.format.Format",
         "lang.generics.Generics",
         "lang.system.System",
@@ -15,8 +14,7 @@ include "lang.format.Import"
         "lang.memory.Memory",
         "lang.collection.Ites",
         "lang.collection.Array"
-    }
-
+} ~ {
     console := Console(System);
     populated := AsArray(1, 2, 3)(GetStack(System));
 } ~ Loop(populated($output), console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

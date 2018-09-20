@@ -7,7 +7,7 @@ funcSyntax || {
     ComplementEval := { complementPair ||
         { arg ||
             { ret -= {{ element || {x -= arg || x == element} == {} }} ||
-                complementPair == {{arg}, {arg, ret}}
+                complementPair == arg : ret
             } != {}
         } != {}
     };
@@ -16,7 +16,7 @@ funcSyntax || {
         { arg ||
             { ret -= {{ element ||
                     { containing -= arg || {x -= containing || x == element} != {} } != {}
-                }} || unionPair == {{arg}, {arg, ret}}
+                }} || unionPair == arg : ret
             } != {}
         } != {}
     };
@@ -26,7 +26,7 @@ funcSyntax || {
         { arg ||
             { ret -= {{ element ||
                     { containing -= arg || {x -= containing || x == element} != {} } == arg
-                }} || intersectionPair == {{arg}, {arg, ret}}
+                }} || intersectionPair == arg : ret
             } != {}
         } != {}
     }
@@ -35,7 +35,7 @@ funcSyntax || {
                 containing := (set -= arg | (x -= set | x == element));
                 notContaining := (comp -= arg | (set -= containing | set == comp) == {})
             } | notContaining == {};
-        } | intersectionPair == {{arg}, {arg, ret}}
+        } | intersectionPair == arg : ret
     )
 
     ResultSet := {

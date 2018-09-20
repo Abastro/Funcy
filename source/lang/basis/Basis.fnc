@@ -4,57 +4,36 @@
 // Just the code which represents the basis module.
 { basisSyntax ||
     ResultSet -= {{
-        { "token",
-            {"(\\s|\\n)+", {"ignored"}},
+        "token" : {
+            "(\\s|\\n)+" : "ignored",
 
-            {
-                "\\p{L}+",
-                {"ID", {"Identifier"}}
-            },
-            {
-                "[^.][1-9][0-9]*[^.]",
-                {"IL", {"Integer Literal"}}
-            },
-            {
-                "(|0|[1-9][0-9]*)\\\\.(|[0-9]*[1-9])",
-                {"FPL", {"Floating Point Literal"}}
-            },
-            {
-                "'[^\\\\]|\\\\.'",
-                {"CL", {"Character Literal"}}
-            },
-            {
-                "\"[^\"]*\"",
-                {"SL", {"String Literal"}}
-            },
+            "\\p{L}+" : ("ID" : "Identifier"),
+            "'[^\\\\]|\\\\.'" : ("CL" : "Character Literal"),
+            "\"[^\"]*\"" : ("SL" : "String Literal"),
 
-            { "\\(", {"\\(", {"Open Parenthesis"}} },
-            { "\\)", {"\\)", {"Close Parenthesis"}} },
-            { "{", {"{", {"Open Brace"}} },
-            { "}", {"}", {"Close Brace"}} },
-            { "\\[", {"[", {"Open Bracket"}} },
-            { "\\]", {"]", {"Close Bracket"}} },
+            "\\(" : ("\\(" : "Open Parenthesis"),
+            "\\)" : ("\\)" : "Close Parenthesis"),
+            "{" : ("{" : "Open Brace"),
+            "}" : ("}" : "Close Brace"),
 
-            { ",", {",", {"Comma"}} },
+            "," : ("," : "Comma"),
 
-            {"==", {"EQN", {"Equality"}}},
-            {"!=", {"IEQ", {"Inequality"}}}
+            "==" : ("EQN" : "Equality"),
+            "!=" : ("IEQ" : "Inequality")
         },
 
-        { "clause",
-            {"SET", {"Set"}},
-            {"DECL", {"Declaration"}},
-            {"DEF", {"Definition"}},
-            {"BLK", {"Block"}},
-            {"PRDC", {"Predicate"}}
+        "clause" : {
+            "SET" : "Set",
+            "DECL" : "Declaration",
+            "PRDC" : "Predicate"
         },
 
-        { "syntax",
-            { "SET",
+        "syntax" : {
+            "SET" : {
                 {
-                    {"(ID)", {"REF"}},
-                    {"{}", {"EMP"}}
-                    {"{(SET)(,(SET))*}", {"GRP"}}
+                    "(ID)" : "REF",
+                    "{}" : "EMP",
+                    "{(SET)(,(SET))*}" : "GRP"
                 }
             }
         }

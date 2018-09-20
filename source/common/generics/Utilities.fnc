@@ -1,12 +1,15 @@
+"Utilities" in "common.generics"
 include "lang.format.Import"
-{
-    import None := import {"lang.format.Format", "commons.generics.Generics"}
 
+import {"commons.generics.Generics"} ~ {
     // Optionals
     Optional := T -> (
         value <: T | { {} },
         getOrDef : T def -> (T) ( TRUE : def, FALSE : value )(value == {})
     );
+
+    AsOpt := T -> (T value -> (Optional(T)) value);
+    NullOpt := T -> (Optional(T)) {};
 
     // States
     State := C -> S -> (C const, S var);

@@ -1,12 +1,12 @@
+"Generics" in "common.generics"
 include "common/format/Import"
-{
-    import None := import {"common/format/Format"};
 
+{
     /*
      * @arg set of input and output
      * @ret { Set of Transforms from the specified input to the specified output. }
      */
-    Transform := (I, O) -> (I |-> O);
+    Transform := (I, O) -> (I ~> O);
 
     /*
      * @arg certain set
@@ -16,9 +16,6 @@ include "common/format/Import"
 
     // Identity
     Id := T -> (Self(T)) (T v -> v);
-
-    // Pair
-    Pair := (T, S) -> (T left, S right);
 
     // Consumer and Supplier
     Consumer := (V) -> (I) -> ( (V mass, I input) ~> V );

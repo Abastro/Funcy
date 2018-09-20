@@ -1,7 +1,7 @@
 "Array" in "common.collection"
 include "lang.format.Import"
 
-import {"lang.format.Format", "common.generics.Generics", "common.memory.Memory", "common.collection.Ites"} ~ {
+import {"lang.format.Format", "common.generics.Generics", "common.control.Constrols", "common.memory.Memory", "common.collection.Ites"} ~ {
     /*
      * @arg The type set of the array
      * @ret { Set of arrays on the type }
@@ -22,12 +22,11 @@ import {"lang.format.Format", "common.generics.Generics", "common.memory.Memory"
         // Head
         head : (IteImpl) (0),
 
-        // Array hasNext Implementation
-        hasNext : ( IteImpl ite -> ite($index) < length ),
-
         // Array next Implementation
-        next : ( IteImpl ite -> (IteImpl) (ite($index)+1) ),
-
+        next : ( IteImpl ite -> {
+            ind := ite($index) + 1
+        } ~ Choose(Optional(IteImpl))(ind < length) (AsOpt((IteImpl) ind), NullOpt(IteImpl)) ),
+    
         Int index -> OffGet(headPtr, index)($value)
     )
 

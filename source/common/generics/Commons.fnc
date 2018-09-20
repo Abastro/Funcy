@@ -1,7 +1,7 @@
+"Commons" in "common.generics"
 include "lang.format.Import"
-{
-    import None := import {"lang.format.Format", "commons.generics.Generics"}
 
+import {"commons.generics.Generics"} ~ {
     // From native types
     FromBool := V -> Transform(Bool, V)
     FromInt := V -> Transform(Int, V);

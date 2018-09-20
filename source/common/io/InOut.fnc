@@ -1,6 +1,7 @@
-include "lang/format/Import"
-{
-    import None := import {"lang/format/Format", "lang/generics/Generics", "lang/generics/Utilities"}
+"InOut" in "common.io"
+include "lang.format.Import"
+
+import {"lang.generics.Generics", "lang.generics.Utilities"} ~ {
     // Opaque InState
     InState;
 

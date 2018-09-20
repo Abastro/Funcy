@@ -7,7 +7,7 @@ header gui.data
         (GuiData guiData, ElementID id, BoolState local) -> {
             Bool sign := local($bool)
         } ~ (
-            name : sign? "foo" : "bar",
+            name : Choose(sign)("foo", "bar"),
             color : 0xffdddddd,
 
             partition : 0.5, 
@@ -23,10 +23,10 @@ header gui.data
         (GuiData guiData, ElementID id, BoolState local) -> {
             Bool sign := local($bool)
         } ~ (
-            name : sign? "f" : "b"
-            color : 0xffdddddd
+            name : Choose(sign)("f", "b"),
+            color : 0xffdddddd,
 
-            partition : 1.0
+            partition : 1.0,
             onPressed : (
                 GuiState prev -> Wrap(prev, id, local($bool) = !sign)
             )

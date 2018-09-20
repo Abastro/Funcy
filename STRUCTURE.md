@@ -114,11 +114,13 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Code Unit
 
-0. ***Code Unit*** is the unit of a code which is represented as a file. 
+1. ***Code Unit*** is the unit of a code which is represented as a file. 
 
-1. A single code unit has a header and a single set in it.
+2. A single code unit has a header and a single set in it.
 
-2. First line of the header which is not a comment 
+3. First non-comment line of the header should be `"UnitName" in "packagename"`.
+
+4. Other lines are for format inclusions. Use `include "fullUnitName"` to include certain format.
 
 ## Behavior
 

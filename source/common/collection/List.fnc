@@ -2,17 +2,22 @@
 include "lang.format.Import"
 
 import {"lang.generics.Generics", "lang.collection.Ites"} ~ {
-    List := T -> (Iterable(T)) (
+    /*
+     * @arg the type set of List
+     * @ret { Set of Lists. }
+     */
+    List := T -> {
         // Iterator implementation, which is a subset of Ite
-        IteImpl : {
-            ListNode -= @Ite(T);
-            ListNode := (T value, Optional(ListNode) next);
-        } ~ ListNode,
+        IteImpl -= @Ite(T);
+        IteImpl := (T value, Optional(IteImpl) next);
+    } ~ (Iterable(T)) (
+        // Iterator implementation
+        Impl : IteImpl,
 
         // The head node
         IteImpl head,
 
         // next Implementation
-        next : (IteImpl impl -> impl($next)($value))
+        next : (IteImpl impl -> impl($next))
     );
 }

@@ -1,7 +1,7 @@
+"Memory" in "common.memory"
 include "common.basis.Import"
-{
-    import None := import "common/basis/Format", "common/basis/Types"
 
+import {"common.system.System", "common.generics.Utilities"} ~ {
     Ptr := F -> F value;
 
     // Evaluates Null Pointer when the type is given.

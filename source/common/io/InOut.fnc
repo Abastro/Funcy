@@ -2,10 +2,10 @@
 include "lang.format.Import"
 
 import {"lang.generics.Generics", "lang.generics.Utilities"} ~ {
-    // Opaque InState
+    // Opaque InState..?
     InState;
 
-    // Opaque OutState
+    // Opaque OutState..?
     OutState;
 
     // Out-related interfaces

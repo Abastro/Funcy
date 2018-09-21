@@ -3,12 +3,15 @@ include "lang.format.Import"
 
 import {"commons.generics.Generics"} ~ {
     // Optionals
-    Optional := T -> (
-        value <: T | { {} },
-        getOrDef : T def -> (T) ( TRUE : def, FALSE : value )(value == {})
+    // How to access hid values?
+    Optional := T -> {
+        theValue -= T | { {} };
+    } ~ (
+        getOrDef : T def -> (T) ( TRUE : def, FALSE : theValue )(theValue == {}),
+        isPresent : theValue != {}
     );
 
-    AsOpt := T -> (T value -> (Optional(T)) value);
+    AsOpt := T -> (T value -> (Optional(T)) (value));
     NullOpt := T -> (Optional(T)) {};
 
     // States
@@ -34,6 +37,7 @@ import {"commons.generics.Generics"} ~ {
 
     // Wrap Expansion
     WrapS := V -> O -> Supplier(V)(O) supplier -> (
+        // Well, wildcard here
         Wrap(V)(?) wrapped -> {
             pair := supplier(wrapped($value));
         } ~ (Wrap(V)(O)) (pair($value), pair($content))

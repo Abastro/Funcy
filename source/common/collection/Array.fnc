@@ -1,23 +1,27 @@
 "Array" in "common.collection"
 include "lang.format.Import"
 
-import {"lang.format.Format", "common.generics.Generics", "common.control.Constrols", "common.memory.Memory", "common.collection.Ites"} ~ {
+import {
+    "common.generics.Generics",
+    "common.control.Constrols",
+    "common.memory.Memory",
+    "common.collection.Ites"
+} ~ {
     /*
      * @arg The type set of the array
      * @ret { Set of arrays on the type }
      */
-    Array := F -> (Iterable(F) & FromInt(F)) (
+    Array := T -> (Iterable(T) & FromInt(T)) {
+        Int theLength;
+        Ptr(F) headPtr;
+        ElGetter := Int index -> OffGet(headPtr, index)($value);
+        IteImpl := { Int index; } ~ ( value : ElGetter(index) );
+    } ~ (
         // Length
-        Int length,
-
-        // Head pointer
-        Ptr(F) headPtr,
+        length : theLength,
 
         // Array Iterator Implementation
-        IteImpl : (
-            Int index,
-            value : OffGet(headPtr, index)($value)
-        ),
+        Impl : IteImpl,
 
         // Head
         head : (IteImpl) (0),
@@ -25,10 +29,10 @@ import {"lang.format.Format", "common.generics.Generics", "common.control.Constr
         // Array next Implementation
         next : ( IteImpl ite -> {
             ind := ite($index) + 1
-        } ~ Choose(Optional(IteImpl))(ind < length) (AsOpt((IteImpl) ind), NullOpt(IteImpl)) ),
-    
-        Int index -> OffGet(headPtr, index)($value)
-    )
+        } ~ Choose(Optional(IteImpl)) (ind < theLength) (AsOpt((IteImpl) ind), NullOpt(IteImpl)) ),
+
+        ElGetter
+    );
 
     // Set function
     Set := F -> (Array(F) array, Int index, F value) -> {

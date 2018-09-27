@@ -3,16 +3,18 @@ include "lang.format.Import"
 
 import {"commons.generics.Generics"} ~ {
     // Optionals
-    // How to access hid values?
-    Optional := T -> {
-        theValue -= T | { {} };
-    } ~ (
-        getOrDef : T def -> (T) ( TRUE : def, FALSE : theValue )(theValue == {}),
-        isPresent : theValue != {}
+    hid Optize := T -> (
+        (
+            theValue :: T | { {} }
+        ) -> (
+            getOrDef : (def -= T) -> (T) { TRUE : def, FALSE : theValue } (theValue == {}),
+            isPresent : theValue != {}
+        )
     );
 
-    AsOpt := T -> (T value -> (Optional(T)) (value));
-    NullOpt := T -> (Optional(T)) {};
+    Optional := T -> Image(Optize(T));
+    AsOpt := T -> (T value -> Optize(T)(value));
+    NullOpt := T -> Optize(T)({});
 
     // States
     State := C -> S -> (C const, S var);
@@ -23,7 +25,7 @@ import {"commons.generics.Generics"} ~ {
             state($const),
             consumer(state($var), state($const))
         )
-    ) -= Id(State(C)(S));
+    );
 
     // Wraps
     Wrap := V -> C -> (V value, C content);
@@ -37,7 +39,7 @@ import {"commons.generics.Generics"} ~ {
 
     // Wrap Expansion
     WrapS := V -> O -> Supplier(V)(O) supplier -> (
-        // Well, wildcard here
+        // Wildcard - union of all the sets
         Wrap(V)(?) wrapped -> {
             pair := supplier(wrapped($value));
         } ~ (Wrap(V)(O)) (pair($value), pair($content))

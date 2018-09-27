@@ -1,9 +1,6 @@
 // Tutorials - Surely, a bad one, which means you won't get it if you're five
 // Ah, right. You need to know programming basics for this.
-include "lang.basis.Import"
 {
-    import None := import {"common.basis.Format"}
-
     // This is a common syntax to declare a 'funcy'. It describes, basically, every object in this language.
     // Here, you can see a funcy is declared with the name on the left('TF') to have value on the right.
     // `:=` is the declaration operator, which declares the funcy in the right with the name `TF` on the left.

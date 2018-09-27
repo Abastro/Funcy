@@ -4,22 +4,22 @@ include "lang.format.Import"
 import {"lang.generics.Generics", "lang.generics.Commons"} ~ {
     // Conditional Statements
     // Either
-    Either := T -> (T forTrue, T forFalse) -> (FromBool(T)) (
+    Either := T -> (forTrue :: T, forFalse :: T) -> (FromBool(T)) {
         TRUE : forTrue,
         FALSE : forFalse
-    );
+    };
 
     // Choose
-    Choose := T -> (Bool flag) -> (
-        (T forTrue, T forFalse) -> Either(forTrue, forFalse)(flag)
+    Choose := T -> (flag :: T) -> (
+        (forTrue :: T, forFalse :: T) -> Either(forTrue, forFalse)(flag)
     );
 
     // Loop statements
     // For
     For := (
-        I -> (ToBool(I) condition, Self(I) increase) -> {
+        I -> (condition :: ToBool(I), increase :: Self(I)) -> {
             // Looper Declaration
-            Self(I) impl;
+            impl :: Self(I);
 
             // Looper Definition
             impl := I value -> Choose(condition(value)) (
@@ -28,8 +28,8 @@ import {"lang.generics.Generics", "lang.generics.Commons"} ~ {
             );
         } ~ impl,
         (C, I) -> (
-            (ToBool(State(C)(I)) condition, Consumer(I)(C) consumer) -> (Self(State(C)(I))) (
-                State(C)(I) state -> For(condition, WrapT(consumer))(state)
+            (condition :: ToBool(State(C)(I)), consumer :: Consumer(I)(C)) -> (Self(State(C)(I))) (
+                state :: State(C)(I) -> For(condition, WrapT(consumer))(state)
             )
         )
     );

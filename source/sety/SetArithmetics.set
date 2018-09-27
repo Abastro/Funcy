@@ -1,0 +1,91 @@
+// Pairs
+PRED pair.decl
+OR ?
+// First pair - Complement
+EQ
+VAR pair.decl
+
+PRED pair.decl.elem
+OR 2
+// Former set of the pair
+EQ
+VAR pair.decl.elem
+
+PRED pair.decl.elem.former
+EQ
+VAR pair.decl.elem.former
+REF Complement
+
+// Latter set of the pair
+EQ
+VAR pair.decl.elem
+
+PRED pair.decl.elem.latter
+OR 2
+EQ
+VAR pair.decl.elem.latter
+REF Complement
+EQ
+VAR pair.decl.elem.latter
+// Complement function
+PRED pair.complement
+NEQ
+INC EMPTY
+PRED pair.complement.input
+NEQ
+INC EMPTY
+PRED pair.complement.output
+NOR 2
+
+NEQ
+VAR pair.complement
+// The elemental pair
+PRED pair.complement.elem
+OR 2
+EQ
+VAR pair.complement.elem
+
+PRED pair.complement.elem.former
+EQ
+VAR pair.complement.elem.former
+VAR pair.complement.elem.input
+
+EQ
+VAR pair.complement.elem
+
+PRED pair.complement.elem.latter
+EQ
+VAR pair.complement.elem.latter
+VAR pair.complement.elem.input
+EQ
+VAR pair.complement.elem.latter
+VAR pair.complement.elem.output
+
+NEQ
+VAR pair.complement.output
+PRED pair.complement.output.elem
+PRED pair.complement.input.elem
+NOR 2
+NEQ
+VAR pair.complement.input.elem
+
+
+
+PRED output outputSet
+EQ
+VAR pairComplement
+
+PRED pairComplElem
+EQ
+VAR pairComplElem
+PRED former
+EQ
+VAR former
+VAR input
+
+
+// Second pair - Union
+EQ
+VAR pairDecl
+
+PRED pairDeclElem

@@ -17,4 +17,4 @@ import {
 } ~ {
     console := Console(System);
     populated := AsArray(1, 2, 3)(GetStack(System));
-} ~ Loop(populated($output), console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas
+} ~ Loop(populated.output, console, Print(ItoS)) != INVALID    // Compiler deal with guessing the type parameters. Also, lambdas

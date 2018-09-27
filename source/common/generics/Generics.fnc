@@ -18,7 +18,7 @@ include "common/format/Import"
     Id := T -> (Self(T)) (T v -> v);
 
     // Consumer and Supplier
-    Consumer := (V) -> (I) -> ( (V mass, I input) ~> V );
-    Supplier := (V) -> (O) -> ( V ~> (V mass, O output) );
+    Consumer := (V) -> (I) -> ( (mass :: V, input :: I) ~> V );
+    Supplier := (V) -> (O) -> ( V ~> (mass :: V, output :: O) );
 
 }

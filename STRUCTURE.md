@@ -392,11 +392,6 @@ A submodule which introduces integer arithmetics and literals.
 A submodule for type system.
 
 
-## Power Set Submodule
-
-`@(set)`
-
-
 ## Conversion Submodule
 
 Type conversion don't need the decided elements.

@@ -7,17 +7,14 @@ import {"lang.generics.Generics", "lang.collection.Ites"} ~ {
      * @ret { Set of Lists. }
      */
     List := T -> {
-        // Iterator implementation, which is a subset of Ite
-        IteImpl -= @Ite(T);
-        IteImpl := (T value, Optional(IteImpl) next);
-    } ~ (Iterable(T)) (
-        // Iterator implementation
-        Impl : IteImpl,
-
-        // The head node
-        IteImpl head,
-
-        // next Implementation
-        next : (IteImpl impl -> impl($next))
-    );
+        Con := Container(T);
+        ListImpl :: ExtSet(Con);
+        ListImpl := (
+            (value -= T) -> AsIterable(T)(Con)(pHead : AsContainer(T)(value), next : value -= Con -> NullOpt(Con)),
+            (value -= T, list -= ListImpl) -> AsIterable(T)(ListImpl)(
+                pHead : list,
+                pNext : 
+            )
+        );
+    } -> ListImpl;
 }

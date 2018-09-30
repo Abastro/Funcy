@@ -17,36 +17,42 @@ import {"commons.generics.Generics"} ~ {
     NullOpt := T -> Optize(T)({});
 
     // States
-    State := C -> S -> (C const, S var);
+    AsState := C -> S -> (
+        prop :: func { const :: C; var :: S; } -> { const : prop.const, var : prop.var }
+    )
+    State := C -> S -> Image(AsState(C)(S));
 
     // State Transition
-    StateT := C -> S -> Consumer(S)(C) consumer -> (Id(State(C)(S))) (
-        State(C)(S) state -> (State(C)(S)) (
-            state($const),
-            consumer(state($var), state($const))
+    StateT := C -> S -> Consumer(S)(C) consumer -> ( Id(State(C)(S)) ) (
+        state :: State(C)(S) -> AsState(C)(S)(
+            state.const,
+            consumer(state.var, state.const)
         )
     );
 
     // Wraps
-    Wrap := V -> C -> (V value, C content);
+    AsWrap := V -> C -> (
+        prop :: func { value :: V; content :: C; } -> { value : prop.value, content : prop.content }
+    )
+    Wrap := V -> C -> Image(AsWrap(V)(C));
 
     // Wrap 
     WrapC := V -> I -> Consumer(V)(I) consumer -> (
-        Wrap(V)(I) wrapped -> (Wrap(V)(FALSE)) (
-            consumer(wrapped($value), wrapped($content)), FALSE
+        wrapped :: Wrap(V)(I) -> AsWrap(V)({FALSE})) (
+            consumer(wrapped.value, wrapped.content), FALSE
         )
     );
 
     // Wrap Expansion
     WrapS := V -> O -> Supplier(V)(O) supplier -> (
         // Wildcard - union of all the sets
-        Wrap(V)(?) wrapped -> {
+        wrapped :: Wrap(V)(?) -> {
             pair := supplier(wrapped($value));
-        } ~ (Wrap(V)(O)) (pair($value), pair($content))
+        } ~ AsWrap(V)(O)(pair($value), pair($content))
     );
 
     // Wrap Transformation
-    WrapT := V -> (I, O) -> Transform(I, O) transform -> (
-        Wrap(V)(I) wrapped -> (Wrap(V)(O)) (wrapped($value), transform(wrapped($content)))
+    WrapT := V -> I -> O -> transform :: Transform(I)(O) -> (
+        Wrap(V)(I) wrapped -> AsWrap(V)(O)(wrapped($value), transform(wrapped($content)))
     );
 }

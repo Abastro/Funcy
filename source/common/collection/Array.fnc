@@ -9,23 +9,23 @@ import {
     "common.collection.Ites"
 } ~ {
     hid ArrayWith := T -> (
-        (
-            // Represents Fields
-            pLength :: Int,
-            headPtr :: Ptr(F)
-        ) -> {
-            ElGetter := (FromInt(T)) (index :: Int) -> OffGet(headPtr, index).value;
-            IterFor := (pIndex :: Int) -> AsContainer(ElGetter(pIndex)) | (index : pIndex);
+        props :: func {
+            // Represents Properties
+            length :: Int;
+            headPtr :: Ptr(F);
+        } -> {
+            ElGetter := (FromInt(T)) (index :: Int) -> OffGet(props.headPtr, index).value;
+            IterFor := (pIndex :: Int) -> (index : pIndex);
             IterImpl := Image(IterFor);
         } ~ AsIterable(T)(IterImpl) {
             // Inheritance Definition
-            pHead : IterFor(0),
-            pNext : ( ite -= IteImpl -> {
+            head : IterFor(0),
+            next : ( ite :: IteImpl -> {
                 ind := ite.index + 1
-            } ~ Choose(Optional(IteImpl)) (ind < pLength) ( AsOpt(IterFor(ind))), NullOpt(IterImpl) )
+            } ~ Choose(Optional(IteImpl)) (ind < props.length) ( AsOpt(IterFor(ind))), NullOpt(IterImpl) )
         } | {
             // Exposed Methods
-            length : pLength,
+            length : props.length,
         } | ElGetter;
     );
 
@@ -33,30 +33,28 @@ import {
     Array := T -> Image(ArrayWith(T));
 
     // Set function
-    Set := F -> (array :: Array(F), index :: Int, value :: F) -> {
-        newPtr := OffSet(array.head.pointer, index, value);
-    } ~ ArrayWith(array.length, newPtr);
+    Set := F -> param :: func { array :: Array(F); index :: Int; value :: F; } -> {
+        newPtr := OffSet(param.array.head.pointer, param.index, param.value);
+    } ~ ArrayWith(param.array.length, newPtr);
 
 
     // Creates an array
-    NewArray := F -> size :: Int -> Comp(
+    NewArray := F -> (size :: Int) -> Comp(
         WrapS(NewPtr(F)),
-        WrapT(Ptr(F) pointer -> ArrayWith(size, pointer))
+        WrapT(pointer :: Ptr(F) -> ArrayWith(size, pointer))
     );
 
     // Deletes an array
     DelArray := F -> Comp(
-        WrapT(Array(F) array -> array.head.pointer),
+        WrapT(array :: Array(F) -> array.head.pointer),
         WrapC(DelPtr(F))
     );
 
     AsArray := F -> (
-        // Single parameter
-        (a1 :: F) -> Comp(
+        (a :: F) -> Comp(
             NewArray(F)(1),
-            WrapT(Array(F) array -> Set(array, 0, a1))
-        ),
-
+            WrapT(array :: Array(F) -> Set(array, 0, a))
+        ) |
         // Double parameter
         (a1 :: F, a2 :: F) -> Comp(
             NewArray(F)(2),
@@ -64,8 +62,7 @@ import {
                 Array(F) array -> Set(array, 0, a1),
                 Array(F) array -> Set(array, 1, a2)
             ))
-        ),
-
+        ) |
         // Triple parameter
         (a1 :: F, a2 :: F, a3 :: F) -> Comp(
             NewArray(F)(3),

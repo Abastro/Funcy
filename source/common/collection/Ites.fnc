@@ -7,15 +7,13 @@ import {
     "commons.generics.Utilities"
 } ~ {
     AsIterable := T -> (
-        (
-            PIter :: ExtSet(Container(T))
-        ) -> (
-            pHead :: PIter,
-            pNext :: (PIter ~> Optional(PIter))
-        ) -> {
+        PIter -> props :: {
+            head :: PIter;
+            next :: (PIter ~> Optional(PIter));
+        } -> {
             Iterator : PIter,
-            head : pHead,
-            next : pNext
+            head : props.head,
+            next : props.next
         }
     );
 

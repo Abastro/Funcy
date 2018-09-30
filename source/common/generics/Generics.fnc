@@ -15,10 +15,10 @@ include "common/format/Import"
     Self := T -> Transform(T, T);
 
     // Identity
-    Id := T -> (Self(T)) (T v -> v);
+    Id := T -> (Self(T)) (v :: T -> v);
 
     // Consumer and Supplier
-    Consumer := (V) -> (I) -> ( (mass :: V, input :: I) ~> V );
-    Supplier := (V) -> (O) -> ( V ~> (mass :: V, output :: O) );
+    Consumer := V -> I -> ( func { mass :: V; input :: I; } ~> V );
+    Supplier := V -> O -> ( V ~> func { mass :: V; output :: O; } );
 
 }

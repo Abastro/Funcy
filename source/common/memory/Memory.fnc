@@ -2,7 +2,7 @@
 include "common.basis.Import"
 
 import {"common.system.System", "common.generics.Utilities"} ~ {
-    Ptr := F -> F value;
+    Ptr := F -> value : F;
 
     // Evaluates Null Pointer when the type is given.
     NullPtr :: F => Ptr(F);

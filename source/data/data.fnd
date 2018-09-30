@@ -3,33 +3,35 @@ header gui.data
 {
     SPACING := 6
 } ~ LayoutHor(SPACING) [
-    (GuiButton(BoolState) & HasPartition) (
-        (GuiData guiData, ElementID id, BoolState local) -> {
-            Bool sign := local($bool)
-        } ~ (
-            name : Choose(sign)("foo", "bar"),
+    GuiElement(BoolState) (
+        param :: LocGuiState(BoolState) -> {
+            Bool sign := local.bool;
+        } ~ GuiButton {
+            name : Choose(sign)("foo" : "bar"),
             color : 0xffdddddd,
-
-            partition : 0.5, 
-            onPressed : Watch (
-                MessageBox(state, "foo", "bar"),
-                GuiState prev -> (
-                    Bool result -> Wrap(prev, id, local($bool) = result)
-                )
+            onPressed : GuiState prev -> AsGuiState(prev, id, Update(local, bool : -sign))
+        } | GuiPartition(0.5)
+    ),
+    (GuiData guiData, ElementID id, BoolState local) -> {
+        Bool sign := local($bool);
+    } ~ (
+        partition : 0.5, 
+        onPressed : Watch (
+            MessageBox(state, "foo", "bar"),
+            GuiState prev -> (
+                Bool result -> Wrap(prev, id, local($bool) = result)
             )
         )
     ),
-    (GuiButton(BoolState) & HasPartition) (
-        (GuiData guiData, ElementID id, BoolState local) -> {
-            Bool sign := local($bool)
-        } ~ (
-            name : Choose(sign)("f", "b"),
-            color : 0xffdddddd,
+    (GuiData guiData, ElementID id, BoolState local) -> {
+        Bool sign := local($bool);
+    } ~ (
+        name : Choose(sign)("f", "b"),
+        color : 0xffdddddd,
 
-            partition : 1.0,
-            onPressed : (
-                GuiState prev -> Wrap(prev, id, local($bool) = !sign)
-            )
+        partition : 1.0,
+        onPressed : (
+            GuiState prev -> Wrap(prev, id, local($bool) = !sign)
         )
     )
 ]

@@ -2,22 +2,19 @@
 include "lang.format.Import"
 
 import {"lang.generics.Generics", "lang.generics.Utilities"} ~ {
-    // Opaque InState..?
-    InState;
-
-    // Opaque OutState..?
-    OutState;
-
     // Out-related interfaces
-    Writer := Consumer(OutState, String);
-    OutStream := State(Writer, OutState);
+    AsWriterType := OutState -> Consumer(OutState, String);
+    Writer := AsWriterType(?);
 
-    Print := T -> (ToString(T) toString) -> (Consumer(OutStream, T)) (
-        (OutStream stream, T toPrint) -> (
+    AsOutStreamType := OutState -> State(AsWriterType(OutState), OutState)
+    OutStream := AsOutStreamType(?);
+
+    Print := T -> (toString :: ToString(T)) -> (Consumer(OutStream, T)) (
+        param :: func {stream :: OutStream, toPrint :: T} -> (
             // Transition of the stream
             StateT(
-                (OutState state, Writer writer) -> writer(state, toString(toPrint))
-            )(stream)
+                trans :: func {state :: OutState, writer :: Writer} -> trans.writer(trans.state, toString(param.toPrint))
+            )(param.stream)
         )
     )
 }

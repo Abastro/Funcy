@@ -3,18 +3,17 @@ include "lang.format.Import"
 
 import {"commons.generics.Generics"} ~ {
     // Optionals
-    hid Optize := T -> (
+    Optional := T -> (
         (
             theValue :: T | { {} }
         ) -> (
-            getOrDef : (def :: T) -> (T) { TRUE : def, FALSE : theValue } (theValue == {}),
+            getOrDef : (def :: T) -> As T ( { TRUE : def, FALSE : theValue } (theValue == {}) ),
             isPresent : theValue != {}
         )
     );
 
-    Optional := T -> Image(Optize(T));
-    AsOpt := T -> (T value -> Optize(T)(value));
-    NullOpt := T -> Optize(T)({});
+    AsOpt := T -> (value :: T -> Optional T value);
+    NullOpt := T -> Optional T {};
 
     // States
     AsState := C -> S -> (

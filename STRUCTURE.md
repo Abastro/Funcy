@@ -1,10 +1,10 @@
 # Preface
 
-Funcy is an unusual programming language, which doesn't have anything other than *sets*.
+Funcy is a functional programming language where everything is defined as function.
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
-(At some point would make a language based on sequences)
+(At some point would make a language based on sets/sequences)
 
 # Language Frame (Basis Module)
 

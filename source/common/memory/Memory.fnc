@@ -10,14 +10,14 @@ import {"common.system.System", "common.generics.Utilities"} ~ {
     MemStack;
     GetStack :: {System} ~> MemStack;
 
-    NewPtr :: F => Supplier(MemStack)(Ptr(F));
-    NewArrPtr :: F => ( Int ~> Supplier(MemStack)(Ptr(F)) )
+    NewPtr :: F => Supplier MemStack:Ptr(F);
+    NewArrPtr :: F => ( Int ~> Supplier MemStack:Ptr(F) )
 
-    DelPtr :: F => Consumer(MemStack)(Pointer(F))
-    DelArrPtr :: F => ( Int ~> Consumer(MemStack)(Pointer(F)) )
+    DelPtr :: F => Consumer MemStack:Ptr(F)
+    DelArrPtr :: F => ( Int ~> Consumer MemStack:Ptr(F) )
 
 
-    Set :: F => ( (pointer :: Pointer(F), value :: F) ~> Pointer(F) )
-    OffGet :: F => ( (pointer :: Pointer(F), offset :: Int) ~> Pointer(F) )
-    OffSet :: F => ( (pointer :: Pointer(F), offset :: Int, value :: F) ~> Pointer(F) )
+    Set :: F => ( (pointer :: Ptr F, value :: F) ~> Ptr F )
+    OffGet :: F => ( (pointer :: Ptr F, offset :: Int) ~> Ptr F )
+    OffSet :: F => ( (pointer :: Ptr F, offset :: Int, value :: F) ~> Ptr F )
 }

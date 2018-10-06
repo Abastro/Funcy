@@ -17,11 +17,11 @@ import {
         }
     );
 
-    Iterable := T -> Image(IterableFor(T)(?));
+    Iterable := T -> Image(IterableFor T ?);
 
     // Loops through the iterable.
     Loop := (V, T) -> (
-        (Iterable(T) iterable, V initial, Consumer(V, T) consumer) -> For(
+        (iterable :: Iterable T, initial :: V, consumer :: Consumer(V:T)) -> For(
             (iterable.head, initial),
             (Ite(T) ite, V val) -> iterable($next) ite.isPresent,
             (Ite(T) ite, V val) -> (iterable($next) ite.getOrDefault(ite), consumer(val, ite.value))

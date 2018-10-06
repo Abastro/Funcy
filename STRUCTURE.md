@@ -171,29 +171,10 @@ A submodule which introduces references.
 
     2. Defined by *Expression*
 
-        * `(set_rel) ~ (set_expr)` where `set_rel` is the relation R, and `set_expr` is the expression with some unknown identifiers. For any of these identifiers ID, let REF the reference corresponding to the ID. The set represented by the identifier ID is then declared to be in set T, which is a set of S where (REF, S) is in R.
+        * `(set_rel) ~ (set_expr)` where `set_rel` is the relation R, and `set_expr` is the expression with some unknown identifiers. the relation provides declarations for the unknown identifiers. Gives error if there are more than one result or there is no result.
 
 2. *Predicate*
 
-## Compound Submodule
-
-A submodule for function compounds.
-
-### Mathematics
-
-1. A ***Compound*** is an operation which gives a set from a sequence of sets.
-
-### Clause
-
-1. ***Mapping*** is a clause which represents a set of pair.
-
-### Syntax
-
-1. *Set*
-
-    1. Defined by *Compound*
-
-        * `((mapping_1), (mapping_2), ..., (mapping_n))` where each `mapping_i`
 
 
 ## Block Submodule

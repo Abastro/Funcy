@@ -7,10 +7,10 @@ header gui.data
         param :: LocGuiState(BoolState) -> {
             Bool sign := local.bool;
         } ~ GuiButton {
-            name : Choose(sign)("foo" : "bar"),
+            name : Choose sign ("foo" : "bar"),
             color : 0xffdddddd,
-            onPressed : GuiState prev -> AsGuiState(prev, id, Update(local, bool : -sign))
-        } | GuiPartition(0.5)
+            onPressed : prev :: GuiState -> AsGuiState(prev, id, Update(local, bool : -sign))
+        } | GuiPartition 0.5
     ),
     (GuiData guiData, ElementID id, BoolState local) -> {
         Bool sign := local($bool);

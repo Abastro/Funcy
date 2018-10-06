@@ -7,7 +7,7 @@ import {"commons.generics.Generics"} ~ {
         (
             theValue :: T | { {} }
         ) -> (
-            getOrDef : (def -= T) -> (T) { TRUE : def, FALSE : theValue } (theValue == {}),
+            getOrDef : (def :: T) -> (T) { TRUE : def, FALSE : theValue } (theValue == {}),
             isPresent : theValue != {}
         )
     );

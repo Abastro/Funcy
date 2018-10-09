@@ -4,28 +4,26 @@ include "lang.format.Import"
 import {"lang.generics.Generics", "lang.generics.Commons"} ~ {
     // Conditional Statements
     // Either
-    Either := T -> param :: { forTrue :: T; forFalse :: T; } -> (FromBool T) {
-        TRUE : param.forTrue,
-        FALSE : param.forFalse
+    Either : T -> param : TypeP T:T ? -> FromBool T {
+        TRUE : InP param;
+        FALSE : OutP param;
     };
 
     // Choose
-    Choose := T -> (flag :: T) -> (
-        param :: { forTrue :: T; forFalse :: T; } -> Either param flag
+    Choose : T -> (flag : Bool ?) -> (
+        param : TypeP T:T ? -> Either param flag
     );
 
     // Loop statements
     // For
-    For := (
-        I -> param :: { condition :: ToBool I; increase :: Self I; } -> {
+    For : (
+        I -> param : { condition : ToBool I ?; increase : Self I ?; } -> {
             // Looper Declaration
-            impl :: Self I;
+            impl : Self I ?;
 
             // Looper Definition
-            impl := I value -> Choose (param.condition value) (
-                impl(param.increase(value)),
-                value
-            );
+            impl : Self I ( (value : I ?) -> Choose (param.condition value) (impl (param.increase value) : value) );
+            }
         } ~ impl
     );
 

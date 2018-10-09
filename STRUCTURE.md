@@ -1,6 +1,6 @@
 # Preface
 
-Funcy is a functional programming language where everything is defined as function.
+Funcy is a functional programming language where everything is defined as relation.
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 
@@ -10,9 +10,7 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Mathematics
 
-0. Let's assume the *set of everything* or the *whole set* exists. This is possible because only finite instructions could be added, thus the set of everything which can be expressed via code is also not too big to introduce contradiction.
-
-1. A ***Set*** is a group of objects. It has containment relationship as a predicate.
+1. A ***Relation*** is a relation among given set of objects - This is superset of functions, and it's safe to assume that a relation is a function with multiple possible returns.
 
 2. A ***Pair*** (I, O) is a set {{I}, {I, O}}. I is called as *input* and O is called as *output*.
 

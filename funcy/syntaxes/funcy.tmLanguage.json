@@ -36,11 +36,11 @@
 			"patterns": [
 				{
 					"name": "keyword.other",
-					"match": "\\b(Bool|Int|Float|Char)\\b"
+					"match": "\\b(Bool|Int|Float|Char|Function|Con|Domain)\\b"
 				},
 				{
 					"name": "keyword.control",
-					"match": "\\b(in|include|import|specify|inherits|template|hid|func)\\b"
+					"match": "\\b(in|include|import|specify|hid|func)\\b"
 				},
 				{
 					"name":"constant",

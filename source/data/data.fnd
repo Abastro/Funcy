@@ -4,16 +4,16 @@ header gui.data
     SPACING := 6
 } ~ LayoutHor(SPACING) [
     GuiElement(BoolState) (
-        param :: LocGuiState(BoolState) -> {
-            Bool sign := local.bool;
+        param : LocGuiState(BoolState) -> {
+            sign : Bool local.bool;
         } ~ GuiButton {
-            name : Choose sign ("foo" : "bar"),
-            color : 0xffdddddd,
-            onPressed : prev :: GuiState -> AsGuiState(prev, id, Update(local, bool : -sign))
+            name : Choose sign ("foo" : "bar");
+            color : 0xffdddddd;
+            onPressed : (prev : GuiState) -> AsGuiState(prev, id, Update(local, bool : -sign));
         } | GuiPartition 0.5
     ),
     (GuiData guiData, ElementID id, BoolState local) -> {
-        Bool sign := local($bool);
+        sign := Bool local($bool);
     } ~ (
         partition : 0.5, 
         onPressed : Watch (

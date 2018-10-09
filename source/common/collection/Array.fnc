@@ -8,29 +8,29 @@ import {
     "common.memory.Memory",
     "common.collection.Ites"
 } ~ {
-    hid ArrayWith := T -> (
-        props :: func {
-            // Represents Properties
-            length :: Int;
-            headPtr :: Ptr F;
-        } -> {
-            ElGetter := (FromInt T) (index :: Int) -> OffGet(props.headPtr, index).value;
-            IterFor := (pIndex :: Int) -> (index : pIndex);
-            IterImpl := Image(IterFor);
-        } ~ AsIterable T IterImpl {
+    SizedArray : T -> (
+        length : Int ? ->
+        headPtr : Ptr F ? -> {
+            ElGetter : (FromInt T) (index :: Int ?) -> (OffGet index props.headPtr).value;
+            IterFor : (pIndex : Int ?) -> (index : pIndex);
+        } ~ AsIterable T IterFor {
             // Inheritance Definition
-            head : IterFor 0,
-            next : ( ite :: IteImpl -> {
-                ind := ite.index + 1
-            } ~ Choose(Optional(IteImpl)) (ind < props.length) ( AsOpt(IterFor(ind))), NullOpt(IterImpl) )
+            head : IterFor 0;
+            next : ( ite : IteFor ? -> {
+                ind : ite.index + 1
+            } ~ Choose(Optional IterFor) (ind < props.length) ( AsOpt (IterFor ind), NullOpt IterFor );
         } | {
             // Exposed Methods
-            length : props.length,
+            length : props.length;
         } | ElGetter;
     );
 
     // Array type definition
-    Array := T -> Image(ArrayWith T);
+    Array := T -> con :: TypeP Int (Ptr F) -> ArrayWith (InP con) (OutP con);
+
+    Set := F -> pair : TypeP Int F -> Self (Array F) ( array :: Array F -> {
+        newPtr := OffSet InP pair (array.head.pointer : OutP pair)
+    });
 
     // Set function
     Set := F -> param :: func { array :: Array F; index :: Int; value :: F; } -> {

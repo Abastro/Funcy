@@ -6,18 +6,16 @@ import {
     "common.generics.Commons",
     "commons.generics.Utilities"
 } ~ {
-    AsIterable := T -> (
-        PIter -> props :: {
-            head :: PIter;
-            next :: (PIter ~> Optional(PIter));
+    Iterable := T -> (
+        PIter -> props : func {
+            head : PIter ?;
+            next : Function PIter (Optional PIter) ?;
         } -> {
-            Iterator : PIter,
-            head : props.head,
-            next : props.next
+            Iterator : PIter;
+            head : props.head;
+            next : props.next;
         }
     );
-
-    Iterable := T -> Image(IterableFor T ?);
 
     // Loops through the iterable.
     Loop := (V, T) -> (

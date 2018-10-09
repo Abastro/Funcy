@@ -3,19 +3,19 @@ include "lang.format.Import"
 
 import {"commons.generics.Generics"} ~ {
     // From native types
-    FromBool := V -> Transform(Bool:V)
-    FromInt := V -> Transform(Int:V);
-    FromFloat := V -> Transform(Float:V);
-    FromChar := V -> Transform(Char:V);
+    FromBool : V -> Function (Bool:V)
+    FromInt : V -> Function (Int:V);
+    FromFloat : V -> Function (Float:V);
+    FromChar : V -> Function (Char:V);
 
-    FromString := V -> Transform(String:V);
+    FromString : V -> Function (String:V);
 
 
     // To native types
-    ToBool  := V -> Transform(V:Bool);
-    ToInt := V -> Transform(V:Int);
-    ToFloat := V -> Transform(V:Float);
-    ToChar := V -> Transform(V:Char);
+    ToBool  : V -> Function (V:Bool);
+    ToInt : V -> Function (V:Int);
+    ToFloat : V -> Function (V:Float);
+    ToChar : V -> Function (V:Char);
 
-    ToString := V -> Transform(V:String);
+    ToString : V -> Function (V:String);
 }

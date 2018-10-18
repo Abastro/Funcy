@@ -6,10 +6,10 @@ import {
     "common.generics.Commons",
     "commons.generics.Utilities"
 } ~ {
-    Iterable := T -> (
-        PIter -> props : func {
+    Iterable : T -> (
+        PIter -> props : {
             head : PIter ?;
-            next : Function PIter (Optional PIter) ?;
+            next : Function (PIter : (Optional PIter)) ?;
         } -> {
             Iterator : PIter;
             head : props.head;
@@ -18,11 +18,11 @@ import {
     );
 
     // Loops through the iterable.
-    Loop := (V, T) -> (
-        (iterable :: Iterable T, initial :: V, consumer :: Consumer(V:T)) -> For(
+    Loop : (V, T) -> (
+        (iterable : Iterable T, initial : V, consumer : Consumer(V:T)) -> For(
             (iterable.head, initial),
-            (Ite(T) ite, V val) -> iterable($next) ite.isPresent,
-            (Ite(T) ite, V val) -> (iterable($next) ite.getOrDefault(ite), consumer(val, ite.value))
+            (ite : iterable.Iterator ?, val : V ?) -> iterable($next) ite.isPresent,
+            (ite : iterable.Iterator ?, val : V ?) -> (iterable($next) ite.getOrDefault(ite), consumer(val, ite.value))
         )
     );
 }

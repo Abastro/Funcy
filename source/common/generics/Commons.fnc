@@ -1,7 +1,6 @@
 "Commons" in "common.generics"
-include "lang.format.Import"
 
-import {"commons.generics.Generics"} ~ {
+{
     // From native types
     FromBool : V -> Function (Bool:V)
     FromInt : V -> Function (Int:V);

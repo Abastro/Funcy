@@ -10,11 +10,13 @@ It's capable of all things programming languages can do, because it includes lam
 
 ## Mathematics
 
-1. A ***Relation*** is a relation among given set of objects - This is superset of functions, and it's safe to assume that a relation is a function with multiple possible returns.
+1. A ***Relation*** is a collection of input I and output O, which gives certain directed matching for the two. - This is superset of functions, and it's safe to assume that a relation is a function with multiple possible returns.
 
-2. A ***Pair*** (I, O) is a set {{I}, {I, O}}. I is called as *input* and O is called as *output*.
+2. A ***Function*** is a relation where for every input, there is only one output.
 
-3. A ***Recursive Sequence*** of a set V is a set representation of a sequence, which is recursively defined in this way:
+2. A ***Pair*** I:O is a function with single input and single output.
+
+3. A ***Tuple*** of a set V is a set representation of a sequence, which is recursively defined in this way:
 
     * An empty set is a recursive sequence.
 

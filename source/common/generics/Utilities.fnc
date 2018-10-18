@@ -23,7 +23,7 @@ import {"commons.generics.Generics"} ~ {
 
     // States
     State : C -> S -> (
-        prop : TypedP (C:S) ? -> { const : InP prop; var : OutP prop; }
+        prop : TypeP (C:S) ? -> { const : InP prop; var : OutP prop; }
     );
 
     // State Transition
@@ -35,13 +35,13 @@ import {"commons.generics.Generics"} ~ {
 
     // Wraps
     Wrap : V -> C -> (
-        prop : TypedP (V:C) ? -> { value : InP prop; content : OutP prop; }
+        prop : TypeP (V:C) ? -> { value : InP prop; content : OutP prop; }
     );
 
     // Wrap 
     WrapC := V -> I -> consumer :: Consumer V I ? -> (
-        wrapped : Wrap V I ? -> Wrap V FALSE (
-            consumer (wrapped.value : wrapped.content) : FALSE
+        wrapped : Wrap V I ? -> Wrap V Void (
+            consumer (wrapped.value : wrapped.content) : {}
         )
     );
 

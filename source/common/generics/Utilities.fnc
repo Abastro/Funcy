@@ -3,27 +3,27 @@ include "lang.format.Import"
 
 import {"commons.generics.Generics"} ~ {
     // Optionals
-    hid RawOpt : T -> (
-        (theValue : T ?) -> {
-            getOrDef : (def : T ?) -> theValue;
-            isPresent : TRUE;
+    Optional : \T = \theValue : NullOr T ? = {
+        getOrDef : Self T ?;
+        isPresent : Bool ?;
+    };
+
+    Optional : \T = (
+        \theValue : T ? = {
+            getOrDef : Self T (\def : T ? \ theValue);
+            isPresent : Bool TRUE;
         } | {} : {
-            getOrDef : (def : T ?) -> def;
-            isPresent : FALSE;
+            getOrDef : Self T (\def : T ? \ def);
+            isPresent : Bool FALSE;
         }
     );
 
-    Optional : T -> opt : RawOpt T ? -> {
-        getOrDef : Self T opt.getOrDef;
-        isPresent : Bool opt.isPresent;
-    }
-
-    AsOpt : T -> value : T ? -> Optional T (RawOpt T value);
-    NullOpt = T -> Optional T (RawOpt {});
+    AsOpt : \T = \value : T ? = Optional T value;
+    NullOpt : \T = Optional T {};
 
     // States
-    State : C -> S -> (
-        prop : TypeP (C:S) ? -> { const : InP prop; var : OutP prop; }
+    State : \C = \S = (
+        \prop : TypeP (C:S) ? = { const : InP prop; var : OutP prop; }
     );
 
     // State Transition

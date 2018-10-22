@@ -6,6 +6,12 @@ It's capable of all things programming languages can do, because it includes lam
 
 (At some point would make a language based on sets/sequences)
 
+Calculation of
+`f g h`
+1. evaluate f 
+2. evaluate (f) g
+3. evaluate (f g) h
+
 # Language Frame (Basis Module)
 
 ## Mathematics

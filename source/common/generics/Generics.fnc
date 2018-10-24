@@ -13,7 +13,7 @@
 
     TRUE = InOf;
     FALSE = OutOf;
-    Bool = (TRUE : TRUE) | (FALSE : FALSE);
+    Bool = { TRUE : TRUE; FALSE : FALSE; };
 
     Self = \T : Function (T:T); // This takes expression as a parameter
 
@@ -22,7 +22,7 @@
 
     // Null
     Void = Type ({} : {});
-    NullOr = \T : (Type T | Void);
+    NullOr = \T : {Type T; Void;};
 
     NonNull = Type ( \F : F );
     Nullable = NullOr NonNull;
@@ -33,14 +33,14 @@
 
     // Composition
     hid CompType = \TypePair = (?:?) : \M = Nullable ? : ?;
-    hid CompType = \TypePair = (?:?) : (
+    hid CompType = \TypePair = (?:?) : {
         \M : (
             Function (InOf TypePair : M) : TypeD (CompType (M : OutOf TypePair))
-        ) |
+        );
         {} : (
             Function TypePair : Void
         )
-    );
+    };
 
     Comp = \TypePair = (?:?) : \fns = CompType ? TypePair ? : Function TypePair ?;
     Comp = \TypePair = (?:?) : (

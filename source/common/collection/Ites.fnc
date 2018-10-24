@@ -6,7 +6,7 @@ import {
     "common.generics.Commons",
     "commons.generics.Utilities"
 } ~ {
-    Iterable : \T = (
+    Iterable : \T : (
         \PIter = \props : {
             head : PIter ?;
             next : Function (PIter : (Optional PIter)) ?;

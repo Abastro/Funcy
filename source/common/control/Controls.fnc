@@ -3,30 +3,30 @@
 import {"common.generics.Generics", "common.generics.Commons"} ~ {
     // Conditional Statements
     // Either
-    Either = \T : \param = Pair (T:T) ? : FromBool T (
-        TRUE : InOf param |
-        FALSE : OutOf param
-    );
+    Either. \T. \param = Pair (T:T) ?. FromBool T {
+        TRUE. InOf param;
+        FALSE. OutOf param;
+    };
 
     // Choose
-    Choose = \T : FromBool (Function ( Pair(T:T):T )) ?;
-    Choose = \T : (
-        TRUE : \param = Pair (T:T) ? : InOf param |
-        FALSE : \param = Pair (T:T) ? : OutOf param
-    );
+    Choose. \T. FromBool (Function ( Pair(T:T):T )) ?;
+    Choose. \T. {
+        TRUE. \param = Pair (T:T) ?. InOf param;
+        FALSE. \param = Pair (T:T) ?. OutOf param;
+    };
 
     // Assert
-    Assert = TRUE : (\x = ? : x);
+    Assert. TRUE. (\x = ?. x);
 
     // Loop statements
     // For
-    For = (
-        \I : \param = { condition = ToBool I ?; increase = Self I ?; } : {
+    For. (
+        \I. \param = { condition. ToBool I ?; increase. Self I ?; }. {
             // Looper Declaration
-            impl = Self I ?;
+            impl. Self I ?;
 
             // Looper Definition
-            impl = Self I ( \value = I ? : Choose (param.condition value) (impl (param.increase value) : value) );
+            impl. Self I ( \value = I ?. Choose (param.condition value) (impl (param.increase value) : value) );
             }
         } ~ impl
     );

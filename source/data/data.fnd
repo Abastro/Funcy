@@ -1,27 +1,32 @@
 // Bloats to be reduced since this is about scripting
 header gui.data
 {
-    SPACING = 6;
-} ~ LayoutHor(SPACING) [
-    GuiElement(BoolState) (
-        \local = LocGuiState(BoolState) ? : {
-            sign = Bool local.bool;
-        } ~ GuiButton {
-            name = sign ("foo" : "bar");
-            color = 0xffdddddd;
-            onPressed = Watch (
-                MessageBox[state, "foo", "bar"] :
-                \prev = GuiState ? : \result = Bool ? : AsGuiState[prev, id, local.update(-sign)]
-            );
-        } | GuiPartition 0.5
-    ),
-    GuiElement(BoolState) (
-        \local = LocGuiState(BoolState) ? : {
-            sign = Bool local.bool;
-        } ~ GuiButton {
-            name = sign ("f" : "b");
-            color = 0xffdddddd;
-            onPressed = \prev = GuiState ? : AsGuiState[prev, id, local.update(-sign)];
-        } | GuiPartition 1.0
-    )
-]
+    SPACING. 6;
+    return. LayoutHor(SPACING) [
+        GuiElement(BoolState) (
+            \local = LocGuiState(BoolState) ?. {
+                hid sign. Bool local.bool;
+                GuiButton {
+                    name. sign ("foo" : "bar");
+                    color. 0xffdddddd;
+                    onPressed. Watch (
+                        MessageBox[state, "foo", "bar"] :
+                        \prev = GuiState ?. \result = Bool ?. AsGuiState[prev, id, local.update(-sign)]
+                    );
+                };
+                GuiPartition 0.5;
+            }
+        ),
+        GuiElement(BoolState) (
+            \local = LocGuiState(BoolState) ?. {
+                hid sign = Bool local.bool;
+                GuiButton {
+                    name = sign ("f" : "b");
+                    color = 0xffdddddd;
+                    onPressed = \prev = GuiState ? : AsGuiState[prev, id, local.update(-sign)];
+                };
+                GuiPartition 1.0;
+            }
+        )
+    ];
+} return;

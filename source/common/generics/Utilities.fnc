@@ -1,7 +1,6 @@
-"Utilities" in "common.generics"
-include "lang.format.Import"
+"Utilities" in "common.generics" {
+    hid import ["commons.generics.Generics"];
 
-import {"commons.generics.Generics"} ~ {
     // Optionals
     Optional. \T. \theValue = NullOr T ?. {
         getOrDef. Self T ?;

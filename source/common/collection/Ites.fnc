@@ -1,19 +1,20 @@
 "Ites" in "common.collection"
-include "lang.format.Import"
 
-import {
-    "common.generics.Generics",
-    "common.generics.Commons",
-    "commons.generics.Utilities"
-} ~ {
-    Iterable : \T : (
-        \PIter = \props : {
-            head : PIter ?;
-            next : Function (PIter : (Optional PIter)) ?;
-        } = {
-            Iterator : PIter;
-            head : props.head;
-            next : props.next;
+{
+    import [
+        "common.generics.Generics",
+        "common.generics.Commons",
+        "commons.generics.Utilities"
+    ];
+
+    Iterable. \T. (
+        \PIter. \props = {
+            head. PIter ?;
+            next. Function (PIter : (Optional PIter)) ?;
+        }. {
+            Iterator. PIter;
+            head. props.head;
+            next. props.next;
         }
     );
 

@@ -2,7 +2,7 @@
 
 {
     // From native types
-    FromBool. \V. Function (Bool:V)
+    FromBool. \V. Function (Bool:V);
     FromInt. \V. Function (Int:V);
     FromFloat. \V. Function (Float:V);
     FromChar. \V. Function (Char:V);
@@ -17,4 +17,4 @@
     ToChar. \V. Function (V:Char);
 
     ToString. \V. Function (V:String);
-}
+};

@@ -1,8 +1,6 @@
-"Generics" in "common.generics"
+"Generics" in "common.generics" {
+    Type = { F = ?; typed = F ?; } typed;
 
-// NOTE: Now going back to functional language
-// Pair - a function with a single input and a single output
-{
     Type. \F. \typed = F ?. typed;
     TypeD. \F. \typed = F ? ?. typed;
 
@@ -15,9 +13,12 @@
     FALSE. OutOf;
     Bool. { TRUE. TRUE; FALSE. FALSE; };
 
+
+    Self = { T = ?; ret = Function (T:T); } ret;
     Self. \T. Function (T:T); // This takes expression as a parameter
 
     // Identity
+    Id = { T = ?; ret = Self T {v = T ?;} v; } ret;
     Id. \T. Self T (\v = T ?. v);
 
     // Null
@@ -47,4 +48,4 @@
         \fns = CompType {} TypePair ?. InOf fns |
         \fns = CompType (NonNull ?) TypePair ?. Function TypePair ( \param : InOf TypePair ? = (OutOf fns) (InOf fns param) )
     );
-}
+};

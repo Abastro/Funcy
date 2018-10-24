@@ -1,13 +1,14 @@
 "Array" in "common.collection"
-include "lang.format.Import"
 
-import {
-    "common.generics.Generics",
-    "common.generics.Utilities",
-    "common.control.Constrols",
-    "common.memory.Memory",
-    "common.collection.Ites"
-} ~ {
+{
+    import [
+        "common.generics.Generics",
+        "common.generics.Utilities",
+        "common.control.Constrols",
+        "common.memory.Memory",
+        "common.collection.Ites"
+    ];
+
     SizedArray : T -> (
         length : Int ? ->
         headPtr : Ptr F ? -> {

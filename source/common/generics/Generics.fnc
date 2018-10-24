@@ -1,8 +1,6 @@
 "Generics" in "common.generics" {
-    Type = { F = ?; typed = F ?; } typed;
-
-    Type. \F. \typed = F ?. typed;
-    TypeD. \F. \typed = F ? ?. typed;
+    Type. { F. ?; typed. F ?; } typed;
+    TypeD. { F. ?; typed. F ? ?; } typed;
 
     InOf. \pair = (?:?) : Con (Domain pair);
     OutOf. \pair = (?:?) : Con pair;
@@ -14,22 +12,20 @@
     Bool. { TRUE. TRUE; FALSE. FALSE; };
 
 
-    Self = { T = ?; ret = Function (T:T); } ret;
-    Self. \T. Function (T:T); // This takes expression as a parameter
+    Self. { T. ?; ret. Function (T:T); } ret;
 
     // Identity
-    Id = { T = ?; ret = Self T {v = T ?;} v; } ret;
-    Id. \T. Self T (\v = T ?. v);
+    Id. { T. ?; ret. Self T ( {v. T ?;} v ); } ret;
 
     // Null
-    Void. Type ({} . {});
-    NullOr. \T . {Type T; Void;};
+    Void. Type ({}. {});
+    NullOr. { T. ?; ret = {Type T; Void;} } ret;
 
-    NonNull. Type ( \F . F );
+    NonNull. Type ({ F. ?; } F);
     Nullable. NullOr NonNull;
  
     // Consumer and Supplier
-    Consumer. \V. \I. Function ( Pair(V:I) : V );
+    Consumer. { V. ?; I. ?; ret. Function ( Pair(V:I) : V ); } ret;
     Supplier. \V. \O. Function ( V : Pair(V:O) );
 
     // Composition

@@ -7,16 +7,19 @@
         "commons.generics.Utilities"
     ];
 
-    Iterable. \T. (
-        \PIter. \props = {
+    Iterable. {
+        T. ?;
+        PIter. ?;
+        props. {
             head. PIter ?;
             next. Function (PIter : (Optional PIter)) ?;
-        }. {
+        };
+        ite. {
             Iterator. PIter;
             head. props.head;
             next. props.next;
         }
-    );
+    } ite;
 
     // Loops through the iterable.
     Loop : (V, T) -> (

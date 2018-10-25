@@ -1,5 +1,5 @@
-"Utilities" in "common.generics" {
-    hid import ["commons.generics.Generics"];
+in "common.generics.Utilities" {
+    hid import "commons.generics.Generics";
 
     // Optionals
     Optional. \T. \theValue = NullOr T ?. {

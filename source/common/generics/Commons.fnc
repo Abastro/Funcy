@@ -1,20 +1,18 @@
-"Commons" in "common.generics"
-
-{
+in "common.generics.Commons" {
     // From native types
-    FromBool. \V. Function (Bool:V);
-    FromInt. \V. Function (Int:V);
-    FromFloat. \V. Function (Float:V);
-    FromChar. \V. Function (Char:V);
+    FromBool. { V. ?; ret. V. Function(Bool:V); } ret;
+    FromInt. { V. ?; ret. V. Function (Int:V); } ret;
+    FromFloat. { V. ?; ret. V. Function (Float:V); } ret;
+    FromChar. { V. ?; ret. V. Function (Char:V); } ret;
 
-    FromString. \V. Function (String:V);
+    FromString. { V. ?; ret. v. Function (String:V); } ret;
 
 
     // To native types
-    ToBool. \V. Function (V:Bool);
-    ToInt. \V. Function (V:Int);
-    ToFloat. \V. Function (V:Float);
-    ToChar. \V. Function (V:Char);
+    ToBool. { V. ?; ret. V. Function (V:Bool); } ret;
+    ToInt. { V. ?; ret. V. Function (V:Int); } ret;
+    ToFloat. { V. ?; ret. V. Function (V:Float); } ret;
+    ToChar. { V. ?; ret. V. Function (V:Char); } ret;
 
-    ToString. \V. Function (V:String);
+    ToString. { V. ?; ret. V. Function (V:String); } ret;
 };

@@ -1,6 +1,6 @@
-"Generics" in "common.generics" {
-    Type. { F. ?; typed. F ?; } typed;
-    TypeD. { F. ?; typed. F ? ?; } typed;
+in "common.generics.Generics" {
+    Type. { F. ?; typed. F ?; ret. F. typed. typed; } ret;
+    TypeD. { F. ?; typed. F ? ?; ret. F. typed. typed; } ret;
 
     InOf. \pair = (?:?) : Con (Domain pair);
     OutOf. \pair = (?:?) : Con pair;
@@ -12,21 +12,21 @@
     Bool. { TRUE. TRUE; FALSE. FALSE; };
 
 
-    Self. { T. ?; ret. Function (T:T); } ret;
+    Self. { T. ?; ret. T. Function (T:T); } ret;
 
     // Identity
-    Id. { T. ?; ret. Self T ( {v. T ?;} v ); } ret;
+    Id. { T. ?; ret. T. Self T ( {v. T ?;} v ); } ret;
 
     // Null
     Void. Type ({}. {});
-    NullOr. { T. ?; ret = {Type T; Void;} } ret;
+    NullOr. { T. ?; ret. {Type T; Void;} } ret;
 
-    NonNull. Type ({ F. ?; } F);
+    NonNull. Type ({ F. ?; ret. F. F } ret);
     Nullable. NullOr NonNull;
- 
+
     // Consumer and Supplier
     Consumer. { V. ?; I. ?; ret. Function ( Pair(V:I) : V ); } ret;
-    Supplier. \V. \O. Function ( V : Pair(V:O) );
+    Supplier. { V. ?; I. ?; ret. V. I. Function ( V : Pair(V:O) ); } ret;
 
     // Composition
     hid CompType. \TypePair = (?:?). \M = Nullable ?. ?;

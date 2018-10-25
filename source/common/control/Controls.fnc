@@ -1,12 +1,14 @@
 "Controls" in "common.control" {
-    hid import ["common.generics.Generics", "common.generics.Commons"];
+    hid import "common.generics.Generics";
+    hid import "common.generics.Commons";
 
     // Conditional Statements
     // Either
-    Either. \T. \param = Pair (T:T) ?. FromBool T {
-        TRUE. InOf param;
-        FALSE. OutOf param;
-    };
+    Either. {
+        T = ?;
+        param = Pair (T:T) ?;
+        ret. T. param. FromBool T { TRUE. InOf param; FALSE. OutOf param; };
+    } ret;
 
     // Choose
     Choose. \T. FromBool (Function ( Pair(T:T):T )) ?;

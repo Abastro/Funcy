@@ -14,7 +14,7 @@
             head. PIter ?;
             next. Function (PIter : (Optional PIter)) ?;
         };
-        ite. {
+        ite. T. PIter. props. {
             Iterator. PIter;
             head. props.head;
             next. props.next;

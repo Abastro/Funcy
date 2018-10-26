@@ -1,20 +1,21 @@
-"InOut" in "common.io"
-include "lang.format.Import"
+func "common.io.InOut", {
+    Import, {
+        import "common.generics.Generics".
+        import "common.generics.Utilities".
+    }. Import.
 
-import {"lang.generics.Generics", "lang.generics.Utilities"} ~ {
-    // Out-related interfaces
-    AsWriterType : OutState -> Consumer OutState String;
-    Writer : AsWriterType ?;
+    Fn, {
 
-    AsOutStreamType : OutState -> State (AsWriterType OutState) OutState
-    OutStream : AsOutStreamType ?;
+        Print, {
+            InputType, ?.
+            toString, ToString InputType ?.
 
-    Print := T -> (toString : ToString T) -> (Consumer OutStream:T) (
-        param :: func {stream : OutStream, toPrint : T} -> (
-            // Transition of the stream
-            StateT(
-                trans : func {state : OutState, writer : Writer} -> trans.writer(trans.state, toString param.toPrint)
-            ) param.stream
-        )
-    )
-}
+            print, Consumer OutStream InputType ( {
+                stream, OutStream ?.
+                input, T ?.
+
+                consumer, stream, input, StateT().
+            } consumer).
+        } print.
+    }.
+}.

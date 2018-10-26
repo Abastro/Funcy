@@ -8,7 +8,7 @@ header gui.data
             sign. Bool local.bool;
             ret. local. {
                 GuiButton {
-                    name. sign "foo" "bar");
+                    name. sign "foo" "bar";
                     color. 0xffdddddd;
                     onPressed. Watch (
                         MessageBox[state, "foo", "bar"] : {

@@ -1,6 +1,11 @@
-"Console" in "common.io"
-include "lang.format.Import"
+func "common.io.Console", {
+    Import, {
+        import "common.io.InOut".
+        import "common.system.System".
+    }. Import.
 
-import {"common.io.InOut", "common.system.System"} ~ {
-    Console : ( System : (OutStream ?) );
-} ~ specify {"internal.io.Console"}
+    Fn, {
+        Console, System, OutStream ?.
+        import "internal.io.Console".
+    }.
+} Fn;

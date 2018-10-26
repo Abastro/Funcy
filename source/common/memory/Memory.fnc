@@ -1,23 +1,30 @@
 "Memory" in "common.memory"
 include "common.basis.Import"
+func "common.memory.Memory", {
+    Import, {
+        import "common.system.System".
+        import "common.generics.Utilities".
+    }. Import.
 
-import {"common.system.System", "common.generics.Utilities"} ~ {
-    Ptr : \F = \ptr : (value : F ?) = ptr;
+    Fn. {
+        Ptr, { F, ?. input, F ?. ptr, F, input, (Value, input). } ptr.
 
-    // Evaluates Null Pointer when the type is given.
-    NullPtr : \F = Ptr F ?;
+        MemStack, Exist ?.
+        GetStack, System, MemStack ?.
 
-    MemStack;
-    GetStack : (System : MemStack ?);
+        NewPtr, { F, ?. newPtr, F, Supplier MemStack (Ptr F) ?. } newPtr.
+        DelPtr, { F, ?. delPtr, F, Consumer MemStack (Ptr F) ?. } delPtr.
 
-    NewPtr : \F = Supplier MemStack (Ptr F) ?;
-    NewArrPtr : \F = \size : Int ? = Supplier MemStack (Ptr F) ?;
+        Size, { literal, Int ?. size, literal, ?. } size.
 
-    DelPtr : \F = Consumer MemStack (Ptr F) ?;
-    DelArrPtr : \F = \size : Int ? = Consumer MemStack (Ptr F) ?;
+        NewArrPtr : \F = \size : Int ? = Supplier MemStack (Ptr F) ?;
+
+        DelPtr : \F = Consumer MemStack (Ptr F) ?;
+        DelArrPtr : \F = \size : Int ? = Consumer MemStack (Ptr F) ?;
 
 
-    Set : \F = Consumer (Ptr F) F ?;
-    OffGet : \F = \offset : Int ? = Self (Ptr F) ?;
-    OffSet : \F = \offset : Int ? = Consumer (Ptr F) F ?;
-}
+        Set : \F = Consumer (Ptr F) F ?;
+        OffGet : \F = \offset : Int ? = Self (Ptr F) ?;
+        OffSet : \F = \offset : Int ? = Consumer (Ptr F) F ?;
+    }
+} Fn.

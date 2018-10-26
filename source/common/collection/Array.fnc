@@ -1,13 +1,11 @@
-"Array" in "common.collection"
-
-{
-    import [
-        "common.generics.Generics",
-        "common.generics.Utilities",
-        "common.control.Constrols",
-        "common.memory.Memory",
-        "common.collection.Ites"
-    ];
+func "common.collection.Array". {
+    Import. {
+        import "common.generics.Generics";
+        import "common.generics.Utilities";
+        import "common.control.Constrols";
+        import "common.memory.Memory";
+        import "common.collection.Ites";
+    };
 
     SizedArray : T -> (
         length : Int ? ->

@@ -1,24 +1,32 @@
 func "common.generics.Generics", {
-    Nulls, {
-        Void, {}, {}.
-        NullOr, { T, ?. predicate, ~(T $ {}). ret, T, { T. Void. }. } ret.
+    // Reference-to-Wildcard relations
+    // When used, it means 'for any in the image' (should be used after ',' or '{}')
+    // When used in param of 'param, return', symbol used in return means the same variable.
+    $Nulls, {
+        $Void, {}, {}.
 
-        Exist, { value, ?. predicate, ~( ({}. {}) $ value ). ret, value, value. } ret.
+        $type, ?.
+        // How to deal with predicate?
+        $NullOr, type, { predicate, ~(type $ {}). $ret, { type. Void. }. } $ret.
+        $type, Void ?.
+
+        $any, ?.
+        $Exist, any, { predicate, ~( ({}. {}) $ any ). $ret, any. } $ret.
+        $any, Void ?.
     }.
 
-    Boolean, {
-        TRUE, {
-            first, ?. second, ?.
-            ret, (first, second, first).
-        } ret.
-        FALSE, {
-            first, ?. second, ?.
-            ret, (first, second, second).
-        } ret.
+    $Boolean, {
+        Nulls.
+
+        $first, ?. $second, ?.
+        TRUE, first, second, first.
+        FALSE, first, second, second.
+        $first, Void ?. $second, Void ?.
+
         Bool, { TRUE, TRUE. FALSE, FALSE. }.
     }.
 
-    Multiple, {
+    $Multiple, {
         Boolean.
 
         @:@, {
@@ -39,21 +47,25 @@ func "common.generics.Generics", {
 
         Left, { pair, ?:?. ret, pair, pair TRUE. } ret.
         Right, { pair, ?:?. ret, pair, pair FALSE. } ret.
+        First, Left.
+        Remaining, Right.
     }.
 
-    Type, { F, Exist ?. typed, F ?. ret, F, typed, typed. } ret.
+    //Type, { F, Exist ?. typed, F ?. ret, F, typed, typed. } ret.
 
-    Function. { x. (Exist ?) : (Exist ?); fn. (Left x ?. Right x ?); ret. fn. fn; } ret;
+    //Function. { x. (Exist ?) : (Exist ?); fn. (Left x ?. Right x ?); ret. fn. fn; } ret;
 
     Functions, {
         Multiple.
-        Self, { T, Exist ?. ret, T, Function (T:T). } ret.
+
+        type, Exist ?.
+
+        Self, type, Function (type:type).
 
         // Identity
-        Id, {
-            T, ?.
-            ret, T, Self T ( {v, T ?. fn, v, v. } fn ).
-        } ret.
+        Id, type, { v, type ?. ret. Self type (v, v) } ret.
+
+        type, Void ?.
 
         // Consumer and Supplier
         Consumer, { V, ?. I, ?. ret, V, I, Function ( Pair(V:I) : V ). } ret.
@@ -64,21 +76,30 @@ func "common.generics.Generics", {
         Nulls.
 
         // Composition
-        CompType. \TypePair = (?:?). \M = Nullable ?. ?;
-        CompType. \TypePair = (?:?). {
-            { M. Exist ?; ret. M. Function (InOf TypePair : M) : TypeD (CompType (M : OutOf TypePair)); } ret;
-            {}. Function TypePair : Void;
-        };
-    }.
+        typePair, ?:?.
+        CompType, typePair, Exist ?.
 
-    HiddenComp.
+        interType, Exist ?.
+        CompType, typePair, {
+            interType, Function (Left typePair : interType) : TypeD (CompType (interType : Right typePair)).
+            {}, Function TypePair : Void.
+            interType, Void ?.
+        }.
+        interType, Void ?.
+        typePair, Void ?.
+    }. HiddenComp.
 
     Composition. {
-        Comp. \TypePair = (?:?). \fns = CompType ? TypePair ?. Function TypePair ?;
-        Comp. \TypePair = (?:?). {
-            \fns = CompType {} TypePair ?. Left fns;
-            \fns = CompType (Exist ?) TypePair ?. Function TypePair ( \param : Left TypePair ? = (Right fns) (Left fns param) )
-        );
+        typePair, ?:?.
+        Comp, typePair, \fns = CompType ? TypePair ?. Function TypePair ?;
+
+        initInput, CompType {} typePair ?.
+        compInput, CompType (Exist ?) typePair ?.
+        Comp, typePair, {
+            initInput, Left fns.
+            compInput, Function typePair { param, Left typePair ?. ret, param, (Right compInput) (Left compInput param) } ret.
+        ).
+        typePair, Void ?.
     };
 
     Fn, {

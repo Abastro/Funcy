@@ -1,24 +1,25 @@
 func "common.collection.Ites", {
-    Import, {
+    $Import, {
         import "common.generics.Generics".
         import "common.generics.Commons".
         import "commons.generics.Utilities".
     }. Import.
 
-    Fn, {
-        Iterable, {
-            T, Exist ?.
-            PIter, Exist ?.
-            props, {
-                head, PIter ?.
-                next, Function (PIter : (Optional PIter)) ?.
+    $Fn, {
+        $head, PIter ?.
+        $next, Function (PIter : NullOr PIter) ?.
+        $propForm, pHead, pNext, { $head, head. $next, next. }.
+
+        $Iterable, {
+            $T, Exist ?.
+            $PIter, Exist ?.
+            $props, propForm ? ?.
+            $ite, T, PIter, props, {
+                $Iterator, PIter.
+                $head, props $head.
+                $next, props $next.
             }.
-            ite, T, PIter, props, {
-                Iterator, PIter.
-                head, props(head).
-                next, props(next).
-            }.
-        } ite.
+        } $ite.
 
         // Loops through the iterable.
         Loop : (V, T) -> (

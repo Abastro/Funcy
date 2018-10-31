@@ -1,13 +1,19 @@
 // Tutorials
+// Block construct narrows down objects - how?
 {
-    Func0, I32 5.
+    $Bool, {
+        $TRUE : Any, Any, Any.
+        $TRUE, x, y, x.
 
-    Func1, { switch, Bool ?. result, switch, !switch } result.
+        $FALSE : Any, Any, Any.
+        $FALSE, x, y, y.
+    } ?.
 
-    ThisIsFalse, Func1 TRUE.
+    $Sum : Type, Type, Type.
+    $Sum, T, S, { $left, T. $right, S. } ? ?.
 
-    Func2, { { i, I32 ?. result, i, i+1. } result. thisIsZero, Func1 FALSE. }.
+    $Sum Int Bool $left 3
 
-    ThisIsTwo, TF 1.
-    ThisIsZero, TF thisIsZero.
+    $Product : Type, Type, Type.
+    $Product, T, S, ( x : T, y : S, { $left, x. $right, y. } ) ? ?.
 }

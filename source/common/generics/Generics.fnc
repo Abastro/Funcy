@@ -1,7 +1,6 @@
-func "common.generics.Generics", {
-    // Reference-to-Wildcard relations
-    // When used, it means 'for any in the image' (should be used after ',' or '{}')
-    // When used in param of 'param, return', symbol used in return means the same variable.
+"common.generics.Generics", {
+    
+
     $Nulls, {
         $Void, {}, {}.
 
@@ -19,11 +18,11 @@ func "common.generics.Generics", {
         Nulls.
 
         $first, ?. $second, ?.
-        TRUE, first, second, first.
-        FALSE, first, second, second.
+        $TRUE, first, second, first.
+        $FALSE, first, second, second.
         $first, Void ?. $second, Void ?.
 
-        Bool, { TRUE, TRUE. FALSE, FALSE. }.
+        %Bool, { TRUE, TRUE. FALSE, FALSE. }.
     }.
 
     $Multiple, {
@@ -45,64 +44,64 @@ func "common.generics.Generics", {
             ret, first, remaining, (first : remaining).
         } ret.
 
-        Left, { pair, ?:?. ret, pair, pair TRUE. } ret.
-        Right, { pair, ?:?. ret, pair, pair FALSE. } ret.
-        First, Left.
-        Remaining, Right.
+        $Left, { $pair, ?:?. ret, pair, pair TRUE. } ret.
+        $Right, { $pair, ?:?. ret, pair, pair FALSE. } ret.
+        $First, Left.
+        $Remaining, Right.
     }.
 
     //Type, { F, Exist ?. typed, F ?. ret, F, typed, typed. } ret.
 
     //Function. { x. (Exist ?) : (Exist ?); fn. (Left x ?. Right x ?); ret. fn. fn; } ret;
 
-    Functions, {
+    $Functions, {
         Multiple.
 
-        type, Exist ?.
+        $type, Exist ?.
 
-        Self, type, Function (type:type).
+        $Self, type, Function (type:type).
 
         // Identity
-        Id, type, { v, type ?. ret. Self type (v, v) } ret.
+        $Id, type, { v, type ?. ret. Self type (v, v) } ret.
 
-        type, Void ?.
+        $type, Void ?.
 
         // Consumer and Supplier
-        Consumer, { V, ?. I, ?. ret, V, I, Function ( Pair(V:I) : V ). } ret.
-        Supplier, { V, ?. O, ?. ret, V, O, Function ( V : Pair(V:O) ). } ret.
+        $Consumer, { V, ?. I, ?. ret, V, I, Function ( Pair(V:I) : V ). } ret.
+        $Supplier, { V, ?. O, ?. ret, V, O, Function ( V : Pair(V:O) ). } ret.
     }.
 
-    HiddenComp, {
+    $HiddenComp, {
         Nulls.
 
         // Composition
-        typePair, ?:?.
-        CompType, typePair, Exist ?.
+        $typePair, ?:?.
+        $CompType, typePair, Exist ?.
 
-        interType, Exist ?.
-        CompType, typePair, {
+        $interType, Exist ?.
+        $CompType, typePair, {
             interType, Function (Left typePair : interType) : TypeD (CompType (interType : Right typePair)).
             {}, Function TypePair : Void.
             interType, Void ?.
         }.
-        interType, Void ?.
-        typePair, Void ?.
+        $interType, Void ?.
+        $typePair, Void ?.
     }. HiddenComp.
 
-    Composition. {
-        typePair, ?:?.
-        Comp, typePair, \fns = CompType ? TypePair ?. Function TypePair ?;
+    $Composition. {
+        $typePair, ?:?.
+        $Comp, typePair, \fns = CompType ? TypePair ?. Function TypePair ?;
 
-        initInput, CompType {} typePair ?.
-        compInput, CompType (Exist ?) typePair ?.
-        Comp, typePair, {
+        $initInput, CompType {} typePair ?.
+        $compInput, CompType (Exist ?) typePair ?.
+        $Comp, typePair, {
             initInput, Left fns.
             compInput, Function typePair { param, Left typePair ?. ret, param, (Right compInput) (Left compInput param) } ret.
         ).
-        typePair, Void ?.
+        $typePair, Void ?.
     };
 
-    Fn, {
+    $Fn, {
         Nulls.
         Boolean.
         Multiple.

@@ -18,7 +18,7 @@
 
     Assert = flag : Bool -> flag Single Void,
 
-    Equivalence : T => eq : (T -> T -> Bool) -> {
+    Equivalence : T => @eq : (T -> T -> Bool) -> #{
         equiv = eq,
 
         condition = {

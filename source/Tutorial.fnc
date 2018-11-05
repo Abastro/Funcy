@@ -1,7 +1,6 @@
 // Tutorials
 {
     Void = @{},
-
     Single = @{
         ID = #(T ~> x : T -> x)
     },

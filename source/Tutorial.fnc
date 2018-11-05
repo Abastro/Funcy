@@ -1,57 +1,69 @@
 // Tutorials
 {
-    Void = @{},
-    Single = @{
-        ID = #(T ~> x : T -> x)
+    Void = Form {},
+    Single = Form {
+        ID = Derive {}
     },
 
-    Bool = @{
-        TRUE = #(T ~> left : T -> right : T -> left),
-        FALSE = #(T ~> left : T -> right : T -> right)
+    Bool = Form {
+        TRUE = Derive (T ~> left : T -> right : T -> left),
+        FALSE = Derive (T ~> left : T -> right : T -> right)
     },
     TRUE = Bool $TRUE,
     FALSE = Bool $FALSE,
 
-    Inv = flag : Bool -> flag FALSE TRUE,
-    XOR = left : Bool -> right : Bool -> left (Inv right) (right)
+    NOT = flag : Bool -> flag FALSE TRUE,
+    XOR = left : Bool -> right : Bool -> left (NOT right) (right)
 
-    Assert = flag : Bool -> flag Single Void,
+    Always = flag : Bool -> flag Single Void,
 
     Equivalence : T => @eq : (T -> T -> Bool) -> #{
         equiv = eq,
 
         condition = {
-            reflective = x : T -> Assert (eq x x),
-            symmetric = x : T -> y : T -> p : Assert (eq x y) -> Assert (eq y x),
-            transitive = x : T -> y : T -> z : T -> left : Assert (eq x y) -> right : Assert (eq y z) -> Assert (eq x z)
+            reflective = x : T -> Always (eq x x),
+            symmetric = x : T -> y : T -> p : Always (eq x y) -> Always (eq y x),
+            transitive = x : T -> y : T -> z : T -> left : Always (eq x y) -> right : Always (eq y z) -> Always (eq x z)
         }
     },
     (==) : T => Equivalence T $equiv,
 
     Equivalence Bool = {
-        equiv = left : Bool -> right : Bool -> Inv (XOR left right),
+        equiv = left : Bool -> right : Bool -> NOT (XOR left right),
         condition = equiv 
     }
 
     //flag : Bool -> T ~> left : (Assert flag -> T) -> right : T -> flag (left (Single $ID)) right
 
-    Sum = {
-        first : Form -> second : Form -> @{
-            First = x : first -> #x,
-            Second = x : second -> #x
-        }
+    Sum = first : Form -> second : Form -> Form {
+        First = x : first -> Derive x,
+        Second = x : second -> Derive x
     },
 
-    Product = {
-        T : Form -> S : Form -> @(
-            left : T -> right : S -> #{ Left = left, Right = right }
-        )
-    },
+    Product = T : Form -> S : Form -> Form (
+        left : T -> right : S -> Derive { Left = left, Right = right }
+    ),
 
-    Num = @{
-        Z = #(T ~> f : (T -> T) -> x : T -> x),
-        S = n : ? -> #(T ~> f : T -> T -> x : T -> f (n f x))
-    },
+    left : Bool -> right : Bool -> Product Bool Bool left right : PB
 
-    Num $S (Num $Z)
+    NumImpl = {
+        Z = T ~> f : (T -> T) -> x : T -> x,
+        S = T ~> n : ((T -> T) -> (T -> T)) -> f : (T -> T) -> x : T -> f (n f x)
+    }
+
+    s = $Z -> NumImpl s : Num
+    s = $S -> n : Num -> NumImpl s n : Num
+
+    Num = Form {
+        Z = Derive (T ~> f : (T -> T) -> x : T -> x),
+        S = n : Num -> Derive (T ~> f : T -> T -> x : T -> f (n f x))
+    }
+
+    Pre = n : Num -> Expand n { Z = Num $Z , S = m : Num -> m }
+
+    Lists = Form (
+        len : Num -> x : List len -> Derive x
+    )
+
+    Length = l : Lists -> Expand l (len : Num -> len)
 }

@@ -1,39 +1,53 @@
 // Tutorials
 {
-    Void = Sigma {};
-    Unit;
+    (=>) = X : Type ' Y : Type ' FuncType X Y
 
-    // Mapping Form
+    ForOne : (T => Type) => Type;
+    ForAll : (T => Type) => Type;
 
-    Sum = first : Form, second : Form, { First =< first; Second =< second; }
+    Pair : SpecifyOn Name T => Clause Name => ForOne Typer;
+    Lambda : QualifyOn Name T => Clause Name => ForAll Typer;
+
+    Sum = first : Form, second : Form, ForOne { First = first; Second = second; };
     Product = left : Form, right : Form, (left -< right);
 
-    Bool = { TRUE =< Unit; FALSE =< Unit; };
+    Bool = ForOne { TRUE = Unit; FALSE = Unit; };
     TRUE = [$TRUE, Null] : Bool,
     FALSE = [$FALSE, Null] : Bool,
 
-    NOT = [f, n] : Bool, { TRUE = FALSE; FALSE = TRUE; } f;
-    XOR = left : Bool, [f, n] : Bool, { TRUE = NOT left; FALSE = left; } f;
+    SelFrom = [l, r] : Product T T, [f, n] : Bool, { TRUE = l; FALSE = r; } f;
+    Choose = [f, n] : Bool, { TRUE = [l, r] : Product T T, l; FALSE = [l, r] : Product T T, r; } f;
 
-    Equivalence : T ->> (eq : T -> T -> Bool) -< {
-        reflective => x : T -> Always (eq x x),
-        symmetric => x : T -> y : T -> p : Always (eq x y) -> Always (eq y x),
-        transitive => x : T -> y : T -> z : T -> left : Always (eq x y) -> right : Always (eq y z) -> Always (eq x z)
-    },
+    NOT = SelFrom [FALSE, TRUE];
+    XOR = left : Bool, SelFrom [NOT left, left];
+    NXOR = left : Bool, right : Bool, NOT (XOR left right);
 
-    Equivalence Bool = [ left : Bool -> right : Bool -> NOT (XOR left right), ]
+    Always = SelFrom [Unit, Void];
 
-    Num = Sigma {
+    Equivalence = (eq : T -> T -> Bool) -< ForAll {
+        reflective = x : T -> Always (eq x x);
+        symmetric = x : T -> y : T -> p : Always (eq x y) -> Always (eq y x);
+        transitive = x : T -> y : T -> z : T -> left : Always (eq x y) -> right : Always (eq y z) -> Always (eq x z);
+    };
+
+    x : Bool, NXOR x x;
+    [f, n] : Bool, { TRUE = NXOR [f, n] [f, n]; FALSE = NXOR [f, n] [f, n]; } f;
+    [f, n] : Bool, { TRUE = NXOR [$TRUE, n] [$TRUE, n] TRUE; FALSE = NXOR [$FALSE, n] [$FALSE, n]; } f;
+    [f, n] : Bool, { TRUE = TRUE; FALSE = TRUE; } f;
+    x : Bool, TRUE;
+
+    EqBool = [ NXOR, {
+        reflective = [f, n] : Bool, { TRUE = Null : Always (NXOR TRUE TRUE); FALSE = Null : Always (NXOR FALSE FALSE) } f;
+    }];
+
+    Num = ForOne {
         Z = Unit;
         S = Num;
     };
-    Z = [$Z, Null];
+    Z = [$Z, Null] : Num;
+    Succ = n : Num, [$S, n] : Num;
 
-    Pre = [r, n] : Num -> { Z = Z, S = n } r;
-
-    List = T : Form -> Sigma (
-        len : Num -> Vec T len
-    );
+    List = T : Form, len : Num -< Vec T len;
 
     Length = [len, vec] : List -> len;
 }

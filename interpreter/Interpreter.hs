@@ -82,5 +82,21 @@ findLinkFor dc addr (AsLink refs links) (CF mop) =
 findLinkFor dc addr found CP = AsLink [] []
 
 -- Typecheck
+typeCheck :: (DistClause, Links) -> Address -> Mismatches
+
+typeCheckIn :: (DistClause, Links) -> (Address, Operation, SubNode) -> Mismatches
+typeCheckIn (dc, lk) (addr, op, subs) = 
+
+typeCheckFor :: (DistClause, Links) -> Address -> 
 
 -- Erase types
+eraseTypeFor :: DistClause -> Address -> Operation -> ErasedClause
+eraseTypeFor dc addr (IR name) = IR name
+eraseTypeFor dc addr (ER name) = ER name
+eraseTypeFor dc addr ()
+
+-- Computation
+value
+
+
+-- data Operation = IR Name | ER Name | Ap | Ex | PT | ST | CF MapOp | CP

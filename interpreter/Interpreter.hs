@@ -87,16 +87,32 @@ typeCheck :: (DistClause, Links) -> Address -> Mismatches
 typeCheckIn :: (DistClause, Links) -> (Address, Operation, SubNode) -> Mismatches
 typeCheckIn (dc, lk) (addr, op, subs) = 
 
-typeCheckFor :: (DistClause, Links) -> Address -> 
-
--- Erase types
-eraseTypeFor :: DistClause -> Address -> Operation -> ErasedClause
-eraseTypeFor dc addr (IR name) = IR name
-eraseTypeFor dc addr (ER name) = ER name
-eraseTypeFor dc addr ()
+typeCheckFor :: (DistClause, Links) -> Address -> Mismatches
 
 -- Computation
-value
+data FuncValue = Empty | VBlock [(Name, Value)] | VLambda Name Value
+data PairValue = VPair FuncValue Value
+data External = ExName Name
+data Value = FromExt External | FromFunc FuncValue | FromPair PairValue
 
+asName :: Value -> Maybe Name
+asName FromExt (ExName n) = Just n
+asName FromFunc f = Nothing
+asName FromPair p = Nothing
 
+compute :: DistClause -> Value
+
+computeFor :: DistClause -> Address -> Operation -> Maybe Value
+computeFor whole addr (IR name) = Nothing   -- This is the hardest part
+computeFor whole addr (ER name) = Just name -- For now nothing much is available
+computeFor whole addr Ap = applied where
+    apply :: FuncValue -> Maybe Value -> Maybe Value
+    apply Empty x = Nothing
+    apply (VBlock list) x =
+        do n <- asName x
+        return (findFrom list n)
+    apply (VLambda ind expr) x =
+        do p <- x
+
+-- type DistClause = [(Address, Operation, SubNode)]
 -- data Operation = IR Name | ER Name | Ap | Ex | PT | ST | CF MapOp | CP

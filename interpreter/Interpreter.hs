@@ -1,63 +1,60 @@
 -- Basis, Block / Lambda / Dependent Type
+import data.Map as Map
 
 type Name = String
 
-data Lambda = AsLambda Name Clause
-data Block = AsBlock [(Name, Clause)]
-data Mapping = ML Lambda | MB Block
-
-type Type = Clause
-type Pair = Clause
 type Function = Clause
 
-data Clause = IntRef Name | ExtRef Name |
-    Apply Pair | Extract Pair | -- extract dependency part of the pair
-    PiT Function | SigmaT Function |
-    CFunc (Maybe Type) Mapping | CPair (Maybe Type) Function Clause
- 
+data Mapping = Lambda Name Clause | Block [(Name, Clause)]
+data Connect = Con Function Clause
+
+type Type = Clause
+
+data Context = IntRef Name | ExtRef Name | CFunc Mapping | CPair Connect
+data Operation = Apply | Extract | PiT | SigmaT
+
+data Clause = Explicit (Maybe Type) Context | Implicit Clause Operation
+
 -- Convert a clause into Address tree
-data MapOp = Lm | Bl
-data Operation = IR Name | ER Name | Ap | Ex | PT | ST | CF MapOp | CP
 type Address = String
-type SubNode = [(String, Address)]
-type DistClause = [(Address, Operation, SubNode)]
 
-analyzeF :: Clause -> DistClause
-analyzeF cl = analyze "" cl
+data AddrMapping = AL Name Address | AB [(Name, Address)]
+data AddrConnect = AC Address Address
 
-analyze :: Address -> Clause -> DistClause
+data AddrContext = IR Name | ER Name | CF AddrMapping | CP AddrConnect
 
-analyze base (IntRef ref)       = [(base, IR ref, [])]
-analyze base (ExtRef ref)       = [(base, ER ref, [])]
+data ClauseDesc = ExDesc (Maybe Address) AddrContext | ImDesc Address Operation
 
-analyze base (Apply pair)       = [(base, Ap, [("", pairAddr)])] ++ analyze pairAddr pair where pairAddr = base ++ "#"
-analyze base (Extract pair)     = [(base, Ex, [("", pairAddr)])] ++ analyze pairAddr pair where pairAddr = base ++ "%"
+type ClauseGraph = Map.Map Address Clause
 
-analyze base (PiT func)         = [(base, PT, [("", funcAddr)])] ++ analyze funcAddr func where funcAddr = base ++ "&"
-analyze base (SigmaT func)      = [(base, ST, [("", funcAddr)])] ++ analyze funcAddr func where funcAddr = base ++ "|"
 
-analyze base (CFunc tp mp)      = [(base, CF (mpMode mp), opSub "$" base tp ++ mpSub base mp)] ++ optAnalyze "$" base tp ++ mpAnalyze base mp
-analyze base (CPair tp func dep)= [(base, CP, opSub "$" base tp ++ [("@", base ++ "@"), ("*", base ++ "*")])] ++ optAnalyze "$" base tp ++ analyze (base ++ "@") func ++ analyze (base ++ "*") dep
+asGraph = asGraphAddr ""
 
-opSub :: String -> Address -> Maybe Type -> SubNode
-opSub tag base (Just tp) = [(tag, base ++ tag)]
-opSub tag base Nothing = []
+asGraphAddr :: Address -> Clause -> ClauseGraph
+asGraphAddr base (Explicit tp ctx)  = Map.insert base (ExDesc (fmap (\_ -> addrTp) tp) $ fst ctxElem) $ Map.union (snd ctxElem) where
+    ctxElem = asGraphElem base ctx
+    addrTp = base ++ "$"
 
-optAnalyze :: String -> Address -> Maybe Type -> DistClause
-optAnalyze tag base (Just tp) = analyze (base ++ tag) tp
-optAnalyze tag base Nothing = []
+asGraphAddr base (Implicit cl op)   = Map.insert base (ImDesc addrCl op) $ asGraphAddr addrCl cl where
+    addrCl = base ++ "#"
 
-mpMode :: Mapping -> MapOp
-mpMode ML x = Lm
-mpMode MB x = Bl
+asGraphElem :: Address -> Context -> (AddrContext, ClauseGraph)
+asGraphElem base (IntRef name)  = (IR name, Map.empty)
+asGraphElem base (ExtRef name)  = (ER name, Map.empty)
+asGraphElem base (CFunc mp)     = (CF $ fst mpg, snd mpg) where mpg = asGraphInMap base mp
+asGraphElem base (CPair con)    = (CP $ fst cong, snd cong) where cong = asGraphInCon base con
 
-mpSub :: Address -> Mapping -> SubNode
-mpSub base (ML (AsLambda inp outp)) = [(inp, base ++ inp)]
-mpSub base (MB (AsBlock list)) = map (\x -> (fst x, base ++ fst x)) list
+asGraphInMap :: Address -> Context -> (AddrMapping, ClauseGraph)
+asGraphInMap base (Lambda inp outp) = (AL inp addrOut, asGraphAddr addrOut outp) where
+    addrOut = base ++ "." ++ inp
 
-mpAnalyze :: Address -> Mapping -> DistClause
-mpAnalyze base (ML (AsLambda inp outp)) = analyze (base ++ inp) outp
-mpAnalyze base (MB (AsBlock list)) = concat ( map (\x -> analyze (base ++ fst x) snd x) list )
+asGraphInMap base (block list) = ( AB $ map (\x -> (fst x, addrTrans x)) list, Map.unions $ map (\x -> asGraphAddr (addrTrans x) (snd x) ) list ) where
+    addrTrans = (++) (base ++ ".") . fst
+
+asGraphInCon :: Address -> Connect -> (AddrConnect, ClauseGraph)
+asGraphInCon base (Con f c) = (AC addrFunc addrDept, Map.union (asGraphAddr addrFunc f) (asGraphAddr addrDept c) ) where
+    addrFunc = base ++ "@"
+    addrDept = base ++ "*"
 
 
 -- Traverse the tree, fetching long-range link information
@@ -65,48 +62,41 @@ type Refs = [(Name, Address)]
 type RefLinks = [(Address, Address)]
 data Links = AsLink Refs RefLinks
 
-findLink :: DistClause -> Address -> Links
-findLink dc addr = findLinkIn dc (fetch dc addr)
+findLink :: ClauseGraph -> Address -> Links
+findLink graph addr = findLinkFor graph addr (graph ! addr)
 
-findLinkIn :: DistClause -> (Address, Operation, SubNode) -> Links
-findLinkIn dc (addr, op, subs) = mergeTwo found (findLinkFor dc addr found op) where found = mergeList ( map (\x -> findLink dc (snd x)) subs )
+findLinkFor :: ClauseGraph -> Address -> ClauseDesc -> Links
+findLinkFor graph addr (ExDesc td cd) = 
+findLinkFor graph addr (ImDesc saddr _) = findLink graph saddr
 
-findLinkFor :: DistClause -> Address -> Links -> Operation -> Links
-findLinkFor dc addr found (IR name) = AsLink [(name, addr)] []
-findLinkFor dc addr found (ER name) = AsLink [] []
-findLinkFor dc addr found Ap = AsLink [] []
-findLinkFor dc addr found Ex = AsLink [] []
-findLinkFor dc addr found PT = AsLink [] []
-findLinkFor dc addr found ST = AsLink [] []
-findLinkFor dc addr (AsLink refs links) (CF mop) = 
-findLinkFor dc addr found CP = AsLink [] []
+
+-- Cycles on value is not allowed
 
 -- Typecheck
-typeCheck :: (DistClause, Links) -> Address -> Mismatches
+typeCheck :: (ClauseGraph, Links) -> Address -> Mismatches
+typeCheck (graph, lk) addr = typeCheckFor (graph, lk) addr (graph ! addr)
 
-typeCheckIn :: (DistClause, Links) -> (Address, Operation, SubNode) -> Mismatches
-typeCheckIn (dc, lk) (addr, op, subs) = 
+typeCheckFor :: (ClauseGraph, Links) -> Address -> ClauseDesc -> Mismatches
+typeCheckIn (graph, lk) addr (ExDesc td cd) = 
 
-typeCheckFor :: (DistClause, Links) -> Address -> Mismatches
 
--- Computation
+-- Computation (For now, preserve types purely for display)
 data Extern = Empty | ExtName Name
 data VOp = VI | VE Extern | VAp | VEx | VPT | VST | VCF MapOp | VCP
 type EvalClause = [(Address, VOp, SubNode)]
 
-
 compute :: EvalClause -> EvalClause
 
-computeFor :: EvalClause -> Address -> Operation -> Maybe EvalClause
+computeFor :: EvalClause -> Address -> VOp -> Maybe EvalClause
 computeFor whole addr VI = Nothing   -- This is the hardest part
-computeFor whole addr (ER name) = Just name -- For now nothing much is available
-computeFor whole addr Ap = applied where
-    apply :: FuncValue -> Maybe Value -> Maybe Value
-    apply Empty x = Nothing
-    apply (VBlock list) x =
-        do n <- asName x
-        return (findFrom list n)
-    apply (VLambda ind expr) x =
-        do p <- x
+computeFor whole addr VE ext = Just ext -- Computed part
+computeFor whole addr VAp = applied where
+    apply :: EvalClause -> EvalClause
+    apply 
+computeFor whole addr VEx = extracted where
+    extract :: EvalClause -> EvalClause
+computeFor whole addr VPT = pitype
+computeFor whole addr VST = sigmatype
+computeFor whole addr (VCF op) = f
+computeFor whole addr VCP = f
 
--- data Operation = IR Name | ER Name | Ap | Ex | PT | ST | CF MapOp | CP

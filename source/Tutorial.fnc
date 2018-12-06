@@ -1,53 +1,61 @@
 // Tutorials
 {
-    (=>) = X : Type ' Y : Type ' FuncType X Y
+    $Type = `Type`;
+    $DeriverFrom = T. ({{ `Basis.TypeToType` }} x. Type);
 
-    ForOne : (T => Type) => Type;
-    ForAll : (T => Type) => Type;
+    $( ) :  = (inType. outType.) func. input. (_apply (_pair func input));
 
-    Pair : SpecifyOn Name T => Clause Name => ForOne Typer;
-    Lambda : QualifyOn Name T => Clause Name => ForAll Typer;
+    $(->) = dep. deriver. ForAll ({{DeriverFrom dep}} deriver);
+    $(-<) = dep. deriver. ForOne ({{DeriverFrom dep}} deriver);
 
-    Sum = first : Form, second : Form, ForOne { First = first; Second = second; };
-    Product = left : Form, right : Form, (left -< right);
+    $Sum = first. second. ForOne { $First = first; $Second = second; };
+    $Product = left : Form, right : Form, (left -< right);
 
-    Bool = ForOne { TRUE = Unit; FALSE = Unit; };
-    TRUE = [$TRUE, Null] : Bool,
-    FALSE = [$FALSE, Null] : Bool,
+    $Bool = { $TRUE, $FALSE };
 
-    SelFrom = [l, r] : Product T T, [f, n] : Bool, { TRUE = l; FALSE = r; } f;
-    Choose = [f, n] : Bool, { TRUE = [l, r] : Product T T, l; FALSE = [l, r] : Product T T, r; } f;
+    $SelFrom : Product T T -> Bool -> T
+        = [l, r]. { $TRUE = l; $FALSE = r; };
 
-    NOT = SelFrom [FALSE, TRUE];
-    XOR = left : Bool, SelFrom [NOT left, left];
-    NXOR = left : Bool, right : Bool, NOT (XOR left right);
+    $Choose : Bool -> Product T T -> T
+        = { $TRUE = [l, r]. l; $FALSE = [l, r]. r; };
 
-    Always = SelFrom [Unit, Void];
+    $NOT = SelFrom [$FALSE, $TRUE];
+    $XOR = left. SelFrom [NOT left, left];
+    $NXOR = left. right. NOT (XOR left right);
 
-    Equivalence = (eq : T -> T -> Bool) -< ForAll {
-        reflective = x : T -> Always (eq x x);
-        symmetric = x : T -> y : T -> p : Always (eq x y) -> Always (eq y x);
-        transitive = x : T -> y : T -> z : T -> left : Always (eq x y) -> right : Always (eq y z) -> Always (eq x z);
-    };
+
+    $Always = SelFrom [(), Void];
+
+    // Equivalence
+    $Equivalence = T. (
+        (T -> T -> Bool) -< eq. ForAll {
+            $reflective = T -> x. Always(eq x x);
+            $symmetric = T -> x. T -> y. Always (eq x y) -> p. Always(eq y x);
+            $transitive = T -> x. T -> y. T -> z. Always (eq x y) left. -> Always (eq y z) -> right. Always (eq x z);
+        };
+    )
 
     x : Bool, NXOR x x;
-    [f, n] : Bool, { TRUE = NXOR [f, n] [f, n]; FALSE = NXOR [f, n] [f, n]; } f;
-    [f, n] : Bool, { TRUE = NXOR [$TRUE, n] [$TRUE, n] TRUE; FALSE = NXOR [$FALSE, n] [$FALSE, n]; } f;
-    [f, n] : Bool, { TRUE = TRUE; FALSE = TRUE; } f;
-    x : Bool, TRUE;
+    { $TRUE = NXOR $TRUE $TRUE; $FALSE = NXOR $FALSE $FALSE; };
+    { $TRUE = $TRUE; $FALSE = $TRUE };
+    x : Bool, $TRUE;
+    x. Always(eq x x) <=> {{ Bool -> Type }} x. ()
 
-    EqBool = [ NXOR, {
-        reflective = [f, n] : Bool, { TRUE = Null : Always (NXOR TRUE TRUE); FALSE = Null : Always (NXOR FALSE FALSE) } f;
+
+    default (Equivalence Bool) = [ NXOR, {
+        $reflective = [f, n] : Bool, { TRUE = [] : Always (NXOR TRUE TRUE); FALSE = [] : Always (NXOR FALSE FALSE) } f;
     }];
 
-    Num = ForOne {
-        Z = Unit;
-        S = Num;
+    $Nat = ForOne {
+        $Z = Unit;
+        $S = Nat;
     };
-    Z = [$Z, Null] : Num;
-    Succ = n : Num, [$S, n] : Num;
 
-    List = T : Form, len : Num -< Vec T len;
+    $Zero : Nat = [$Z,];
+    $Succ : Nat -> Nat = n. [$S, n];
 
-    Length = [len, vec] : List -> len;
+    $List = T. ForOne {
+        $Empty = Unit;
+        $More = T -< List;
+    }
 }

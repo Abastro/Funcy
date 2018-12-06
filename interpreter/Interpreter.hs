@@ -15,6 +15,7 @@ data Operation = Apply | Extract | PiT | SigmaT
 
 data Clause = Explicit (Maybe Type) Context | Implicit Clause Operation
 
+
 -- Convert a clause into Address tree
 type Address = String
 
@@ -25,7 +26,7 @@ data AddrContext = IR Name | ER Name | CF AddrMapping | CP AddrConnect
 
 data ClauseDesc = ExDesc (Maybe Address) AddrContext | ImDesc Address Operation
 
-type ClauseGraph = Map.Map Address Clause
+type ClauseGraph = Map.Map Address ClauseDesc
 
 
 asGraph = asGraphAddr ""
@@ -73,30 +74,83 @@ findLinkFor graph addr (ImDesc saddr _) = findLink graph saddr
 -- Cycles on value is not allowed
 
 -- Typecheck
+{-
 typeCheck :: (ClauseGraph, Links) -> Address -> Mismatches
 typeCheck (graph, lk) addr = typeCheckFor (graph, lk) addr (graph ! addr)
 
 typeCheckFor :: (ClauseGraph, Links) -> Address -> ClauseDesc -> Mismatches
 typeCheckIn (graph, lk) addr (ExDesc td cd) = 
-
+-}
 
 -- Computation (For now, preserve types purely for display)
 data Extern = Empty | ExtName Name
-data VOp = VI | VE Extern | VAp | VEx | VPT | VST | VCF MapOp | VCP
-type EvalClause = [(Address, VOp, SubNode)]
 
-compute :: EvalClause -> EvalClause
+type ID = Name
+data EvalMapping = EL ID Evaluated | EB [(Name, Evaluated)]
+data EvalConnect = EC Evaluated Evaluated
 
-computeFor :: EvalClause -> Address -> VOp -> Maybe EvalClause
-computeFor whole addr VI = Nothing   -- This is the hardest part
-computeFor whole addr VE ext = Just ext -- Computed part
-computeFor whole addr VAp = applied where
-    apply :: EvalClause -> EvalClause
-    apply 
-computeFor whole addr VEx = extracted where
-    extract :: EvalClause -> EvalClause
-computeFor whole addr VPT = pitype
-computeFor whole addr VST = sigmatype
-computeFor whole addr (VCF op) = f
-computeFor whole addr VCP = f
+data EvalContext = DepRef ID | ExtEv Extern | EF AddrMapping | EP EvalConnect
 
+data Evaluated = ExEval EvalContext | ImEval Evaluated Operation
+
+-- $SomeName :: Enum "SomeName" enum => enum
+
+evaluate :: ClauseGraph -> Address -> Evaluated
+evaluate graph cur = evaluateFor graph (graph ! cur)
+
+evaluateFor :: ClauseGraph -> ClauseDesc -> Evaluated
+evaluateFor graph cur (ExDesc tptr con) = case con of
+    IR name =>
+    ER name =>
+    CF mapping =>
+    CP connect =>
+evaluateFor graph cur (ImDesc ptr op) = case op of
+    Apply => apply internal
+    Extract => extract internal
+    PiT => ImEval internal op
+    SigmaT => ImEval internal op
+    where internal = evaluateFor graph (graph ! ptr)
+
+apply :: Evaluated -> Maybe Evaluated
+apply pair = case ev of
+    ExEval context => case context of
+        EF mapping => case mapping of
+            EL id expr => Just $ substitute id expr dep
+            EB list => case dep of
+                ExEval shouldBeName => case shouldBeName of
+                    ExtEv maybeName => case maybeName of
+                        ExtName name => Just $ snd (find (\x -> fst x == name) list)
+                        _ => Nothing
+                    _ => Nothing
+                ImEval _ _ => Nothing
+        DepRef _ => Just $ ImEval pair Apply
+        _ => Nothing
+    ImEval intern op => case op of
+        Apply => Just $ ImEval pair Apply
+        Extract => Just $ ImEval pair Apply
+        PiT => Nothing
+        SigmaT => Nothing
+    where (ev, dep) = disassemblePair
+
+extract :: Evaluated -> Maybe Evaluated
+extract pair = ifPresent snd $ disassemblePair pair
+
+
+disassemblePair :: Evaluated -> Maybe EvalConnect
+disassemblePair (ExEval context) => case context of
+    EP connect => Just connect
+    _ => Nothing
+
+
+substitute :: ID -> Evaluated -> Evaluated -> Evaluated
+substitute id dep expr = case expr of
+    ExEval context => case context of
+        DepRef rid => if id == rid then dep else expr
+        ExtEv _ => expr
+        EF mapping => case mapping of 
+            EL otherId evaluated => EL otherId $ subsSame evaluated
+            EB list => EB $ map (\v -> (fst v, subsSame $ snd v)) list
+        EP connect => case connect of
+            EC func depen => EC (subsSame func) (subsSame depen)
+    ImEval inter op => evalutateOp $ ImEval (subSame inter) op
+    where subsSame = substitute id dep

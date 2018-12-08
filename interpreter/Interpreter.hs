@@ -1,4 +1,6 @@
 -- Basis, Block / Lambda / Dependent Type
+import Control.Applicative
+import Data.List
 import qualified Data.Map.Lazy as Map
 import qualified Data.Set as Set
 
@@ -36,17 +38,19 @@ evaluate clause = case clause of
         ev <- case op of
             Apply -> apply evSub
             Extract -> extract evSub
-            _ -> fmap ImEval evSub op
+            _ -> return $ ImEval evSub op
         return $ (ev, holes)
     Explicit _ context -> do
         (evContext, holes) <- case context of
-            IntRef name -> (ExEval $ DepRef name, Set.singleton name)
-            ExtRef name -> (ExEval $ ExtName name, Set.empty) -- This is external, anyway
+            IntRef name -> return (DepRef name, Set.singleton name)
+            ExtRef name -> return (ExtEv $ ExtName name, Set.empty) -- This is external, anyway
             CFunc mapping -> case mapping of
                 Lambda name expr -> do
                     (evSub, holeSub) <- evaluate expr
-                    (EL name evSub, Set.delete name holeSub)
-                Block list -> foldl comb (Just Map.empty) list
+                    return (EF $ EL name evSub, Set.delete name holeSub)
+                Block map -> do
+                    blockContent <- foldl comb (return Map.empty) map
+                    return (EF $ EB $ Map.map fst blockContent, foldl Set.union Set.empty $ Map.map snd blockContent)
             CPair (Con fn dep) -> do
                 (evFn, fnh) <- evaluate fn
                 (evDep, deph) <- evaluate dep
@@ -56,27 +60,27 @@ evaluate clause = case clause of
 comb :: Maybe (Map.Map Name Intermediate) -> (Name, Clause) -> Maybe (Map.Map Name Intermediate)
 comb prev (name, expr) = do
     stored <- prev
-    (evCur, ids) <- evaluate clause
-    --evEnd <- foldr subs (return evCur) ids where
-    --    subs bid = liftA2 (substitute bid) (fmap fst (stored Map.!? bid))
-    idsAfter <- unions $ fmap (\someId -> if member someId stored then snd $ stored Map.! someId else Set.singleton someId) ids
-    if member name idsAfter
-        then Nothing
-        else traverse subs2 (Map.insert name evEnd stored) where
-            subs2 :: Intermediate -> Maybe Intermediate
-            subs2 (evSub, holes) = fmap (,) (substitute name evEnd evSub) (Set.union (Set.delete name holes) idsAfter)
+    (evCur, ids) <- evaluate expr
+    evEnd <- let subs bid acc = do trans <- fmap (substitute bid) (fmap fst (Map.lookup bid stored)); acc >>= trans
+        in foldr subs (return evCur) ids
+    let idsAfter = foldl Set.union Set.empty $ Set.map (\someId -> maybe (Set.singleton someId) snd $ Map.lookup someId stored) ids
+        in if Set.member name idsAfter
+            then Nothing
+            else let subs2 (evSub, holes) = fmap (,) (substitute name evEnd evSub) >>= pure . flip ($) (Set.union idsAfter $ Set.delete name holes)
+                in traverse subs2 (Map.insert name (evEnd, idsAfter) stored)
 
 
 apply :: Evaluated -> Maybe Evaluated
-apply pair = disassemblePair pair >>= \conn ->
+apply pair = do
+    EC ev dep <- disassemblePair pair
     case ev of
         ExEval context -> case context of
             EF mapping -> case mapping of
-                EL did expr -> return $ substitute did dep expr
-                EB list -> case dep of
+                EL did expr -> substitute did dep expr
+                EB map -> case dep of
                     ExEval shouldBeName -> case shouldBeName of
                         ExtEv maybeName -> case maybeName of
-                            ExtName name -> return $ snd (find (\x -> fst x == name) list)
+                            ExtName name -> Map.lookup name map
                             _ -> Nothing
                         _ -> Nothing
                     ImEval _ _ -> Nothing
@@ -86,10 +90,10 @@ apply pair = disassemblePair pair >>= \conn ->
             Apply -> return $ ImEval pair Apply
             Extract -> return $ ImEval pair Apply
             _ -> Nothing
-    where (ev, dep) = conn
 
 extract :: Evaluated -> Maybe Evaluated
-extract pair = fmap snd $ disassemblePair pair
+extract pair = fmap ext $ disassemblePair pair where
+    ext (EC fn dep) = dep
 
 disassemblePair :: Evaluated -> Maybe EvalConnect
 disassemblePair (ExEval context) = case context of
@@ -101,15 +105,15 @@ disassemblePair _ = Nothing
 substitute :: ID -> Evaluated -> Evaluated -> Maybe Evaluated
 substitute did dep expr = case expr of
     ExEval context -> case context of
-        DepRef rid -> if did == rid then dep else expr
-        ExtEv _ -> expr
-        EF mapping -> case mapping of
-            EL otherId evaluated -> if otherId == id then Nothing else fmap (EL otherId) $ subsSame evaluated
-            EB list -> fmap EB $ traverse (\v -> (fst v, subsSame $ snd v)) list
-        EP connect -> case connect of
+        DepRef rid -> return $ if did == rid then dep else expr
+        ExtEv _ -> return expr
+        EF mapping -> fmap (ExEval . EF) $ case mapping of
+            EL otherId evaluated -> if otherId == did then Nothing else fmap (EL otherId) $ subsSame evaluated
+            EB map -> fmap EB $ traverse subsSame map
+        EP connect -> fmap (ExEval . EP) $ case connect of
             EC func depen -> liftA2 EC (subsSame func) (subsSame depen)
     ImEval inter op -> case op of
-        Apply -> fmap (apply. ImEval) $ subsSame inter
-        Extract -> fmap (extract. ImEval) $ subsSame inter
+        Apply -> subsSame inter >>= \app -> apply $ ImEval app op
+        Extract -> subsSame inter >>= \ext -> extract $ ImEval ext op
         _ -> return expr
-    where subsSame = substitute id dep
+    where subsSame = substitute did dep

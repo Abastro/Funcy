@@ -4,31 +4,93 @@ import Data.List
 import qualified Data.Map.Lazy as Map
 import qualified Data.Set as Set
 
+type Domain = String
 type Name = String
 
-type Function = Clause
+-- Class Description
+class (Monad d) => Description d where
+    describeError :: String -> d
 
-data Mapping = Lambda Name Clause | Block [(Name, Clause)]
-data Connect = Con Function Clause
+type Desc = Maybe
+instance Description Desc where
+    error msg = Nothing
 
-type Type = Clause
+class Function f m | f -> m where
+    apply :: f -> m -> Desc m
 
-data Context = IntRef Name | ExtRef Name | CFunc Mapping | CPair Connect
-data Operation = Apply | Extract | PiT | SigmaT
+class Pair p m | p -> m where
+    extract :: p -> Desc m
+    funcIn :: p -> Desc m
 
-data Clause = Explicit (Maybe Type) Context | Implicit Clause Operation
+class Expandable a m | a -> m where
+    expand :: Map.Map Name m -> a -> Desc m
 
+
+data Lambda expr = Lambda Name expr
+
+instance (Expandable expr) => Function (Lambda expr) expr where
+    apply (Lambda pName content) val = expand (Map.singleton pName val) content
+
+instance (Expandable expr) => Expandable (Lambda expr) expr where
+    expand rules (Lambda pName content) = if collision then describeError "Re-declared" else Lambda pName (expand rules content)
+
+data BlockN expr = Empty | BlockS (Block expr) (Name, expr)
+
+
+
+data ExPair expr = ExPair expr expr
+
+instance Pair (ExPair expr) expr where
+    extract (ExPair ev dep) = pure $ dep
+    funcIn (ExPair ev dep) = pure $ ev
+
+instance (Expandable expr) => Expandable (ExPair expr) expr where
+    expand rules (ExPair ev dep) = ExPair (expand rules ev) (expand rules dep)
+
+
+data Operate expr = Apply expr | Extract expr
+
+instance (Function expr expr, Pair expr expr, Expandable expr) => Expandable (Operate expr) expr where
+    expand rules (Apply content) = let pair = expand rules content
+        in apply (funcIn pair) (extract pair)
+    expand rules (Extract content) = extract (expand rules content)
+
+
+data Ref = Ref name
+
+instance Expandable Ref expr where
+    expand rules (Ref name) = lookup rules name
+
+data Basis expr = FromLambda (Lambda expr) | FromExPair (ExPair expr) | FromOperation (Opearate expr) | FromRef Ref
+
+instance (Function expr expr, Pair expr expr, Expandable expr) => Expandable (Operate expr) expr where
+    expand rules (FromLambda l) = FromLambda (expand rules l)
+    expand rules (FromExPair p) = FromExPair (expand rules p)
+    expand rules (FromOperation opn) = FromOperation (expand rules opn)
+    expand rules (FromRef ref) = FromRef (expand rules ref)
+
+-- Typed description
+
+data Clause = TypeUni Int | TypedExpr Clause (Expr Clause)
+
+class Typed tp where
+    typeOf :: tp -> tp
+
+instance Typed Clause where
+    typeOf (TypeUni n) = TypeUni (n + 1)
+    typeOf (Explicit tp raw) = tp
 
 -- Evaluation process
-data Extern = Empty | ExtName Name
+data Extern = ExtName Name
+
 
 type ID = Name
-data EvalMapping = EL ID Evaluated | EB (Map.Map Name Evaluated)
-data EvalConnect = EC Evaluated Evaluated
+data EvalMapping = EL ID Evaluated | EB (Map.Map Name Evaluated) deriving Show
+data EvalConnect = EC Evaluated Evaluated deriving Show
 
-data EvalContext = DepRef ID | ExtEv Extern | EF EvalMapping | EP EvalConnect
+data EvalContext = DepRef ID | ExtEv Extern | EF EvalMapping | EP EvalConnect deriving Show
 
-data Evaluated = ExEval EvalContext | ImEval Evaluated Operation
+data Evaluated = ExEval EvalContext | ImEval Evaluated Operation deriving Show
 type Intermediate = (Evaluated, Set.Set ID)
 
 evaluate :: Clause -> Maybe Intermediate
@@ -61,13 +123,11 @@ comb :: Maybe (Map.Map Name Intermediate) -> (Name, Clause) -> Maybe (Map.Map Na
 comb prev (name, expr) = do
     stored <- prev
     (evCur, ids) <- evaluate expr
-    evEnd <- let subs bid acc = do trans <- fmap (substitute bid) (fmap fst (Map.lookup bid stored)); acc >>= trans
+    evEnd <- let subs bid acc = maybe acc ((>>=) acc) $ fmap (substitute bid) (fmap fst $ Map.lookup bid stored)
         in foldr subs (return evCur) ids
     let idsAfter = foldl Set.union Set.empty $ Set.map (\someId -> maybe (Set.singleton someId) snd $ Map.lookup someId stored) ids
-        in if Set.member name idsAfter
-            then Nothing
-            else let subs2 (evSub, holes) = fmap (,) (substitute name evEnd evSub) >>= pure . flip ($) (Set.union idsAfter $ Set.delete name holes)
-                in traverse subs2 (Map.insert name (evEnd, idsAfter) stored)
+        in let subs2 (evSub, holes) = fmap (,) (substitute name evEnd evSub) >>= pure . flip ($) (Set.union idsAfter $ Set.delete name holes)
+            in traverse subs2 (Map.insert name (evEnd, idsAfter) stored)
 
 
 apply :: Evaluated -> Maybe Evaluated
@@ -102,10 +162,10 @@ disassemblePair (ExEval context) = case context of
 disassemblePair _ = Nothing
 
 -- Map based version?
-substitute :: ID -> Evaluated -> Evaluated -> Maybe Evaluated
-substitute did dep expr = case expr of
+substitute :: ID -> Intermediate -> Evaluated -> Maybe Intermediate
+substitute did (dep, holeDep) expr = case expr of
     ExEval context -> case context of
-        DepRef rid -> return $ if did == rid then dep else expr
+        DepRef rid -> return $ if did == rid then (dep, holeDep) else (expr, Set.singleton rid)
         ExtEv _ -> return expr
         EF mapping -> fmap (ExEval . EF) $ case mapping of
             EL otherId evaluated -> if otherId == did then Nothing else fmap (EL otherId) $ subsSame evaluated
@@ -116,4 +176,4 @@ substitute did dep expr = case expr of
         Apply -> subsSame inter >>= \app -> apply $ ImEval app op
         Extract -> subsSame inter >>= \ext -> extract $ ImEval ext op
         _ -> return expr
-    where subsSame = substitute did dep
+    where subsSame = substitute did (dep, holeDep)

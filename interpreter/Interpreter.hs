@@ -15,26 +15,84 @@ type Desc = Maybe
 instance Description Desc where
     error msg = Nothing
 
-class Lambda l where
-    apply :: l -> l -> Desc l
+data Void
 
-class Expandable a m | a -> m where
-    expand :: Map.Map Name 
+--class Exchangeable e where
+--    exchange :: Name -> e
 
-data LambdaCalc = Ref Name | CLambda Name Lambdas
+class LambdaLike l where
+    evaluate :: l -> [l] -> Desc l
+    substitute :: Map.Map Name l -> l -> Desc l
 
-instance Lambda LambdaCalc where
-    apply (CLambda pName content) val = expand (Map.singleton pName val) content
-    apply fn val = Subs fn val
+instance LambdaLike Void where
+    evaluate x y = x
+    substitute m p = p
 
-instance Expandable LambdaCalc where
-    expand rules (Lambda pName content) = if collision then describeError "Re-declared" else Lambda pName (expand rules content)
+data Lambda value = Value value | Ref Name [Lambda value] | Lam Name (Lambda value)
 
-Basis = DepFunc LambdaCalc | DepPair LambdaCalc Basis | 
+instance (LambdaLike expr) => LambdaLike (Lambda expr) where
+    evaluate (Lam pName content) vals = substitute (Map.singleton pName vals) content
+    evaluate (Ref pName list) vals = Ref pName (list vals)
 
-class Pair p m | p -> m where
-    first :: p -> Desc m
-    second :: p -> Desc m
+    substitute rules (Lam pName content) = if collision then describeError "Re-declared" else Lambda pName (expand rules content)
+    substitute rules (Ref pName list) = maybe (Ref pName list) (evaluate t list) ( pName rules)
+
+
+class FPLike fp where
+    pair :: fp -> fp -> Desc fp
+    extract :: fp -> Desc fp
+    apply :: fp -> Desc fp
+
+data FuncPair ext = FPExt ext | Func (LFP ext) | Pair (LFP ext) ext
+type LFP ext = Lambda (FuncPair ext)
+
+instance (LambdaLike ext) => LambdaLike (FuncPair ext) where
+    evaluate _ _ = describeError ""
+
+    substitute rules (FPExt other) = FPExt (substitute rules other)
+    substitute rules (Func lambda) = Func (substitute rules lambda)
+    substitute rules (Pair lambda dep) = Pair (substitute rules lambda) (substitute rules dep)
+
+instance (FPLike ext) => FPLike LFP ext where
+    pair (Value value) _ = describeError ""
+    pair lam dep = Value (Pair lam dep)
+
+    extract (Value val) = extract val
+    extract _ = describeError ""
+
+    apply (Pair lambda dep) = evaluate lambda [dep]
+    apply _ = describeError ""
+
+classify :: Lambda Void -> LFP Void
+classify (Lam pName content) = Lam pName (classify content)
+classify (Ref pName list) = 
+
+
+class Typed tp where
+    typeOf :: tp -> tp
+
+data PSFlag = PiType | SigmaType
+data Types ext = TypeUni Int | PiSigma PSFlag (Types ext) (LT ext) | CustomType ext
+type LT ext = Lambda (Types ext)
+
+instance Typed (Typed ext) where
+    typeOf (TypeUni n) = TypeUni (n + 1)
+    typeOf _ = TypeUni 0
+
+data Clause expr = Type (Types expr) | TypedExpr (Clause expr) expr
+
+instance Typed Clause expr where
+    typeOf (Type t) = typeOf t
+    typeOf (TypedExpr t raw) = t
+
+instance (LambdaLike expr) => LambdaLike Clause expr where
+    evaluate _ _ = describeError ""
+    substitute rules (Type t) = Type (substitute rules t)
+    substitute rules (TypedExpr t raw) = TypedExpr (substitute rules t) (substitute rules raw)
+
+instance (FuncPair expr) => FuncPair Clause expr where
+    pair (TypedExpr cl ex) = 
+
 
 data BlockN expr = Empty | BlockS (Block expr) (Name, expr)
 
@@ -71,14 +129,6 @@ instance (Function expr expr, Pair expr expr, Expandable expr) => Expandable (Op
 
 -- Typed description
 
-data Clause = TypeUni Int | TypedExpr Clause (Expr Clause)
-
-class Typed tp where
-    typeOf :: tp -> tp
-
-instance Typed Clause where
-    typeOf (TypeUni n) = TypeUni (n + 1)
-    typeOf (Explicit tp raw) = tp
 
 -- Evaluation process
 data Extern = ExtName Name

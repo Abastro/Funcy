@@ -15,28 +15,28 @@ type Desc = Maybe
 instance Description Desc where
     error msg = Nothing
 
-class Function f m | f -> m where
-    apply :: f -> m -> Desc m
-
-class Pair p m | p -> m where
-    extract :: p -> Desc m
-    funcIn :: p -> Desc m
+class Lambda l where
+    apply :: l -> l -> Desc l
 
 class Expandable a m | a -> m where
-    expand :: Map.Map Name m -> a -> Desc m
+    expand :: Map.Map Name 
 
+data LambdaCalc = Ref Name | CLambda Name Lambdas
 
-data Lambda expr = Lambda Name expr
+instance Lambda LambdaCalc where
+    apply (CLambda pName content) val = expand (Map.singleton pName val) content
+    apply fn val = Subs fn val
 
-instance (Expandable expr) => Function (Lambda expr) expr where
-    apply (Lambda pName content) val = expand (Map.singleton pName val) content
-
-instance (Expandable expr) => Expandable (Lambda expr) expr where
+instance Expandable LambdaCalc where
     expand rules (Lambda pName content) = if collision then describeError "Re-declared" else Lambda pName (expand rules content)
 
+Basis = DepFunc LambdaCalc | DepPair LambdaCalc Basis | 
+
+class Pair p m | p -> m where
+    first :: p -> Desc m
+    second :: p -> Desc m
+
 data BlockN expr = Empty | BlockS (Block expr) (Name, expr)
-
-
 
 data ExPair expr = ExPair expr expr
 

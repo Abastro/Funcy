@@ -16,12 +16,12 @@ instance Description Desc where
     error msg = Nothing
 
 class Lambda l where
-    apply :: l -> l -> Desc l
+    evaluate :: l -> l -> Desc l
 
 class Expandable a m | a -> m where
     expand :: Map.Map Name 
 
-data LambdaCalc = Ref Name | CLambda Name Lambdas
+data Lambda = Ref Int | CLambda Int Lambda
 
 instance Lambda LambdaCalc where
     apply (CLambda pName content) val = expand (Map.singleton pName val) content

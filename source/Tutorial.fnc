@@ -31,7 +31,7 @@
         (T -> T -> Bool) -< eq. ForAll {
             $reflective = T -> x. Always(eq x x);
             $symmetric = T -> x. T -> y. Always (eq x y) -> p. Always(eq y x);
-            $transitive = T -> x. T -> y. T -> z. Always (eq x y) left. -> Always (eq y z) -> right. Always (eq x z);
+            $transitive = T -> x. T -> y. T -> z. Always (eq x y) -> left. Always (eq y z) -> right. Always (eq x z);
         };
     )
 

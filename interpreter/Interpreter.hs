@@ -15,22 +15,13 @@ type Desc = Maybe
 instance Description Desc where
     error msg = Nothing
 
-<<<<<<< HEAD
-class Lambda l where
-    evaluate :: l -> l -> Desc l
-=======
 data Void
->>>>>>> 247e51e61d2abacd74bbdf4be9e55afa7cecb5ff
 
 class Mapping m where
     mapping :: m -> m -> Desc m
 
-<<<<<<< HEAD
-data Lambda = Ref Int | CLambda Int Lambda
-=======
 class (Mapping ev) => Evaluable ev where
     replace :: Int -> ev -> ev -> Desc ev
->>>>>>> 247e51e61d2abacd74bbdf4be9e55afa7cecb5ff
 
 
 data Lambda expr = Val expr | Ref Int [Lambda expr] | Lam Int (Lambda expr)

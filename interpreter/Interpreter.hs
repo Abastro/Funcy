@@ -17,36 +17,56 @@ instance Description Desc where
 
 
 class Contained c t | t -> c where
-    typeName :: t -> Name
     wrap :: t -> c
     unwrap :: c -> Maybe t
 
 
+-- Sum type of types introduced in this module
 class InterModule m where
+    -- Sum type of all dependency modules, with m itself included
+    data AllDeps m
     modName :: m -> String
 
 
 
--- Untyped
-
 data FuncPair ext = Extern ext | Pair (FuncPair ext) (FuncPair ext) | Extract (FuncPair ext) | Apply (FuncPair ext)
 
-class Modifier c mod | mod -> c where
-    modify :: mod -> FuncPair c -> FuncPair c
 
-newtype Unary c = Unary {
-    transform :: c -> c
-}
+evaluateBase :: FuncPair ext -> FuncPair ext
+evaluateBase (Apply (Pair fn dep))
 
-instance (Modifier c) (Unary c) where
-    modify mod (Extern par) = Extern $ transform mod par
+-- Module Frame.Name
 
+type FrameName = Name
 
-interpret :: FuncPair Name -> FuncPair c
+instance InterModule FrameName where
+    data AllDeps FrameName = FName_Self FrameName
 
 
 
+-- Module Frame.Lambda
 
+data FrameLambda = Lambda Name
+
+instance InterModule FrameLambda where
+    data AllDeps FrameLambda = FLambda_FName FrameName | FLambda_Self FrameLambda
+
+modify :: (Contained m FrameLambda) => Name -> [FuncPair m] -> FuncPair m
+
+
+-- Module Std.Integers
+
+data Integers = BigInt Integer | I64 Int
+
+instance InterModule Integers where
+    data AllDeps Integers = StdInts_FName Name | StdInts_Self Integers
+
+type DepInts = AllDeps Integers
+
+evaluate :: FuncPair DepInts -> FuncPair DepInts
+
+
+apply :: Name -> [FuncPair DepInts] -> FuncPair DepInts
 
 
 data PSFlag = Pi | Sigma
@@ -54,13 +74,3 @@ data DepType = TypeUni Int | Depend PSFlag Types (Lambda Types) | ExtType Name
 
 data Clause ext = Typer DepType | Typed DepType (FuncPair ext)
 
-
-impSimple :: Name -> a -> Clause a
-impSimple tName ext = Typed (Extern tName) (External ext)
-
-
-instance Functor Clause where
-    map conv cl = (conv p) -- (Here comes all the application, but Idk how)
-
-instance Applicative Clause where
-    (<*>) clConv clDep = 

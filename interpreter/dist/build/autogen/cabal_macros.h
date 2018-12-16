@@ -70,7 +70,7 @@
   (major1) == 2 && (major2) <  30 || \
   (major1) == 2 && (major2) == 30 && (minor) <= 0)
 
-#define CURRENT_COMPONENT_ID "funcyInterpreter-0.1.0.0"
+#define CURRENT_COMPONENT_ID "funcyInterpreter-0.1.0.0-71T9jK7hgc925Tcx7203KI"
 
-#define CURRENT_PACKAGE_KEY "funcyInterpreter-0.1.0.0"
+#define CURRENT_PACKAGE_KEY "funcyInterpreter-0.1.0.0-71T9jK7hgc925Tcx7203KI"
 

@@ -30,7 +30,7 @@ version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
 bindir     = "/home/abastro/.cabal/bin"
-libdir     = "/home/abastro/.cabal/lib/x86_64-linux-ghc-8.0.2/funcyInterpreter-0.1.0.0"
+libdir     = "/home/abastro/.cabal/lib/x86_64-linux-ghc-8.0.2/funcyInterpreter-0.1.0.0-71T9jK7hgc925Tcx7203KI"
 dynlibdir  = "/home/abastro/.cabal/lib/x86_64-linux-ghc-8.0.2"
 datadir    = "/home/abastro/.cabal/share/x86_64-linux-ghc-8.0.2/funcyInterpreter-0.1.0.0"
 libexecdir = "/home/abastro/.cabal/libexec"

@@ -8,10 +8,10 @@
     .(->) = dep. deriver. ForAll ({{DeriverFrom dep}} deriver);
     .(-<) = dep. deriver. ForOne ({{DeriverFrom dep}} deriver);
 
-    .Sum = first. second. ForOne { $First = first; $Second = second; };
+    .Sum = first. second. ForOne { .First = first; .Second = second; };
     .Product = left : Type, right : Type, (left -< right);
 
-    .Bool = { $TRUE, $FALSE };
+    .Bool = { .TRUE, .FALSE };
     .True : Bool = .TRUE
     .False : Bool = .FALSE
 
@@ -45,7 +45,7 @@
 
 
     default : (Equivalence Bool) = [ NXOR, {
-        $reflective = [f, n] : Bool, { TRUE = [] : Always (NXOR TRUE TRUE); FALSE = [] : Always (NXOR FALSE FALSE) } f;
+        .reflective = [f, n] : Bool, { TRUE = [] : Always (NXOR TRUE TRUE); FALSE = [] : Always (NXOR FALSE FALSE) } f;
     }];
 
     .Nat = ForOne {

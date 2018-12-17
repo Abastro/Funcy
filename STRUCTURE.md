@@ -1,6 +1,8 @@
 # Preface
 
-Funcy is a functional programming language where everything is defined as relation.
+Funcy is a dependently-typed pure functional programming language.
+
+(Outdated starting from here)
 It's capable of all things programming languages can do, because it includes lambda calculus as its subset.
 (It's known that lambda calculus is equivalent with universal turing machine)
 

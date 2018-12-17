@@ -33,10 +33,15 @@ data Applier ext = Applier {
     performApply :: [Maybe ext] -> Maybe ext
 }
 
-{-
-instance Expansive f where
-    expandWith cont  :: Containment b a -> f a -> f b
--}
+instance (Functor f, Functor g) => f g where
+    
+
+instance Expansive Applier where
+    expandWith cont applier = Applier {
+        checkApply = (checkApply applier) . (fmap $ flip (>>=) $ unwrap cont)
+    }
+
+
 {-
 expandApplier :: Contained b a => Applier a -> Applier b
 expandApplier applier = Applier {

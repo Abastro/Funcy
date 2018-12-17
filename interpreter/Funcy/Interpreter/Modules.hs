@@ -17,8 +17,8 @@ data Containment c t = Containment {
     unwrap :: c -> Maybe t
 }
 
-chainCont :: Containment c b -> Containment b a -> Containment c a
-chainCont con1 con2 = Containment {
+chainCont :: Containment b a -> Containment c b -> Containment c a
+chainCont con2 con1 = Containment {
     wrap = wrap con1 . wrap con2,
     unwrap = \x -> unwrap con1 x >>= unwrap con2
 }
@@ -43,17 +43,16 @@ containRight = Containment {
 class Expansive f where
     expandWith :: Containment b a -> f a -> f b
 
-newtype Prop c f a = Prop { prop :: c -> f a }
-instance (Expansive f) => Expansive (Prop c f) where
-    expandWith cont expEv = Prop (expandWith cont . prop expEv)
+instance (Functor f) => Expansive f where
+    expandWith cont = fmap wrap
 
-class Broad a where
-    evaluateBroad :: Expansive f => Containment c a -> f c
+newtype Prop f c a = Prop { prop :: c -> f a }
+instance (Expansive f) => Expansive (Prop f c) where
+    expandWith cont toFeature = Prop (expandWith cont . prop toFeature)
 
-instance (Expansive f) => Expansive (Broad f) where
-    expandWith cont expEv = \broadCont -> (broad expEv $ chainCont broadCont cont)
-
-
+newtype Broad f c a = Broad { broad :: Containment c a -> f a }
+instance (Expansive f) => Expansive (Broad f c) where
+    expandWith cont toFeature = Broad (expandWith cont . broad toFeature . chainCont cont)
 
 
 type Domain = String
@@ -65,60 +64,62 @@ type DirectDeps = Set.Set Domain
 type DepDistrib = Map.Map Domain Domain
 
 -- Dependencies for moduloid m. Here m represents the sum type of supported types.
-data Dependencies m = DepInfo DirectDeps DepDistrib | Dummy m
+data Dependencies dep = DepInfo DirectDeps DepDistrib
 
-instance Expansive Dependencies where
-    expandWith _ (Deps a b) = Deps a b
-    expandWith cont (Dummy m) = Dummy $ wrap cont m
+--instance Expansive Dependencies where
+--    expandWith _ (Deps a b) = Deps a b
 
 
 -- Moduloid, which is basically a group of modules
 class Moduloid l where
     dependencies :: Dependencies l
 
-
-data Module m dep = Main m | Deps dep
-data ModuleInstance dep = Instance
-
-:: ModuleInstance dep -> f dep
-
-class ModuleName m where
-    default :: Maybe m
-    moduleName :: Maybe m -> Domain
-
-instance (ModuleName m, Moduloid dep) => Moduloid (Module m dep) where
-    dependencies = DepInfo (this) Map.singleton (getDeps dependencies)
-
--- A module
-
-
-getDirectDep :: Dependencies m -> Domain -> Maybe (Dependencies m)
-getDirectDep (Deps _ distrib) domain = fmap ModuleMain $ Map.lookup domain distrib
-getDirectDep _ _ = error "Wow, dummy? Really?"
-
-isDirectDep :: Dependencies m -> Domain -> Bool
-isDirectDep (Deps dirs _) domain = Set.member domain dirs
-isDirectDep _ _ = error "Wow, dummy? Really?"
-
 combineDeps :: Dependencies l -> Dependencies r -> Dependencies (Either l r)
-combineDeps x y = error "For now, error."
-
-
-liftFeatureL :: Expansive f => Dependencies l -> Dependencies (Either l r) -> Maybe (f l) -> Maybe (f (Either l r))
-liftFeatureL deps directDep fLeft = do
-    drDepDom <- extractDomain directDep
-    if isDirectDep deps drDepDom then fmap (expandWith containLeft) fLeft else Nothing
-
-liftFeatureR :: Expansive f => Dependencies r -> Dependencies (Either l r) -> Maybe (f r) -> Maybe (f (Either l r))
-liftFeatureR deps directDep fRight = do
-    drDepDom <- extractDomain directDep
-    if isDirectDep deps drDepDom then fmap (expandWith containRight) fRight else Nothing
-
-    featureFor domain = do
-        dirDom <- getDirectDep dependencies domain
-        (liftFeatureL dependencies dirDom $ featureFor domain) <|> (liftFeatureR dependencies dirDom $ featureFor domain)
+combineDeps x y = error "For now, error."    
 
 instance (Moduloid l, Moduloid r) => Moduloid (Either l r) where
     dependencies = combineDeps dependencies dependencies
+    
 
+-- A type which can represent all types a module requires
+data ModuleType loc dep = Local loc | Deps dep
+
+-- Module Instance
+data ModuleInstance m = MInstance Domain
+
+-- Module class
+class Module m where
+    mInstance :: ModuleInstance m
+
+createDep :: Dependencies dep -> ModuleInstance (ModuleType loc dep) -> Dependencies (ModuleType loc dep)
+createDep (DepInfo _ depDist) (MInstance domain) = DepInfo (Set.singleton domain) (Map.singleton domain $ Map.keys depDist)
+
+instance (Module (ModuleType loc dep), Moduloid dep) => Moduloid (ModuleType loc dep) where
+    dependencies = createDep dependencies mInstance
+
+
+getDirectDep :: Dependencies dep -> Domain -> ModuleInstance dep
+getDirectDep (Deps _ distrib) domain = fmap MInstance $ Map.lookup domain distrib
+
+isDirectDep :: Dependencies dep -> Domain -> Bool
+isDirectDep (Deps dirs _) domain = Set.member domain dirs
+
+type DepFeature f dep = (Dependencies dep, Maybe (f dep))
+
+liftFeatureL :: (Expansive f, Moduloid (Either l r)) => DepFeature f l -> ModuleInstance (Either l r) -> DepFeature (f (Either l r))
+liftFeatureL (deps, fLeft) (MInstance dirDomain) =
+    if isDirectDep deps dirDomain
+        then (dependencies, fmap (expandWith containLeft) fLeft)
+        else (dependencies, Nothing)
+
+liftFeatureR :: (Expansive f, Moduloid (Either l r))=> DepFeature f r -> ModuleInstance (Either l r) -> DepFeature (f (Either l r))
+liftFeatureR (deps, fRight) (MInstance dirDomain) =
+    if isDirectDep deps dirDomain
+        then (dependencies, fmap (expandWith containRight) fRight)
+        else (dependencies, Nothing)
+
+liftFeature :: (Expansive f, Moduloid (Either l r)) => Domain -> DepFeature f l -> DepFeature f r -> DepFeature f (Either l r)
+liftFeature domain dfLeft dfRight = do
+    dirDomain <- getDirectDep dependencies domain
+    (liftFeatureL dependencies dirDomain dLeft) <|> (liftFeatureR dependencies dirDomain dRight)
 

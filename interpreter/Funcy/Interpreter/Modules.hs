@@ -65,33 +65,40 @@ type DirectDeps = Set.Set Domain
 type DepDistrib = Map.Map Domain Domain
 
 -- Dependencies for moduloid m. Here m represents the sum type of supported types.
-data Dependencies m = Deps DirectDeps DepDistrib | ModuleMain Domain | Dummy m
+data Dependencies m = DepInfo DirectDeps DepDistrib | Dummy m
 
 instance Expansive Dependencies where
     expandWith _ (Deps a b) = Deps a b
-    expandWith _ (ModuleMain d) = ModuleMain d
     expandWith cont (Dummy m) = Dummy $ wrap cont m
 
 
 -- Moduloid, which is basically a group of modules
 class Moduloid l where
     dependencies :: Dependencies l
-    featureFor :: Expansive f => Domain -> Maybe (f l)
+
+
+data Module m dep = Main m | Deps dep
+data ModuleInstance dep = Instance
+
+:: ModuleInstance dep -> f dep
+
+class ModuleName m where
+    default :: Maybe m
+    moduleName :: Maybe m -> Domain
+
+instance (ModuleName m, Moduloid dep) => Moduloid (Module m dep) where
+    dependencies = DepInfo (this) Map.singleton (getDeps dependencies)
+
+-- A module
 
 
 getDirectDep :: Dependencies m -> Domain -> Maybe (Dependencies m)
 getDirectDep (Deps _ distrib) domain = fmap ModuleMain $ Map.lookup domain distrib
-getDirectDep (ModuleMain moduleName) domain = if moduleName == domain then Just (ModuleMain domain) else Nothing
 getDirectDep _ _ = error "Wow, dummy? Really?"
 
 isDirectDep :: Dependencies m -> Domain -> Bool
 isDirectDep (Deps dirs _) domain = Set.member domain dirs
-isDirectDep (ModuleMain moduleName) domain = (moduleName == domain)
 isDirectDep _ _ = error "Wow, dummy? Really?"
-
-extractDomain :: Dependencies m -> Maybe Domain
-extractDomain (ModuleMain domain) = Just domain
-extractDomain _ = Nothing
 
 combineDeps :: Dependencies l -> Dependencies r -> Dependencies (Either l r)
 combineDeps x y = error "For now, error."
@@ -107,10 +114,11 @@ liftFeatureR deps directDep fRight = do
     drDepDom <- extractDomain directDep
     if isDirectDep deps drDepDom then fmap (expandWith containRight) fRight else Nothing
 
-
-instance (Moduloid l, Moduloid r) => Moduloid (Either l r) where
-    dependencies = combineDeps dependencies dependencies
     featureFor domain = do
         dirDom <- getDirectDep dependencies domain
         (liftFeatureL dependencies dirDom $ featureFor domain) <|> (liftFeatureR dependencies dirDom $ featureFor domain)
+
+instance (Moduloid l, Moduloid r) => Moduloid (Either l r) where
+    dependencies = combineDeps dependencies dependencies
+
 

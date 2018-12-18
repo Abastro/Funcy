@@ -123,3 +123,10 @@ liftFeature domain dfLeft dfRight = do
     dirDomain <- getDirectDep dependencies domain
     (liftFeatureL dependencies dirDomain dLeft) <|> (liftFeatureR dependencies dirDomain dRight)
 
+
+class (Expansive f, Moduloid l) => ModuleFeature f l where
+    queryFeature :: Domain -> Maybe (f l)
+
+-- feature of simple union
+instance (ModuleFeature f l, ModuleFeature f r) => ModuleFeature f (Either l r) where
+    queryFeature domain = liftFeature domain (dependencies, queryFeature domain) (dependencies, queryFeature domain)

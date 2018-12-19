@@ -24,45 +24,26 @@ instance Description Desc where
     describeError msg = Desc Nothing
 
 
--- Applier definition
-data Applier ext = Applier {
-    -- Number of parameters
-    numParam :: Int
 
-    -- Check for errors on application
-    checkApply :: [Maybe ext] -> Desc (),
-
-    -- Performs actual application
-    performApply :: [Maybe ext] -> Maybe ext
-}
-
+{-
 -- Applier is expansive
 instance Expansive Applier where
     expandWith cont applier = Applier {
-        numParam = numParam applier
+        numParam = numParam applier,
         checkApply = (checkApply applier) . (fmap $ flip (>>=) $ unwrap cont),
         performApply = (fmap $ wrap cont) . (performApply applier) . (fmap $ flip (>>=) $ unwrap cont)
     }
 
 
-data ApplyFeature ext expr = ApplyFeature {
-    hasApplier :: Name -> Bool
-    applierOf :: Name -> Applier expr,
-
-    hasModifier :: Name -> Bool
-    modifierOf :: Name -> Containment ext expr -> Applier ext
-}
-
-
 instance Expansive (ApplyFeature ext) where
     expandWith cont appFeature = ApplyFeature {
-        hasApplier = hasApplier appFeature
+        hasApplier = hasApplier appFeature,
         applierOf = deProp $ expandWith cont $ Prop $ applierOf appFeature,
     
-        hasModifier = hasModifier appFeature
+        hasModifier = hasModifier appFeature,
         modifierOf = fmap deBroad . deProp $ expandWith cont $ Prop . fmap Broad $ modifierOf appFeature
     }
-
+-}
 
 -- Func-Pair representation
 data FuncPair ext = Pair Bool (FuncPair ext) (FuncPair ext) |
@@ -75,35 +56,62 @@ instance Functor FuncPair where
     fmap function (Apply pair) = Apply (fmap function pair)
     fmap function (Extern ex) = Extern (function ex)
 
+
+-- Translator to certain expression
+newtype Translator expr = Translator { translateToExpr :: Name -> expr }
+
+instance Functor Translator where
+    fmap func trans = Translator (func . translateToExpr trans)
+
+translateLocal :: DomainedFeature Translator expr => (Domain, Name) -> Maybe expr
+translateLocal (domain, name) = do
+    translator <- findFeature domain
+    return $ translateToExpr translator name
+
+translateAST :: DomainedFeature Translator expr => FuncPair (Domain, Name) -> Maybe (FuncPair expr)
+translateAST = extractMaybe . fmap translateLocal
+
+
 extractMaybe :: FuncPair (Maybe ext) -> Maybe (FuncPair ext)
 extractMaybe (Pair flag dep fn) = liftA2 (Pair flag) (extractMaybe dep) (extractMaybe fn)
 extractMaybe (Extract pair) = fmap Extract (extractMaybe pair)
 extractMaybe (Apply pair) = fmap Apply (extractMaybe pair)
 extractMaybe (Extern ex) = fmap Extern ex
 
-upliftCont :: Containment b a -> Containment (FuncPair b) (FuncPair a)
-upliftCont cont = Containment {
-    wrap = fmap $ wrap cont,
-    unwrap = extractMaybe . (fmap $ unwrap cont)
+
+
+-- Applier definition
+data Applier expr = Applier {
+    -- Number of parameters, 0 if invalid
+    numParam :: Int,
+
+    -- Check for errors on application
+    --checkApply :: [Maybe ext] -> Desc (),
+
+    -- Performs actual application
+    performApply :: [FuncPair expr] -> FuncPair expr
 }
 
-newtype ApplyFP ext tp = ApplyFP { getFeature :: ApplyFeature (FuncPair ext) (FuncPair tp) }
 
-instance Expansive (ApplyFP ext) where
-    expandWith cont afp = ApplyFP $ expandWith (upliftCont cont) (getFeature afp)
-
--- Modules related with interpreters
-newtype InterModule m = Intermodule m
+-- Modifier is applier which acts on broader type
+-- Represents Containment ext m -> Applier ext
+type Modifier ext = Broad Applier ext
 
 
-{-
-evaluate :: FuncPair (Domain, Name) -> FuncPair ext
+
+evaluate :: ElementFeature (Modifier ext) ext => FuncPair ext -> FuncPair ext
 evaluate (Extract pair) = case evaluate pair of
     Pair _ ext _ -> ext
     other -> Extract other
 evaluate (Apply pair) = case evaluate pair of
     Pair True _ app -> app
     other -> Apply other
-evaluate (Extern (domain, name)) = (getApplyFP domain) name
-evaluate (Pair False dep fn) = 
--}
+-- Now this is the interesting part
+evaluate (Pair False dep (Extern fn)) = let applier = (deBroad $ featureOf fn) idCont in
+    if numParam applier == 1 then performApply applier (dep : []) else Pair False dep (Extern fn)
+evaluate other = other
+
+-- Modules related with interpreters
+newtype InterModule m = Intermodule m
+
+

@@ -24,26 +24,9 @@ instance Description Desc where
     describeError msg = Desc Nothing
 
 
+-- EvalTree (Evaluated Value) [Entries where value is used]
+data EvalTree ext = ExtValue ext | EvalTree (EvalTree ext) [Evaltree ext]
 
-{-
--- Applier is expansive
-instance Expansive Applier where
-    expandWith cont applier = Applier {
-        numParam = numParam applier,
-        checkApply = (checkApply applier) . (fmap $ flip (>>=) $ unwrap cont),
-        performApply = (fmap $ wrap cont) . (performApply applier) . (fmap $ flip (>>=) $ unwrap cont)
-    }
-
-
-instance Expansive (ApplyFeature ext) where
-    expandWith cont appFeature = ApplyFeature {
-        hasApplier = hasApplier appFeature,
-        applierOf = deProp $ expandWith cont $ Prop $ applierOf appFeature,
-    
-        hasModifier = hasModifier appFeature,
-        modifierOf = fmap deBroad . deProp $ expandWith cont $ Prop . fmap Broad $ modifierOf appFeature
-    }
--}
 
 -- Func-Pair representation
 data FuncPair ext = Pair Bool (FuncPair ext) (FuncPair ext) |
@@ -97,7 +80,13 @@ data Applier expr = Applier {
 -- Represents Containment ext m -> Applier ext
 type Modifier ext = Broad Applier ext
 
+[ 0 ]
+\a. [ floor a ]
+\a. \b. [ (+) a b ]
 
+[ ext [things] ]
+
+-> FuncPair (Lambda ext)
 
 evaluate :: ElementFeature (Modifier ext) ext => FuncPair ext -> FuncPair ext
 evaluate (Extract pair) = case evaluate pair of

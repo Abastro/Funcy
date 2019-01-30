@@ -1,25 +1,36 @@
 // Tutorials
 {
-    .Type = `Type`;
-    .DeriverFrom = T. ({{ `Basis.TypeToType` }} x. Type);
+    .Type = |`Type`|;
 
-    .( ) :  = (inType. outType.) func. input. (_apply (_pair func input));
+    {->} : |`Basis.DepType`| = \dep. \deriver. |`Basis.FuncType`| deriver;
+    {-<} : |`Basis.DepType`| \dep. \deriver. |`Basis.PairType`| deriver;
 
-    .(->) = dep. deriver. ForAll ({{DeriverFrom dep}} deriver);
-    .(-<) = dep. deriver. ForOne ({{DeriverFrom dep}} deriver);
+    .Either : Type -> Type -> Type
+        = \left. \right. PairType { .Left = left; .Right = right; };
+    .Both : Type -> Type -> Type
+        = \left. \right. (left -< right);
 
-    .Sum = first. second. ForOne { .First = first; .Second = second; };
-    .Product = left : Type, right : Type, (left -< right);
+    DefaultOf : Type -> Type
+        = \D. FuncType { .DefIns = D; };
+    {[]} : {[DefaultOf D]} -> D
+        = \dof. dof.DefIns
 
-    .Bool = { .TRUE, .FALSE };
-    .True : Bool = .TRUE
-    .False : Bool = .FALSE
+    DecT : Type = PairType {
+        .Exist = a;
+        .None = a -> Void;
+    }
 
+    // Enumeration type
+    .Bool = { .TRUE; .FALSE; };
+    .True : Bool = .TRUE;
+    .False : Bool = .FALSE;
+
+    // Pair Decomposition in lambda
     .SelFrom : Product T T -> Bool -> T
-        = (l, r). { .TRUE = l; .FALSE = r; };
+        = \(l, r). { .TRUE = l; .FALSE = r; };
 
     .Choose : Bool -> Product T T -> T
-        = { .TRUE = (l, r). l; .FALSE = (l, r). r; };
+        = { .TRUE = \(l, r). l; .FALSE = \(l, r). r; };
 
     .NOT = SelFrom [False, True];
     .XOR = left. SelFrom [NOT left, left];
@@ -29,35 +40,34 @@
     .Always = SelFrom [(), Void];
 
     // Equivalence
-    .Equivalence = Type -> T. (
-        (T -> T -> Bool) -< eq. ForAll {
-            $reflective = T -> x. Always(eq x x);
-            $symmetric = T -> x. T -> y. Always (eq x y) -> p. Always(eq y x);
-            $transitive = T -> x. T -> y. T -> z. Always (eq x y) -> left. Always (eq y z) -> right. Always (eq x z);
+    .Equivalence : Type -> Type
+        = \T. (T -> T -> Bool) -< \eq. FuncType {
+            .reflective = T -> \x. Always(eq x x);
+            .symmetric = T -> \x. T -> \y. Always (eq x y) -> Always(eq y x);
+            .transitive = T -> \x. T -> \y. T -> \z. Always (eq x y) -> Always (eq y z) -> Always (eq x z);
         };
-    )
 
-    x : Bool, NXOR x x;
-    { $TRUE = NXOR $TRUE $TRUE; $FALSE = NXOR $FALSE $FALSE; };
-    { $TRUE = $TRUE; $FALSE = $TRUE };
-    x : Bool, $TRUE;
-    x. Always(eq x x) <=> {{ Bool -> Type }} x. ()
-
-
-    default : (Equivalence Bool) = [ NXOR, {
+    // This instance is necessary, thus default
+    #default : (Equivalence Bool) = [ NXOR, {
         .reflective = [f, n] : Bool, { TRUE = [] : Always (NXOR TRUE TRUE); FALSE = [] : Always (NXOR FALSE FALSE) } f;
     }];
 
-    .Nat = ForOne {
-        .Z = Unit;
+    // Using syntax?
+    // using default
+ 
+    {=} : {[Equivalence T]} -> (T -> T -> Bool)
+        = \(eq, verif). eq;
+
+    .Nat = PairType {
+        .Z = ();
         .S = Nat;
     };
 
-    .Zero : Nat = (.Z, );
-    .Succ : Nat -> Nat = n. (.S, n);
+    .Zero : Nat = [.Z, ];
+    .Succ : Nat -> Nat = \n. [.S, n];
 
-    .List = T. ForOne {
-        .Empty = Unit;
+    .List : Type -> Type = \T. PairType {
+        .Empty = ();
         .More = T -< List;
     }
 }

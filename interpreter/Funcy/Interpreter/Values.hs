@@ -24,20 +24,7 @@ instance Description Desc where
     describeError msg = Desc Nothing
 
 
--- EvalTree (Evaluated Value) [Entries where value is used]
-data EvalTree ext = ExtValue ext | EvalTree (EvalTree ext) [Evaltree ext]
-
-
--- Func-Pair representation
-data FuncPair ext = Pair Bool (FuncPair ext) (FuncPair ext) |
-    Extract (FuncPair ext) | Apply (FuncPair ext) |
-    Extern ext
-
-instance Functor FuncPair where
-    fmap function (Pair flag dep fn) = Pair flag (fmap function dep) (fmap function fn)
-    fmap function (Extract pair) = Extract (fmap function pair)
-    fmap function (Apply pair) = Apply (fmap function pair)
-    fmap function (Extern ex) = Extern (function ex)
+data EValue ext = External ext | Composite Graph (Vector (EValue ext))
 
 
 -- Translator to certain expression
@@ -51,34 +38,26 @@ translateLocal (domain, name) = do
     translator <- findFeature domain
     return $ translateToExpr translator name
 
-translateAST :: DomainedFeature Translator expr => FuncPair (Domain, Name) -> Maybe (FuncPair expr)
+translateAST :: DomainedFeature Translator expr => EValue (Domain, Name) -> Maybe (EValue expr)
 translateAST = extractMaybe . fmap translateLocal
 
 
-extractMaybe :: FuncPair (Maybe ext) -> Maybe (FuncPair ext)
-extractMaybe (Pair flag dep fn) = liftA2 (Pair flag) (extractMaybe dep) (extractMaybe fn)
-extractMaybe (Extract pair) = fmap Extract (extractMaybe pair)
-extractMaybe (Apply pair) = fmap Apply (extractMaybe pair)
-extractMaybe (Extern ex) = fmap Extern ex
+-- Or use Alternative?
+extractMaybe :: EValue (Maybe ext) -> Maybe (EValue ext)
+extractMaybe (External extern) = fmap External $ extern
+extractMaybe (Composite egraph vals) = fmap (Composite egraph) (fmap extractMaybe $ vals)
 
 
 
--- Applier definition
-data Applier expr = Applier {
-    -- Number of parameters, 0 if invalid
+-- EvalUnit definition
+data EvalUnit sel tar = EvalUnit {
+    -- Number of parameters
     numParam :: Int,
 
-    -- Check for errors on application
-    --checkApply :: [Maybe ext] -> Desc (),
-
-    -- Performs actual application
-    performApply :: [FuncPair expr] -> FuncPair expr
+    -- Performs evaluation
+    performEval :: sel -> [EValue tar] -> EValue tar
 }
 
-
--- Modifier is applier which acts on broader type
--- Represents Containment ext m -> Applier ext
-type Modifier ext = Broad Applier ext
 
 [ 0 ]
 \a. [ floor a ]
@@ -86,7 +65,6 @@ type Modifier ext = Broad Applier ext
 
 [ ext [things] ]
 
--> FuncPair (Lambda ext)
 
 evaluate :: ElementFeature (Modifier ext) ext => FuncPair ext -> FuncPair ext
 evaluate (Extract pair) = case evaluate pair of

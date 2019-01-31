@@ -3,7 +3,7 @@
     .Type = |`Type`|;
 
     {->} : |`Basis.DepType`| = \dep. \deriver. |`Basis.FuncType`| deriver;
-    {-<} : |`Basis.DepType`| \dep. \deriver. |`Basis.PairType`| deriver;
+    {-<} : |`Basis.DepType`| = \dep. \deriver. |`Basis.PairType`| deriver;
 
     .Either : Type -> Type -> Type
         = \left. \right. PairType { .Left = left; .Right = right; };
@@ -49,10 +49,10 @@
 
     // This instance is necessary, thus default
     #default : (Equivalence Bool) = [ NXOR, {
-        .reflective = [f, n] : Bool, { TRUE = [] : Always (NXOR TRUE TRUE); FALSE = [] : Always (NXOR FALSE FALSE) } f;
+        .reflective = { .TRUE = Always (NXOR TRUE TRUE); .FALSE = Always (NXOR FALSE FALSE); };
     }];
 
-    // Using syntax?
+    // Using syntax
     // using default
  
     {=} : {[Equivalence T]} -> (T -> T -> Bool)

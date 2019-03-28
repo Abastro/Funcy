@@ -59,24 +59,16 @@ data EvalUnit sel tar = EvalUnit {
 }
 
 
+evaluate :: ElementFeature (EvalUnit ext ext) ext => EValue ext -> EValue ext
+evaluate (External extern) = External extern
+evaluate (Composite egraph vals) = 
+
+{-
 [ 0 ]
 \a. [ floor a ]
 \a. \b. [ (+) a b ]
-
 [ ext [things] ]
-
-
-evaluate :: ElementFeature (Modifier ext) ext => FuncPair ext -> FuncPair ext
-evaluate (Extract pair) = case evaluate pair of
-    Pair _ ext _ -> ext
-    other -> Extract other
-evaluate (Apply pair) = case evaluate pair of
-    Pair True _ app -> app
-    other -> Apply other
--- Now this is the interesting part
-evaluate (Pair False dep (Extern fn)) = let applier = (deBroad $ featureOf fn) idCont in
-    if numParam applier == 1 then performApply applier (dep : []) else Pair False dep (Extern fn)
-evaluate other = other
+-}
 
 -- Modules related with interpreters
 newtype InterModule m = Intermodule m

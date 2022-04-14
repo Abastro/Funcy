@@ -1,1 +1,8 @@
 *.code-workspace
+
+
+.yo-rc.json
+
+// vscodes
+.vscode
+vsc-extension-quickstart.md

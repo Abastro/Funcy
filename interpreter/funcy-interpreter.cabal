@@ -1,0 +1,63 @@
+cabal-version:      2.4
+name:               funcy-interpreter
+version:            0.1.0.0
+synopsis:           Interpreter for Funcy language
+description:
+  Funcy is a dependently typed functional language,
+  with focus towards deduplicated and simplistic concepts.
+  This project is a reference interpreter for the funcy language.
+
+homepage:           https://github.com/Abastro/Funcy
+
+-- A URL where users can report bugs.
+-- bug-reports:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Abastro
+maintainer:         abab9579@gmail.com
+copyright:          2018-2022 Abastro
+category:           Language
+extra-source-files: ChangeLog.md
+
+library
+    exposed-modules:
+        Interpreter.Values
+        Interpreter.Modules
+
+    -- Modules included in this library but not exported.
+    -- other-modules:
+    other-extensions:
+        MultiParamTypeClasses TypeFamilies FlexibleContexts
+        GeneralizedNewtypeDeriving FlexibleInstances
+
+    build-depends:
+        base ^>=4.16.1.0,
+        containers ^>=0.6.5.1
+
+    hs-source-dirs:   src
+    default-language: GHC2021
+
+executable funcy-interpreter
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    -- other-modules:
+    other-extensions:
+        MultiParamTypeClasses TypeFamilies FlexibleContexts
+        GeneralizedNewtypeDeriving FlexibleInstances
+
+    build-depends:
+        base ^>=4.16.1.0,
+        containers ^>=0.6.5.1
+
+    hs-source-dirs:   app
+    default-language: GHC2021
+
+test-suite funcy-interpreter-test
+    default-language: GHC2021
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          MyLibTest.hs
+    build-depends:
+        base ^>=4.16.1.0,
+        containers ^>=0.6.5.1

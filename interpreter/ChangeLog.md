@@ -1,5 +1,5 @@
-# Revision history for funcyInterpreter
+# Revision history for funcy-interpreter
 
 ## 0.1.0.0  -- YYYY-mm-dd
 
-* First version. Released on an unsuspecting world.
+* To be written after sensible working prototype.

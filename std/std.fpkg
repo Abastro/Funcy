@@ -1,0 +1,3 @@
+package:
+  name:     std
+  src-dir:  src

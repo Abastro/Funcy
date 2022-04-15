@@ -14,8 +14,8 @@ include Bool
 
 bool : Bool -> @T. T -> T -> T
   = case
-    false :> \x _. x
-    true :> \_ x. x
+    # false = \x _. x
+    # true  = \_ x. x
 
 // TODO Make lens instead
 construct Either where
@@ -30,8 +30,8 @@ include Either
 
 either : @A B. Either A B -> @T. (A -> T) -> (B -> T) -> T
   = case
-    left l :> \lf _. lf l
-    right r :> \_ rf. rf r
+    # (left l)  = \lf _. lf l
+    # (right r) = \_ rf. rf r
 
 destruct Both where
   val A B
@@ -40,20 +40,36 @@ destruct Both where
   derive Eq; Ord
 include Both
 
-// T -> (T -> A) -> (T -> B) -> Both A B
-
 both : @A B. A -> B -> Both A B
-  = part
-    .fst f <: f _
-    .snd s <: _ s
+  = case
+    fst (# f s) = f
+    snd (# f s) = s
 
 {:*:} : Type -> Type -> Type where
   A :*: B = Both A B
 
-test: @A B. A -> B -> A :*: (B :*: (B -> A))
-  = part
-    .fst      x _ :> x
-    .fst .fst _ y :> y
-    .fst .snd x _ :> \_. x
+
+construct List where
+  val A
+  nil : Unit -> List A
+  cons : {A & List A} -> List A
+  with
+    foldr : @A B. ({A & B} -> B) -> B -> (List A -> B)
+      = case
+        # _ acc (nil _) = acc
+        # f acc (cons (x, xs)) = f (x, foldr f acc)
+
+destruct List1 where
+  val A
+  head : List1 A -> A
+  tail : List1 A -> {Unit | List1 A}
+  with
+    // This is unergonomic
+    unfoldr : @A B. (B -> {Unit | B}) -> (B -> A) -> (B -> List1 A)
+      = case
+        head (# _ h st) = h st
+        tail (# f h st) = f st |> case
+          # (() |) = (() |)
+          # (| st') = (| unfoldr f h st')
 
 }

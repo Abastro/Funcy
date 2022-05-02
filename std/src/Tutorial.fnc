@@ -5,12 +5,12 @@ import Prelude
 // Hidden
 hide myDef : Str = "Hello, World!"
 
-action : IO Unit = act
+action : Unit `Eff` Unit = act
   Sys.outln myDef
   _ <- myAct
-  lift ()
+  end ()
   where
-    myAct = act[IO]
+    myAct = act[Eff]
       Sys.outln "Bye!"
 
 }

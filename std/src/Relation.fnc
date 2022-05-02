@@ -12,11 +12,11 @@ with
     # false = true
     # true = false
 
-  {&&} : Bool -> Bool = case
+  {&&} : Bool -> Bool -> Bool = case
     # false _ = false
     # true b = b
 
-  {||} : Bool -> Bool = case
+  {||} : Bool -> Bool -> Bool = case
     # false b = b
     # true _ = true
 

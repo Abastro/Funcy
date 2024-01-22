@@ -10,9 +10,9 @@ include construct Bool : Type where
 
 // Anonymous module here is to declare a context.
 include module
-  var (T: Type)
+  var (t: Type)
 
-  bool : { onFalse: T, onTrue: T } -> (Bool -> T) =
+  bool : { onFalse: t, onTrue: t } -> (Bool -> t) =
     \case {onFalse, onTrue} -> \case
       False -> onFalse
       True -> onTrue

@@ -3,15 +3,14 @@ module Std.Codata.Both
 import Std.Type
 import Std.Relation
 
-include destruct Both : { F: Type, S: Type } -> Type where
-  var (F, S)
-  Fst : Both {F, S} -> F
-  Snd : Both {F, S} -> S
+destruct Both : (Type, Type) -> Type where
+  var (f, s)
+  Fst : Both (f, s) -> f
+  Snd : Both (f, s) -> s
   derive (Eq, Ord)
-
-include module
-  var (F, S, T)
-  both : { fCon : T -> A, sCon : T -> B } -> (T -> Both {A, B}) =
+with
+  var (f, s, t)
+  both : { fCon : t -> a, sCon : t -> b } -> (t -> Both (a, b)) =
     \case {fCon, sCon} -> \comp[fn]
       Fst (fn v) -> fCon v
       Snd (fn v) -> sCon v

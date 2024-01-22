@@ -1,20 +1,20 @@
 module Tutorial
 
-import Prelude
+// Implied: import Prelude
 
 // Hidden
-hide myDef : Str = "Hello, World!"
+hide myDef : Text = "Hello, World!"
 
-action : Unit -[Eff]> Unit = {Eff|
+action : () -[Eff]> () = {Eff|
   // in () can be omitted
   Sys.outLn myDef
   x := Sys.inLn
-  Sys.outLn [format|{x} + {1} is {x+1}]
+  Sys.outLn [format| {x} + {1} is {x+1} ]
   out ()
 }
 
 // Composition-chain state management
-foo : { x: Int, y: Int } -> Int = {
+foo : { x: Int, y: Int } -> Int = {(->)|
   in {x, y}
   y := x - y
   y %= \case
@@ -22,5 +22,5 @@ foo : { x: Int, y: Int } -> Int = {
     1 -> x + 1
     n -> n
   x := x + y
-  out x * y
+  out (x * y)
 }

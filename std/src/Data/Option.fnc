@@ -3,15 +3,14 @@ module Std.Data.Option
 import Std.Type
 import Std.Relation
 
-include construct Option : Type -> Type where
-  var A
-  None : Option A
-  Some : A -> Option A
+construct Option : Type -> Type where
+  var a
+  None : Option a
+  Some : a -> Option a
   derive (Eq, Ord)
-
-include module
-  var (A, T)
-  option : { decon: A -> T, default: T } -> (Option A -> T) =
+with
+  var (a, t)
+  option : { decon: a -> t, default: t } -> (Option a -> t) =
     \case {decon, default} -> \case
       None -> default
       Some a -> decon a

@@ -3,17 +3,18 @@ module Std.Data.Either
 import Std.Type
 import Std.Relation
 
-include construct Either : { L: Type, R: Type } -> Type where
-  var (L, R)
-  Left : L -> Either {L, R}
-  Right : R -> Either {L, R}
+// Is this really needed
+include construct Either : (Type, Type) -> Type where
+  var (l, r)
+  Left : l -> Either (l, r)
+  Right : r -> Either (l, r)
   derive (Eq, Ord)
 
 // Anonymous included module
 include module
   // Hidden variables represented by pairs (anonymous products).
-  var (L, R, T)
-  either : { lDecon: L -> T, rDecon: R -> T } -> (Either {L, R} -> T) =
+  var (l, r, t)
+  either : { lDecon: l -> t, rDecon: r -> t } -> (Either (l, r) -> t) =
     \case {lDecon, rDecon} -> \case
       Left lv -> lDecon lv
       Right rv -> rDecon rv

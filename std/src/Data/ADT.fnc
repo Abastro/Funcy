@@ -7,7 +7,7 @@ import Std.Relation
 construct List : Type -> Type where
   var A
   nil : List A
-  cons : [A & List A] -> List A
+  cons : (A, List A) -> List A
   derive (Eq, Ord)
 with
   var (A, T)
@@ -20,9 +20,9 @@ with
 destruct List1 : Type -> Type where
   var A
   head : List1 A -> A
-  tail : List1 A -> [Unit | List1 A]
+  tail : List1 A -> (() | List1 A)
 with
-  val A, T
+  var A, T
   unfoldRight : { step: T -> (() | T), element: T -> A } -> (T -> List1 A) =
     \case {step, element} -> \comp[unfold]
       head (unfold v) -> element v
@@ -35,7 +35,7 @@ destruct Stream : Type -> Type where
   head : Stream A -> A
   tail : Stream A -> Stream A
 with
-  val A, T
+  var A, T
   unfoldStream : { step: T -> T, element: T -> A } -> (T -> Stream A) =
     \case {step, element} -> \comp[unfold]
       head (unfold v) -> element v

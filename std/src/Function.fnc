@@ -2,18 +2,20 @@ module Std.Function
 
 import Std.Type
 
-// Forgor better naming
-include module Piping
-  val (A: Type, B: Type, C: Type)
+/*
+ * Piping operations
+ */
+include module
+  var (a: Type, b: Type, c: Type)
 
-  (<|) : (A -> B, A) -> B where
+  (<|) : (a -> b, a) -> b where
     f <| x = f x
 
-  (|>) : (A, A -> B) -> B where
+  (|>) : (a, a -> b) -> b where
     x |> f = f x
 
   // Swap the tuple of a function over tuple.
-  swapping : ((A, B) -> C) -> ((B, A) -> C) =
+  swapping : ((a, b) -> c) -> ((b, a) -> c) =
     \f -> \case (x, y) -> f (y, x)
 
   // Flip a curried function.

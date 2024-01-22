@@ -5,11 +5,11 @@ import Std.Type
 /*
  * An additive group is an abelian group with additive connotations.
  */
-class Add A where
-  e0 : A
-  (+) : (A, A) -> A
-  (-) : (A, A) -> A
-  minus : A -> A
+class Add a where
+  e0 : a
+  (+) : (a, a) -> a
+  (-) : (a, a) -> a
+  minus : a -> a
 with
   minimal (e0, (+), ((-) | minus))
 
@@ -19,15 +19,14 @@ with
 /*
  * A ring is an additive group with distributive multiplication.
  */
-class (Add R) => Ring R where
-  fromInteger : Integer -> R
-  (*) : (R, R) -> R
+class (Add r) => Ring r where
+  fromInteger : Integer -> r
+  (*) : (r, r) -> r
 
 /*
  * A ring where quotient and remainder can be computed.
  * In algebra, this is called 'Euclidean Domain'.
  */
-class (Ord R, Ring R) => Rem R where
-  quotRem : (R, R) -> (R, R)
-  divMod : (R, R) -> (R, R)
-
+class (Ord r, Ring r) => Rem r where
+  quotRem : (r, r) -> (r, r)
+  divMod : (r, r) -> (r, r)

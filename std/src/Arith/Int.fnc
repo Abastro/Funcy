@@ -4,12 +4,6 @@ import Std.Type
 import Std.Relation
 import Std.Arith.Additive
 
-/* 
- * Represents integer and its subtypes.
- */
-class (Rem I) => Integral I where
-  toInteger : I -> Integer
-
 module Impl
   #[Wrapper]
   construct I8 : Type where
@@ -17,19 +11,19 @@ module Impl
     derive (Eq, Ord)
 
   #[Wrapper]
+  derive (Eq, Ord)
   construct I16 : Type where
     Make : [basis| Arith.I16 |] -> I16
-    derive (Eq, Ord)
-  
+
   #[Wrapper]
+  derive (Eq, Ord)
   construct I32 : Type where
     Make : [basis| Arith.I32 |] -> I32
-    derive (Eq, Ord)
-  
+
   #[Wrapper]
+  derive (Eq, Ord)
   construct I64 : Type where
     Make : [basis| Arith.I64 |] -> I64
-    derive (Eq, Ord)
 
   #[Wrapper]
   construct U8 : Type where
@@ -68,3 +62,9 @@ U8 : Type = Impl.U8
 U16 : Type = Impl.U16
 U32 : Type = Impl.U32
 U64 : Type = Impl.U64
+
+/* 
+ * Represents integer and its subtypes.
+ */
+class (Rem I) => Integral I where
+  toInteger : I -> Integer

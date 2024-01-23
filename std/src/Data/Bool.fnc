@@ -2,7 +2,7 @@ module Std.Data.Bool
 
 import Std.Type
 
-include construct Bool : Type where
+include construct Bool : Type
   False : Bool
   True : Bool
   // Interdependent module should be fine (I hope so)

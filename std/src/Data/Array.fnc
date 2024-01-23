@@ -6,7 +6,7 @@ import Std.Arith.Int
 
 module Impl
   #[Wrapper]
-  construct Array : Type -> Type where
+  construct Array : Type -> Type
     var a
     Make : [basis| Data.Array |] a -> Array a
     derive (Eq, Ord)

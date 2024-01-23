@@ -4,7 +4,7 @@ import Std.Type
 import Std.Relation
 
 // Is this really needed
-include construct Either : (Type, Type) -> Type where
+include construct Either : (Type, Type) -> Type
   var (l, r)
   Left : l -> Either (l, r)
   Right : r -> Either (l, r)

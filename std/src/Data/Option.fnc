@@ -3,7 +3,7 @@ module Std.Data.Option
 import Std.Type
 import Std.Relation
 
-construct Option : Type -> Type where
+construct Option : Type -> Type
   var a
   None : Option a
   Some : a -> Option a

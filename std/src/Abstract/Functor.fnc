@@ -9,7 +9,7 @@ include module
   * A functor is a mapping from a category to another category,
   * which maps objects and morphism from source category onto target category.
   */
-  class Functor { src: BiType J, tar: BiType K } (F: J -> K) where
+  class Functor { src: BiType J, tar: BiType K } (F: J -> K)
     var (a: J, b: J)
     map : (a -[src]> b) -> (F a -[tar]> F b)
 

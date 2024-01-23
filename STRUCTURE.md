@@ -1,59 +1,72 @@
-# Preface
+# Structure
 
 Funcy is a dependently-typed pure functional programming language.
 
+## Formal grammar
 
-# Formal grammar
-
-## Complex Tokens
+### Tokens
 
 | Token Name  | Description                 |
 |-------------|-----------------------------|
 | IDENT       | Identifier                  |
 | QUALIFIED   | Qualified Identifier        |
-| INTEGER     | An integer                  |
-| FLOAT       | A floating point number     |
+| INTEGER     | An integer literal          |
+| FLOAT       |                             |
 
+### Grammar Rules
 
-## Main Rules
+Module grammar
 
 ```ebnf
 (* TODO Need to handle indentation rules *)
 
-file = { module };
+module = "module", QUALIFIED, imports, codespace;
 
-module = "module", QUALIFIED, codespace;
-
-codespace = "{" { define } "}";
-
-bring =
+imports =
   "include", QUALIFIED |
-  "import", QUALIFIED;
+  "import", QUALIFIED, [ "as", IDENT ];
+```
 
-namespace =
-  IDENT, "=", ( bring | codespace );
+Codespace grammar
 
-declare = IDENT, [ ":", expr ];
+```ebnf
+codespace = contexts, { declare, NEWLINE };
+
+contexts = { var, NEWLINE };
+
+var =
+  "var", (typesig | "(", typesig, { ",", typesig } , ")");
+
+declare = define | structure;
 
 define =
-  bring | namespace | equate | structure;
+  typesig, "=", expr |
+  typesig, descriptions;
+
+typesig = IDENT, [ ":", expr ];
+
+signatures =
+  contexts, { typesig, NEWLINE }, [ "with", codespace ];
+
+structure =
+  ("construct" | "destruct"), typesig, NEWLINE, signatures;
+
+class =
+  "class", _TODO, NEWLINE, signatures;
+
+instance =
+  "instance", _TODO, descriptions;
+
+```
+
+Descriptions
+
+```ebnf
+
+descriptions =
+  "where", contexts, { describe };
 
 describe =
-  leftexpr, "=", expr | equate;
-
-equate =
-  declare, "=", expr |
-  declare, "where", { describe };
-
-strKey = "construct" | "destruct" | "class";
-structure = strKey, declare,
-  "where", { declare | decorate },
-  [ "with", codespace ];
-
-decorate = globalBind | derive;
-
-(* NEED decl w/ space need be in parens *)
-globalBind = "val", declare, { declare };
-derive = "derive", { expr }
+  leftExpr, "=", expr | equate;
 
 ```

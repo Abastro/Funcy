@@ -4,7 +4,7 @@ module Std.ADT
 import Std.Type
 import Std.Relation
 
-construct List : Type -> Type where
+construct List : Type -> Type
   var A
   nil : List A
   cons : (A, List A) -> List A
@@ -17,7 +17,7 @@ with
       nil -> initial
       cons (head, tail) -> step (head, fold tail)
 
-destruct List1 : Type -> Type where
+destruct List1 : Type -> Type
   var A
   head : List1 A -> A
   tail : List1 A -> (() | List1 A)
@@ -30,7 +30,7 @@ with
         (() |) -> (() |)
         (| next) -> (| unfold next)
 
-destruct Stream : Type -> Type where
+destruct Stream : Type -> Type
   var A
   head : Stream A -> A
   tail : Stream A -> Stream A

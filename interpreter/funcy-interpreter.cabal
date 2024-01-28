@@ -1,11 +1,11 @@
-cabal-version:      2.4
+cabal-version:      3.0
 name:               funcy-interpreter
 version:            0.1.0.0
 synopsis:           Interpreter for Funcy language
 description:
-  Funcy is a dependently typed functional language,
-  with focus towards deduplicated and simplistic concepts.
-  This project is a reference interpreter for the funcy language.
+    Funcy is a dependently typed functional language,
+    focused on representing the semantics in category theory.
+    This project is a reference interpreter for the funcy language.
 
 homepage:           https://github.com/Abastro/Funcy
 
@@ -15,7 +15,7 @@ license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Abastro
 maintainer:         abab9579@gmail.com
-copyright:          2018-2022 Abastro
+copyright:          2018-2024 Abastro
 category:           Language
 extra-source-files: ChangeLog.md
 
@@ -27,11 +27,12 @@ library
     -- Modules included in this library but not exported.
     -- other-modules:
     other-extensions:
-        MultiParamTypeClasses TypeFamilies FlexibleContexts
-        GeneralizedNewtypeDeriving FlexibleInstances
+        MultiParamTypeClasses
+        TypeFamilies
+        GeneralizedNewtypeDeriving
 
     build-depends:
-        base ^>=4.16.1.0,
+        base ^>=4.17.2.0,
         containers ^>=0.6.5.1
 
     hs-source-dirs:   src
@@ -43,11 +44,12 @@ executable funcy-interpreter
     -- Modules included in this executable, other than Main.
     -- other-modules:
     other-extensions:
-        MultiParamTypeClasses TypeFamilies FlexibleContexts
-        GeneralizedNewtypeDeriving FlexibleInstances
+        MultiParamTypeClasses
+        TypeFamilies
+        GeneralizedNewtypeDeriving
 
     build-depends:
-        base ^>=4.16.1.0,
+        base ^>=4.17.2.0,
         containers ^>=0.6.5.1
 
     hs-source-dirs:   app
@@ -59,5 +61,5 @@ test-suite funcy-interpreter-test
     hs-source-dirs:   test
     main-is:          MyLibTest.hs
     build-depends:
-        base ^>=4.16.1.0,
+        base ^>=4.17.2.0,
         containers ^>=0.6.5.1

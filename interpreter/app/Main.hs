@@ -1,6 +1,3 @@
--- Basis, Block / Lambda / Dependent Type
-import Funcy.Interpreter.Modules
-import Funcy.Interpreter.InterModules
 
 {-
 Primitive.Integral.Add 3 -> Add, [3]

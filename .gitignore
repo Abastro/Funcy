@@ -1,5 +1,6 @@
 *.code-workspace
 
+dist-newstyle
 
 .yo-rc.json
 

@@ -8,9 +8,6 @@ description:
     This project is a reference interpreter for the funcy language.
 
 homepage:           https://github.com/Abastro/Funcy
-
--- A URL where users can report bugs.
--- bug-reports:
 license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Abastro
@@ -19,47 +16,49 @@ copyright:          2018-2024 Abastro
 category:           Language
 extra-source-files: ChangeLog.md
 
+common libs
+    build-depends:
+        base ^>=4.18.2.0,
+        transformers,
+        mtl,
+        containers,
+        text,
+        vector,
+        filepath,
+        directory,
+        megaparsec ^>=9.6.1,
+
+common opts
+    ghc-options:
+        -W
+
 library
+    import:             libs, opts
     exposed-modules:
+        Interpreter.Bare
+        Interpreter.Expr
         Interpreter.Values
         Interpreter.Modules
-
-    -- Modules included in this library but not exported.
-    -- other-modules:
-    other-extensions:
+    default-extensions:
         MultiParamTypeClasses
-        TypeFamilies
-        GeneralizedNewtypeDeriving
-
-    build-depends:
-        base ^>=4.17.2.0,
-        containers ^>=0.6.5.1
+        LambdaCase
 
     hs-source-dirs:   src
     default-language: GHC2021
 
 executable funcy-interpreter
-    main-is:          Main.hs
-
-    -- Modules included in this executable, other than Main.
-    -- other-modules:
-    other-extensions:
+    import:             libs
+    main-is:            Main.hs
+    default-extensions:
         MultiParamTypeClasses
-        TypeFamilies
-        GeneralizedNewtypeDeriving
 
-    build-depends:
-        base ^>=4.17.2.0,
-        containers ^>=0.6.5.1
-
-    hs-source-dirs:   app
-    default-language: GHC2021
+    hs-source-dirs:     app
+    default-language:   GHC2021
 
 test-suite funcy-interpreter-test
-    default-language: GHC2021
-    type:             exitcode-stdio-1.0
-    hs-source-dirs:   test
-    main-is:          MyLibTest.hs
-    build-depends:
-        base ^>=4.17.2.0,
-        containers ^>=0.6.5.1
+    import:             libs
+    default-language:   GHC2021
+    type:               exitcode-stdio-1.0
+    hs-source-dirs:     test
+    main-is:            MyLibTest.hs
+

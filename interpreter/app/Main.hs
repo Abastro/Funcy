@@ -1,4 +1,8 @@
 
+
+main :: IO ()
+main = pure ()
+
 {-
 Primitive.Integral.Add 3 -> Add, [3]
 Primitive.Integral.3 -> 3 [] -> 3

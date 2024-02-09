@@ -29,14 +29,3 @@ with
       tail (unfold v) -> step v |> \case
         (() |) -> (() |)
         (| next) -> (| unfold next)
-
-destruct Stream : Type -> Type
-  var A
-  head : Stream A -> A
-  tail : Stream A -> Stream A
-with
-  var A, T
-  unfoldStream : { step: T -> T, element: T -> A } -> (T -> Stream A) =
-    \case {step, element} -> \comp[unfold]
-      head (unfold v) -> element v
-      tail (unfold v) -> unfold (step v)

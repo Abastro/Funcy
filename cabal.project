@@ -1,4 +1,4 @@
 packages:
   interpreter/funcy-interpreter.cabal
 
-with-compiler: ghc-9.4.8
+with-compiler: ghc-9.6.4

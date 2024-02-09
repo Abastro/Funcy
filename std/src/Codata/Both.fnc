@@ -14,3 +14,7 @@ with
     \case {fCon, sCon} -> \comp[fn]
       Fst (fn v) -> fCon v
       Snd (fn v) -> sCon v
+
+// comp as v
+//  Fst v -> _
+//  Snd v -> _

@@ -37,9 +37,15 @@ library
     exposed-modules:
         Utils
         Effects.EnvMap
+
+        Interpreter.Structure
+        Interpreter.Values
+        Interpreter.Pattern
+
         Interpreter.Bare
         Interpreter.Expr
-        Interpreter.Values
+
+        Interpreter.Parser
         Interpreter.Modules
     default-extensions:
         MultiParamTypeClasses

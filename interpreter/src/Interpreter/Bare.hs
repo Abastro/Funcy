@@ -1,13 +1,8 @@
 module Interpreter.Bare (
-  LocalRef (..),
-  Native (..),
-  Value (..),
-  Pattern (..),
   Head (..),
   Expr (..),
   headExpr,
   applyExpr,
-  CaseStmt (..),
   Decl (..),
   Interp (..),
   InterpError (..),
@@ -20,108 +15,100 @@ import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.Trans.Maybe
 import Data.Foldable
-import Data.Int
-import Data.IntMap.Strict qualified as IM
 import Data.Maybe
-import Data.Monoid
-import Data.Text qualified as T
 import Data.Vector qualified as V
 import Data.Void
+import Interpreter.Pattern qualified as Pattern
+import Interpreter.Structure
+import Interpreter.Values qualified as Value
 import Text.Megaparsec qualified as Parsec
 
-newtype LocalRef = LocalRef Int
-  deriving (Eq, Ord, Show)
-
-data Native = IntV Int32 | TextV T.Text
-  deriving (Eq, Ord, Show)
-
-data Value
-  = NativeV !Native
-  | ChoiceV !Int8 !Value
-  | TupleV !(V.Vector Value)
-  | ReferV !Int !(V.Vector Value)
-  deriving (Eq, Ord, Show)
-
-data Pattern ref
-  = VarP !ref
-  | NativeP !Native
-  | ChoiceP !Int8 !(Pattern ref)
-  | TupleP !(V.Vector (Pattern ref))
-  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
-
 data Head
-  = ValueH !Value
-  | LocalH !Int
-  deriving (Eq, Ord, Show)
+  = Structural !(Structure Expr)
+  | LocalRef !Int
+  | DeclRef !Int
+  deriving (Eq, Ord)
+
+instance Show Head where
+  show :: Head -> String
+  show = \case
+    Structural str -> show str
+    LocalRef loc -> "loc:" <> show loc
+    DeclRef decl -> "decl:" <> show decl
 
 -- TODO Does this support sharing?
 
 -- Any bare expression is an application chain.
-data Expr = ApplyE !Head !(V.Vector Expr)
-  deriving (Eq, Ord, Show)
+data Expr = Apply !Head !(V.Vector Expr)
+  deriving (Eq, Ord)
+
+instance Show Expr where
+  show :: Expr -> String
+  show (Apply head args) = "(" <> unwords (show head : (show <$> V.toList args)) <> ")"
 
 headExpr :: Head -> Expr
-headExpr head = ApplyE head V.empty
+headExpr head = Apply head V.empty
 
 applyExpr :: Expr -> Expr -> Expr
-applyExpr (ApplyE head args) arg = ApplyE head (V.snoc args arg)
+applyExpr (Apply head args) arg = Apply head (V.snoc args arg)
 
-data CaseStmt = CaseStmt !(Pattern ()) !Expr
 data Decl = Decl
   { normalArgNum :: !Int,
-    cases :: V.Vector CaseStmt
+    cases :: !(Pattern.Cases () Expr)
   }
+  deriving (Show)
 
 data InterpError
-  = AbsentLocal !LocalRef
+  = AbsentLocal !Int
   | AbsentDecl !Int
   | ApplyNonFunc
   | MatchFunc
   | PatternFail
   deriving (Eq, Ord, Show)
 
-newtype Interp a = Interp (ExceptT InterpError (Reader (IM.IntMap Decl)) a)
-  deriving (Functor, Applicative, Monad, MonadReader (IM.IntMap Decl), MonadError InterpError)
+newtype Interp a = Interp (ExceptT InterpError (Reader (V.Vector Decl)) a)
+  deriving (Functor, Applicative, Monad, MonadReader (V.Vector Decl), MonadError InterpError)
 
-runInterp :: IM.IntMap Decl -> Interp a -> Either InterpError a
+runInterp :: V.Vector Decl -> Interp a -> Either InterpError a
 runInterp decls (Interp interp) = runReader (runExceptT interp) decls
 
 -- Given environment vector, evaluate the expression.
 -- The environment vector consists of normal arguments, and arguments bound by the pattern matching.
-interpExpr :: V.Vector Value -> Expr -> Interp Value
+interpExpr :: V.Vector Value.Value -> Expr -> Interp Value.Value
 interpExpr envVec = eval
  where
   eval = \case
-    ApplyE head argsE -> do
+    Apply head argsE -> do
       fnV <- interpHead head
       argsV <- traverse (interpExpr envVec) argsE
       interpApply argsV fnV
 
   interpHead = \case
-    ValueH val -> pure val
-    LocalH local -> case envVec V.!? local of
+    Structural str -> Value.Structural <$> traverse eval str
+    LocalRef local -> case envVec V.!? local of
       Just val -> pure val
-      Nothing -> throwError (AbsentLocal $ LocalRef local)
+      Nothing -> throwError (AbsentLocal local)
+    DeclRef global -> pure (Value.referDecl global)
 
-interpApply :: V.Vector Value -> Value -> Interp Value
+interpApply :: V.Vector Value.Value -> Value.Value -> Interp Value.Value
 interpApply args = \case
-  ReferV ref args' -> do
-    asks (IM.!? ref) >>= \case
+  Value.Refer ref args' -> do
+    asks (V.!? ref) >>= \case
       Nothing -> throwError (AbsentDecl ref)
       Just decl -> do
         reduced <- reduceDecl (args' <> args) decl
-        pure $ fromMaybe (ReferV ref (args' <> args)) reduced
+        pure $ fromMaybe (Value.Refer ref (args' <> args)) reduced
   val
     | V.null args -> pure val
     | otherwise -> throwError ApplyNonFunc
 
 -- Reduce application of a declaration, if possible.
-reduceDecl :: V.Vector Value -> Decl -> Interp (Maybe Value)
+reduceDecl :: V.Vector Value.Value -> Decl -> Interp (Maybe Value.Value)
 reduceDecl args Decl{normalArgNum, cases} = eitherToMaybe <$> Parsec.runParserT argMatcher "" (V.toList args)
  where
   eitherToMaybe = either (const Nothing) Just
 
-  argMatcher :: Parsec.ParsecT Void [Value] Interp Value
+  argMatcher :: Parsec.ParsecT Void [Value.Value] Interp Value.Value
   argMatcher = do
     normalArgs <- Parsec.takeP Nothing normalArgNum
     chooser <- Parsec.anySingle
@@ -129,25 +116,24 @@ reduceDecl args Decl{normalArgNum, cases} = eitherToMaybe <$> Parsec.runParserT 
     remaining <- Parsec.takeRest
     lift (interpApply (V.fromList remaining) result) -- Apply the remaining arguments.
 
-interpMatch :: V.Vector Value -> V.Vector CaseStmt -> Value -> Interp Value
-interpMatch normalEnv cases chooser = do
-  mayVal <- runMaybeT . getAlt $ foldMap (Alt . handleCase) cases
+interpMatch :: V.Vector Value.Value -> Pattern.Cases () Expr -> Value.Value -> Interp Value.Value
+interpMatch normalEnv (Pattern.Cases cases) chooser = do
+  mayVal <- runMaybeT . asum $ handleCase <$> cases
   maybe (throwError PatternFail) pure mayVal
  where
-  handleCase (CaseStmt patt expr) = do
+  handleCase (Pattern.CaseStmt patt expr) = do
     bound <- bindPattern patt chooser
     lift $ interpExpr (normalEnv <> bound) expr
 
 -- The variable index is according to the traversal order.
 -- MaybeT encodes that one can admit failure if next one succeeds.
-bindPattern :: Pattern () -> Value -> MaybeT Interp (V.Vector Value)
-bindPattern (VarP ()) val =
-  pure $ V.singleton val
-bindPattern (NativeP ck) (NativeV val)
-  | ck == val = pure V.empty
-bindPattern (ChoiceP tagP patt) (ChoiceV tag val)
-  | tagP == tag = bindPattern patt val
-bindPattern (TupleP patts) (TupleV tuples)
-  | V.length patts == V.length tuples = fold <$> V.zipWithM bindPattern patts tuples
-bindPattern _ (ReferV _ _) = throwError MatchFunc
-bindPattern _ _ = empty -- The pattern does not match here
+bindPattern :: Pattern.Pattern () -> Value.Value -> MaybeT Interp (V.Vector Value.Value)
+bindPattern (Pattern.Var ()) val = pure (V.singleton val)
+bindPattern _ (Value.Refer _ _) = throwError MatchFunc
+bindPattern (Pattern.Structural patt) (Value.Structural val) = binds patt val
+ where
+  binds (Integral ck) (Integral val) | ck == val = pure V.empty
+  binds (Textual ck) (Textual val) | ck == val = pure V.empty
+  binds (Choice tagP patt) (Choice tag val) | tagP == tag = bindPattern patt val
+  binds (Tuple patts) (Tuple tuples) | V.length patts == V.length tuples = fold <$> V.zipWithM bindPattern patts tuples
+  binds _ _ = empty

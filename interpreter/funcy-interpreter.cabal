@@ -35,6 +35,8 @@ common opts
 library
     import:             libs, opts
     exposed-modules:
+        Utils
+        Effects.EnvMap
         Interpreter.Bare
         Interpreter.Expr
         Interpreter.Values

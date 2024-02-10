@@ -5,6 +5,8 @@ module Interpreter.Bare (
   Pattern (..),
   Head (..),
   Expr (..),
+  headExpr,
+  applyExpr,
   CaseStmt (..),
   Decl (..),
   Interp (..),
@@ -49,7 +51,7 @@ data Pattern ref
 
 data Head
   = ValueH !Value
-  | LocalH !LocalRef
+  | LocalH !Int
   deriving (Eq, Ord, Show)
 
 -- TODO Does this support sharing?
@@ -57,6 +59,12 @@ data Head
 -- Any bare expression is an application chain.
 data Expr = ApplyE !Head !(V.Vector Expr)
   deriving (Eq, Ord, Show)
+
+headExpr :: Head -> Expr
+headExpr head = ApplyE head V.empty
+
+applyExpr :: Expr -> Expr -> Expr
+applyExpr (ApplyE head args) arg = ApplyE head (V.snoc args arg)
 
 data CaseStmt = CaseStmt !(Pattern ()) !Expr
 data Decl = Decl
@@ -91,7 +99,7 @@ interpExpr envVec = eval
 
   interpHead = \case
     ValueH val -> pure val
-    LocalH (LocalRef local) -> case envVec V.!? local of
+    LocalH local -> case envVec V.!? local of
       Just val -> pure val
       Nothing -> throwError (AbsentLocal $ LocalRef local)
 

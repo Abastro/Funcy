@@ -43,9 +43,9 @@ variable = lexeme (Parsec.takeWhile1P (Just "variable") isLetter)
 -- >>> bare
 -- >>> decls
 -- >>> Bare.runInterp decls (Bare.interpExpr mempty bare)
--- ({1 -> "hello"; n -> "world"} 1)
+-- (\case{1 -> "hello"; n -> "world"} 1)
 -- (decl:0 (1))
--- [Decl {normalArgNum = 0, cases = {1 -> ("hello"); () -> ("world")}}]
+-- [Decl {normalArgNum = 0, cases = \case{1 -> ("hello"); () -> ("world")}}]
 -- Right "hello"
 
 -- TODO Use Pretty-printer

@@ -128,12 +128,36 @@ interpMatch normalEnv (Pattern.Cases cases) chooser = do
 -- The variable index is according to the traversal order.
 -- MaybeT encodes that one can admit failure if next one succeeds.
 bindPattern :: Pattern.Pattern () -> Value.Value -> MaybeT Interp (V.Vector Value.Value)
-bindPattern (Pattern.Var ()) val = pure (V.singleton val)
-bindPattern _ (Value.Refer _ _) = throwError MatchFunc
-bindPattern (Pattern.Structural patt) (Value.Structural val) = binds patt val
+bindPattern = \cases
+  (Pattern.Var ()) val -> pure (V.singleton val)
+  _ (Value.Refer _ _) -> throwError MatchFunc
+  (Pattern.Structural patt) (Value.Structural val) -> binds patt val
  where
-  binds (Integral ck) (Integral val) | ck == val = pure V.empty
-  binds (Textual ck) (Textual val) | ck == val = pure V.empty
-  binds (Choice tagP patt) (Choice tag val) | tagP == tag = bindPattern patt val
-  binds (Tuple patts) (Tuple tuples) | V.length patts == V.length tuples = fold <$> V.zipWithM bindPattern patts tuples
-  binds _ _ = empty
+  binds = \cases
+    (Integral ck) (Integral val) | ck == val -> pure V.empty
+    (Textual ck) (Textual val) | ck == val -> pure V.empty
+    (Choice tagP patt) (Choice tag val) | tagP == tag -> bindPattern patt val
+    (Tuple patts) (Tuple tuples) | V.length patts == V.length tuples -> fold <$> V.zipWithM bindPattern patts tuples
+    _ _ -> empty
+
+-- interpComatch :: V.Vector Value.Value -> Pattern.Comps () Expr -> Value.Value -> Interp Value.Value
+-- interpComatch normalEnv (Pattern.Comps comps) source = do
+--   undefined
+--  where
+--   handleComp (Pattern.CompStmt patt expr) = do
+--     let bound = V.singleton source
+--     lift $ interpExpr (normalEnv <> bound) expr
+--     undefined
+
+-- TODO Should make it to have lazy semantics, how would we handle this?
+-- Should copattern be stripped at this stage?
+-- The expression needs to be frozen..
+-- Call interpreter at usage site?
+-- interpCopattern :: Pattern.CoPattern () -> Value.Value -> Value.Value -> Interp Value.Value
+-- interpCopattern = \cases
+--   (Pattern.Covar ()) source -> const (pure source)
+--   (Pattern.Accessor field sub) source -> \case
+--     Value.Structural (Tuple bundle) -> do
+--       updated <- interpCopattern sub source (bundle V.! fromIntegral field)
+--       pure . Value.Structural . Tuple $ bundle V.// [(fromIntegral field, updated)]
+--     _ -> undefined "TODO"

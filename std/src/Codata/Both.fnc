@@ -11,10 +11,12 @@ destruct Both : (Type, Type) -> Type where
 with
   var (f, s, t)
   both : { fCon : t -> a, sCon : t -> b } -> (t -> Both (a, b)) =
-    \case {fCon, sCon} -> \comp[fn]
-      Fst (fn v) -> fCon v
-      Snd (fn v) -> sCon v
+    \case {fCon, sCon} -> \comp
+      Fst v = fCon v // The parameter is bound to v, then the result will 'replace' its position.
+      Snd v = sCon v
 
-// comp as v
-//  Fst v -> _
-//  Snd v -> _
+// \v -> (Fst def, v)
+//
+// \comp
+//   _ -> def
+//   Snd v -> v

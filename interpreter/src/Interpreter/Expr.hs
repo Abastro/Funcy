@@ -53,29 +53,28 @@ translate localEnv = \case
     | Just found <- localEnv M.!? var -> pure $ Bare.headExpr (Bare.LocalRef found)
     | otherwise -> throwError (AbsentVar var)
   Apply fnE argE -> Bare.applyExpr <$> translate localEnv fnE <*> translate localEnv argE
-  Case cases -> do
-    translateCases localEnv cases
-
-translateCases :: M.Map T.Text Int -> Pattern.Cases T.Text Expr -> Translate Bare.Expr
-translateCases localEnv (Pattern.Cases casesE) = do
-  casesB <- traverse translateCase casesE
-  -- TODO Only take the local references which are used in the expression
-  let normalArgNum = M.size localEnv
-  declRef <- looks V.length
-  add (V.singleton $ Bare.Decl{Bare.normalArgNum, Bare.cases = Pattern.Cases casesB})
-  -- The call statement
-  pure $ Bare.Apply (Bare.DeclRef declRef) (V.fromList $ localRef <$> [0 .. pred normalArgNum])
+  Case (Pattern.Cases casesE) -> do
+    casesB <- Pattern.Cases <$> traverse (translateCase localEnv) casesE
+    -- TODO Only take the local references which are used in the expression
+    let normalArgNum = M.size localEnv
+    declRef <- looks V.length
+    add (V.singleton $ Bare.Decl{Bare.normalArgNum, Bare.cases = casesB})
+    -- The call statement
+    pure $ Bare.Apply (Bare.DeclRef declRef) (V.fromList $ localRef <$> [0 .. pred normalArgNum])
  where
-  translateCase (Pattern.CaseStmt patt expr) = do
-    -- Add bindings by the pattern
-    let (local', pattB) = mapAccumL addLocal localEnv patt
-    -- Translate along with the bound expressions
-    exprB <- translate local' expr
-    pure $ Pattern.CaseStmt pattB exprB
-
-  addLocal curEnv ref = (M.insert ref (M.size curEnv) curEnv, ())
-
   localRef ref = Bare.headExpr (Bare.LocalRef ref)
+
+-- TODO Compose code
+
+translateCase :: M.Map T.Text Int -> Pattern.CaseStmt T.Text Expr -> Translate (Pattern.CaseStmt () Bare.Expr)
+translateCase localEnv (Pattern.CaseStmt patt expr) = do
+  -- Add bindings by the pattern
+  let (local', pattB) = mapAccumL addLocal localEnv patt
+  -- Translate along with the bound expressions
+  exprB <- translate local' expr
+  pure $ Pattern.CaseStmt pattB exprB
+ where
+  addLocal curEnv ref = (M.insert ref (M.size curEnv) curEnv, ())
 
 -- -- | Interpreted expression.
 -- data BareExpr e

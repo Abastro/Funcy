@@ -20,5 +20,5 @@ instance (Show sub) => Show (Structure sub) where
   show = \case
     Integral i -> show i
     Textual t -> show t
-    Choice tag val -> "#" <> show tag <> "; " <> show val
+    Choice tag val -> "(" <> "#" <> show tag <> "; " <> show val <> ")"
     Tuple vals -> "(" <> intercalate ", " (show <$> V.toList vals) <> ")"

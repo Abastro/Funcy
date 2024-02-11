@@ -3,20 +3,21 @@ module Interpreter.Values (
   referDecl,
 ) where
 
+import Data.Text qualified as T
 import Data.Vector qualified as V
 import Interpreter.Structure
 
 -- | Untyped value.
 data Value
   = Structural !(Structure Value)
-  | Refer !Int !(V.Vector Value)
+  | Refer !T.Text !(V.Vector Value)
   deriving (Eq, Ord)
 
-referDecl :: Int -> Value
+referDecl :: T.Text -> Value
 referDecl decl = Refer decl V.empty
 
 instance Show Value where
   show :: Value -> String
   show = \case
     Structural v -> show v
-    Refer ref args -> "(" <> unwords (show ref : map show (V.toList args)) <> ")"
+    Refer ref args -> "(" <> unwords (T.unpack ref : map show (V.toList args)) <> ")"

@@ -45,6 +45,8 @@ library
         Interpreter.Bare
         Interpreter.Expr
 
+        Interpreter.Categorical
+
         Interpreter.Parser
         Interpreter.Modules
     default-extensions:

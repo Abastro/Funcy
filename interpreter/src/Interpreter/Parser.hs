@@ -1,7 +1,6 @@
 module Interpreter.Parser where
 
 import Data.Char
-import Data.Foldable
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Data.Void
@@ -58,16 +57,15 @@ parse text = case Parsec.parse (parseExpr <* Parsec.hidden Parsec.eof) "expressi
 
 parseExpr :: Parsec.Parsec Void T.Text Expr.Expr
 parseExpr = Parsec.label "expression" $ do
-  head : args <- Parsec.some parseAtom
-  pure $ foldl' Expr.Apply head args
+  Expr.applyToExpr <$> parseAtom <*> (V.fromList <$> Parsec.many parseExpr)
 
 parseAtom :: Parsec.Parsec Void T.Text Expr.Expr
-parseAtom =
+parseAtom = Parsec.label "atom" $ do
   Parsec.choice
-    [ Expr.Structural <$> Parsec.try (parseStr parseExpr),
-      Expr.Var <$> variable,
-      Expr.Case <$> parseCases,
-      Parsec.label "parenthesized" $ parens parseExpr
+    [ Expr.fromHead . Expr.Structural <$> Parsec.try (parseStr parseExpr),
+      Expr.fromHead . Expr.Var <$> variable,
+      Expr.fromHead . Expr.Case <$> parseCases,
+      Parsec.label "parenthesized" $ parens undefined
     ]
 
 parseCases :: Parsec.Parsec Void T.Text (Pattern.Cases T.Text Expr.Expr)

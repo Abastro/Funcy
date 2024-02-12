@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 
 -- | Follows 'compiling to categories'.
-module Interpreter.Categorical (
+module Interpreter.Graph (
   Ref,
   Graph (..),
   Decl (..),
@@ -45,7 +45,7 @@ data Graph a b where
   Branch :: V.Vector (Graph '() '()) -> Graph '() '()
   -- | Given a tuple with tagged union at certain element, 'distribute' other elements into the tagged union.
   Distribute :: Int -> Graph '() '()
-  -- | References constant function yielding a global.
+  -- | References constant graph yielding a global.
   Global :: Ref -> Graph '() '()
 
 instance Category Graph where

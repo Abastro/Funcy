@@ -38,16 +38,24 @@ library
         Utils
         Effects.EnvMap
 
+        Interpreter.Types.TypeList
+        Interpreter.Types.Tuple
+        Interpreter.Types.Tagged
+        Interpreter.Types.MappedTuple
+        Interpreter.Types.Selector
+
+        Interpreter.Class.Categories
+
         Interpreter.Structure
         Interpreter.Values
         Interpreter.Pattern
 
-        Interpreter.Bare
+        Interpreter.Graph
         Interpreter.Expr
 
-        Interpreter.Categorical
-
         Interpreter.Parser
+        Interpreter.Translate
+
         Interpreter.Modules
     default-extensions:
         MultiParamTypeClasses

@@ -1,80 +1,75 @@
 -- | Basic expressions.
 module Interpreter.Expr (
   Expr (..),
-  runTranslate,
-  translate,
+  Head (..),
+  fromHead,
+  applyToExpr,
 ) where
 
-import Control.Monad.Accum
-import Control.Monad.Except
-import Control.Monad.Trans.Accum (Accum, runAccum)
-import Data.List
-import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
-import Interpreter.Bare qualified as Bare
 import Interpreter.Pattern qualified as Pattern
 import Interpreter.Structure
 
 -- TODO Implement CompE as well
 
-data Expr
+data Expr = Apply Head (V.Vector Expr)
+  deriving (Eq, Ord)
+
+data Head
   = Structural (Structure Expr)
   | Var T.Text
-  | Apply Expr Expr
+  | Lam T.Text Expr
   | Case (Pattern.Cases T.Text Expr)
   deriving (Eq, Ord)
 
+fromHead :: Head -> Expr
+fromHead head = Apply head V.empty
+
+applyToExpr :: Expr -> V.Vector Expr -> Expr
+applyToExpr (Apply head args) args' = Apply head (args <> args')
+
 instance Show Expr where
   show :: Expr -> String
+  show (Apply head args) = unwords (show head : (show <$> V.toList args))
+
+instance Show Head where
+  show :: Head -> String
   show = \case
     Structural str -> show str
     Var var -> T.unpack var
-    Apply fn arg -> "(" <> show fn <> " " <> show arg <> ")"
+    Lam bind expr -> "\\" <> T.unpack bind <> " -> " <> show expr
     Case cases -> show cases
 
-data TranslateError
-  = AbsentVar T.Text
-  | ApplyNonFunc
-  | Idk
-  deriving (Eq, Ord, Show)
+-- -- | Translates an expression into its bare form.
+-- translate :: M.Map T.Text Int -> Expr -> Translate Bare.Expr
+-- translate localEnv = \case
+--   Structural str -> Bare.headExpr . Bare.Structural <$> traverse (translate localEnv) str
+--   Var var
+--     | Just found <- localEnv M.!? var -> pure $ Bare.headExpr (Bare.LocalRef found)
+--     | otherwise -> throwError (AbsentVar var)
+--   Apply fnE argE -> Bare.applyExpr <$> translate localEnv fnE <*> translate localEnv argE
+--   Case (Pattern.Cases casesE) -> do
+--     casesB <- Pattern.Cases <$> traverse (translateCase localEnv) casesE
+--     let normalArgNum = M.size localEnv
+--     declRef <- looks V.length
+--     add (V.singleton $ Bare.Decl{Bare.normalArgNum, Bare.cases = casesB})
+--     -- The call statement
+--     pure $ Bare.Apply (Bare.DeclRef declRef) (V.fromList $ localRef <$> [0 .. pred normalArgNum])
+--  where
+--   localRef ref = Bare.headExpr (Bare.LocalRef ref)
 
-newtype Translate a = Translate (ExceptT TranslateError (Accum (V.Vector Bare.Decl)) a)
-  deriving (Functor, Applicative, Monad, MonadError TranslateError, MonadAccum (V.Vector Bare.Decl))
+-- translateCase :: M.Map T.Text Int -> Pattern.CaseStmt T.Text Expr -> Translate (Pattern.CaseStmt () Bare.Expr)
+-- translateCase localEnv (Pattern.CaseStmt patt expr) = do
+--   -- Add bindings by the pattern
+--   let (local', pattB) = mapAccumL addLocal localEnv patt
+--   -- Translate along with the bound expressions
+--   exprB <- translate local' expr
+--   pure $ Pattern.CaseStmt pattB exprB
+--  where
+--   addLocal curEnv ref = (M.insert ref (M.size curEnv) curEnv, ())
 
-runTranslate :: Translate a -> (Either TranslateError a, V.Vector Bare.Decl)
-runTranslate (Translate trans) = runAccum (runExceptT trans) V.empty
-
--- | Translates an expression into its bare form.
-translate :: M.Map T.Text Int -> Expr -> Translate Bare.Expr
-translate localEnv = \case
-  Structural str -> Bare.headExpr . Bare.Structural <$> traverse (translate localEnv) str
-  Var var
-    | Just found <- localEnv M.!? var -> pure $ Bare.headExpr (Bare.LocalRef found)
-    | otherwise -> throwError (AbsentVar var)
-  Apply fnE argE -> Bare.applyExpr <$> translate localEnv fnE <*> translate localEnv argE
-  Case (Pattern.Cases casesE) -> do
-    casesB <- Pattern.Cases <$> traverse (translateCase localEnv) casesE
-    -- TODO Only take the local references which are used in the expression
-    let normalArgNum = M.size localEnv
-    declRef <- looks V.length
-    add (V.singleton $ Bare.Decl{Bare.normalArgNum, Bare.cases = casesB})
-    -- The call statement
-    pure $ Bare.Apply (Bare.DeclRef declRef) (V.fromList $ localRef <$> [0 .. pred normalArgNum])
- where
-  localRef ref = Bare.headExpr (Bare.LocalRef ref)
-
--- TODO Compose code
-
-translateCase :: M.Map T.Text Int -> Pattern.CaseStmt T.Text Expr -> Translate (Pattern.CaseStmt () Bare.Expr)
-translateCase localEnv (Pattern.CaseStmt patt expr) = do
-  -- Add bindings by the pattern
-  let (local', pattB) = mapAccumL addLocal localEnv patt
-  -- Translate along with the bound expressions
-  exprB <- translate local' expr
-  pure $ Pattern.CaseStmt pattB exprB
- where
-  addLocal curEnv ref = (M.insert ref (M.size curEnv) curEnv, ())
+-- -- TODO Compose code
 
 -- -- | Interpreted expression.
 -- data BareExpr e

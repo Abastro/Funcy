@@ -6,7 +6,6 @@ module Interpreter.Process.Interpret (
   Interp,
 ) where
 
-import Abstraction.Class.Monoids
 import Control.Monad
 import Control.Monad.Except
 import Control.Monad.Reader

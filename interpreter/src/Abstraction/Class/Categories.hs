@@ -7,10 +7,6 @@
 
 module Abstraction.Class.Categories where
 
-import Abstraction.Types.MappedTuple
-import Abstraction.Types.Selector
-import Abstraction.Types.Tagged
-import Abstraction.Types.Tuple
 import Control.Arrow
 import Control.Category
 import Data.Kind
@@ -20,65 +16,60 @@ type Mor :: (k -> k -> Type) -> (k -> k -> Type)
 type family Mor c where
   Mor c = c
 
--- | Category with finite products.
-class (Category cat) => HasProduct (cat :: k -> k -> Type) where
-  type FinProd cat :: [k] -> k
-  bundle :: Map2Tuple cat a bs -> (Mor cat) a (FinProd cat bs)
-  pick :: Selector as sel -> (Mor cat) (FinProd cat as) sel
+-- | Category with a product.
+class (Category cat) => WithProduct (cat :: k -> k -> Type) where
+  type Product cat :: k -> k -> k
+  together :: a `cat` b -> a `cat` c -> a `cat` Product cat b c
+  pickFst :: Product cat a b `cat` a
+  pickSnd :: Product cat a b `cat` b
 
--- | Category with finite sums (coproducts).
-class (Category cat) => HasSum (cat :: k -> k -> Type) where
-  type FinSum cat :: [k] -> k
-  select :: Map1Tuple cat as b -> (Mor cat) (FinSum cat as) b
-  tag :: Selector as sel -> (Mor cat) sel (FinSum cat as)
+-- | Category with a (direct) sum (coproduct).
+class (Category cat) => WithSum (cat :: k -> k -> Type) where
+  type Sum cat :: k -> k -> k
+  select :: a `cat` c -> b `cat` c -> Sum cat a b `cat` c
+  tagLeft :: a `cat` Sum cat a b
+  tagRight :: b `cat` Sum cat a b
 
 -- | Gives HasProduct/HasSum instance for category with desired operations.
 newtype AppStr cat a b = AppStr (cat a b)
   deriving (Category, Arrow, ArrowChoice, Functor, Applicative)
 
 -- ? Perhaps generalize this to Category & Applicative.
-instance (Arrow cat) => HasProduct (AppStr cat) where
-  type FinProd (AppStr cat) = Tuple
-
-  bundle :: Map2Tuple (AppStr cat) a bs -> Mor (AppStr cat) a (Tuple bs)
-  bundle = \case
-    Map2Nil -> arr (const Nil)
-    Map2Cons f fs -> arr pairToTuple <<< (f &&& bundle fs)
-
-  pick :: Selector as sel -> Mor (AppStr cat) (Tuple as) sel
-  pick sel = arr (fieldAt sel)
+instance (Arrow cat) => WithProduct (AppStr cat) where
+  type Product (AppStr cat) = (,)
+  together :: AppStr cat a b -> AppStr cat a c -> AppStr cat a (b, c)
+  together = (&&&)
+  pickFst :: AppStr cat (a, b) a
+  pickFst = arr fst
+  pickSnd :: AppStr cat (a, b) b
+  pickSnd = arr snd
 
 -- The root of undecidable instance. Wat
-deriving via (AppStr (->)) instance HasProduct (->)
-deriving via (AppStr (Kleisli m)) instance (Monad m) => HasProduct (Kleisli m)
+deriving via (AppStr (->)) instance WithProduct (->)
+deriving via (AppStr (Kleisli m)) instance (Monad m) => WithProduct (Kleisli m)
 
-instance (ArrowChoice cat) => HasSum (AppStr cat) where
-  type FinSum (AppStr cat) = Tagged
+instance (ArrowChoice cat) => WithSum (AppStr cat) where
+  type Sum (AppStr cat) = Either
+  select :: AppStr cat a c -> AppStr cat b c -> AppStr cat (Either a b) c
+  select = (|||)
+  tagLeft :: AppStr cat a (Either a b)
+  tagLeft = arr Left
+  tagRight :: AppStr cat b (Either a b)
+  tagRight = arr Right
 
-  select :: Map1Tuple (AppStr cat) as b -> Mor (AppStr cat) (FinSum (AppStr cat) as) b
-  select = \case
-    Map1Nil -> arr (\case {})
-    Map1Cons f fs -> (f ||| select fs) <<< arr taggedToEither
-
-  tag :: Selector as sel -> Mor (AppStr cat) sel (FinSum (AppStr cat) as)
-  tag sel = arr (tagAt sel)
-
-deriving via (AppStr (->)) instance HasSum (->)
-deriving via (AppStr (Kleisli m)) instance (Monad m) => HasSum (Kleisli m)
+deriving via (AppStr (->)) instance WithSum (->)
+deriving via (AppStr (Kleisli m)) instance (Monad m) => WithSum (Kleisli m)
 
 -- | A category where sum and product, that satisfies the distributive law.
-class (HasProduct cat, HasSum cat) => Distributive cat where
+class (WithProduct cat, WithSum cat) => Distributive cat where
   -- | Distributes the second position.
-  distribute :: (Mor cat) (FinProd cat [a, FinSum cat [u, v]]) (FinSum cat [FinProd cat [a, u], FinProd cat [a, v]])
+  distribute :: Product cat a (Sum cat u v) `cat` Sum cat (Product cat a u) (Product cat a v)
 
 instance (ArrowChoice cat) => Distributive (AppStr cat) where
-  distribute ::
-    (Mor (AppStr cat))
-      (Tuple [a, Tagged [u, v]])
-      (Tagged [Tuple [a, u], Tuple [a, v]])
+  distribute :: AppStr cat (a, Either u v) (Either (a, u) (a, v))
   distribute = arr $ \case
-    Pair a (LeftCase u) -> LeftCase (Pair a u)
-    Pair a (RightCase v) -> RightCase (Pair a v)
+    (a, Left u) -> Left (a, u)
+    (a, Right v) -> Right (a, v)
 
 deriving via (AppStr (->)) instance Distributive (->)
 deriving via (AppStr (Kleisli m)) instance (Monad m) => Distributive (Kleisli m)
@@ -87,33 +78,25 @@ deriving via (AppStr (Kleisli m)) instance (Monad m) => Distributive (Kleisli m)
 --
 -- Note that this condition is quite hard to achieve,
 -- as one can notice from the lack of Kleisli instance.
-class (HasProduct cat) => Closed (cat :: k -> k -> Type) where
+class (WithProduct cat) => Closed (cat :: k -> k -> Type) where
   type Arr cat :: k -> k -> k
-  apply :: (Mor cat) (FinProd cat [Arr cat a b, a]) b
-  curried :: (Mor cat) (FinProd cat [a, b]) t -> (Mor cat) a (Arr cat b t)
-  uncurried :: (Mor cat) a (Arr cat b t) -> (Mor cat) (FinProd cat [a, b]) t
-
--- | Category where instead of ~,
--- there is partially applicable.
-class (HasProduct cat) => PartialApp (cat :: k -> k -> Type) where
-  type App cat :: k -> k
+  apply :: Product cat (Arr cat a b) a `cat` b
+  curried :: Product cat a b `cat` t -> a `cat` Arr cat b t
+  uncurried :: a `cat` Arr cat b t -> Product cat a b `cat` t
 
 instance Closed (->) where
   type Arr (->) = (->)
-
-  apply :: Mor (->) (Tuple [a -> b, a]) b
-  apply (Pair f x) = f x
-
-  curried :: Mor (->) (Tuple [a, b]) t -> Mor (->) a (b -> t)
-  curried f x y = f (Pair x y)
-
-  uncurried :: Mor (->) a (b -> t) -> Mor (->) (Tuple [a, b]) t
-  uncurried f (Pair x y) = f x y
+  apply :: (Arr (->) a b, a) -> b
+  apply = app
+  curried :: Mor (->) ((,) a b) t -> Mor (->) a (Arr (->) b t)
+  curried = curry
+  uncurried :: (a -> Arr (->) b t) -> (a, b) -> t
+  uncurried = uncurry
 
 -- | Category where objects cannot be distinguished from each other.
 class (Category cat) => Idempotent cat where
-  idempotent :: cat a b
+  idempotent :: a `cat` b
 
-  changeObj :: cat a b -> cat c d
-  default changeObj :: cat a b -> cat c d
+  changeObj :: a `cat` b -> c `cat` d
+  default changeObj :: a `cat` b -> c `cat` d
   changeObj cat = idempotent . cat . idempotent

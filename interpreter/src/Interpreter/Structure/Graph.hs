@@ -3,7 +3,6 @@ module Interpreter.Structure.Graph (
   Graph (..),
 ) where
 
-import Abstraction.Class.Monoids
 import Control.Category
 import Data.Text qualified as T
 import Data.Vector qualified as V

@@ -10,6 +10,7 @@ import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Interpreter.Structure.Graph qualified as Graph
+import qualified Interpreter.Structure.Decl as Decl
 
 data TranslateError
   = AbsentVar T.Text
@@ -26,10 +27,10 @@ data Expr
 -- let x = e1 in e2
 -- (\x -> e2) e1
 
-newtype Translate a = Translate (ExceptT TranslateError (Accum (M.Map T.Text Graph.Decl)) a)
-  deriving (Functor, Applicative, Monad, MonadError TranslateError, MonadAccum (M.Map T.Text Graph.Decl))
+newtype Translate a = Translate (ExceptT TranslateError (Accum (M.Map T.Text ())) a)
+  deriving (Functor, Applicative, Monad, MonadError TranslateError, MonadAccum (M.Map T.Text (Decl.Decl ())))
 
-runTranslate :: Translate a -> (Either TranslateError a, M.Map T.Text Graph.Decl)
+runTranslate :: Translate a -> (Either TranslateError a, M.Map T.Text (Decl.Decl ()))
 runTranslate (Translate trans) = runAccum (runExceptT trans) M.empty
 
 -- | Generates the graph, given the environment which obtains from the parameter.
@@ -55,7 +56,7 @@ translateLam env bind = \case
     lamG <- translateExpr env (CasePair bind bind' expr)
     let declRef = T.pack "on" <> bind <> bind'
         numArgs = 2 -- Curried 2
-    add $ M.singleton declRef Graph.Decl{Graph.numArgs, Graph.compute = Right lamG}
+    add $ M.singleton declRef Decl.Decl{Decl.numArgs, Decl.compute = Right lamG}
     pure $ Graph.Global declRef
   _ -> throwError Unsupported
 

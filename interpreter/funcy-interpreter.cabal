@@ -47,12 +47,14 @@ library
         Abstraction.Types.Tagged
         Abstraction.Types.Tuple
 
+        Interpreter.Structure.Structure
         Interpreter.Structure.Values
         Interpreter.Structure.Pattern
         Interpreter.Structure.Expr
-        Interpreter.Structure.Structure
+        Interpreter.Structure.Decl
         Interpreter.Structure.Graph
 
+        Interpreter.Process.Categorical
         Interpreter.Process.Interpret
         Interpreter.Process.Translate
         Interpreter.Process.Parser

@@ -6,23 +6,16 @@ module Interpreter.Process.Interpret (
   Interp,
 ) where
 
-import Abstraction.Class.Categories
 import Abstraction.Class.Monoids
-import Abstraction.Types.HConst
-import Abstraction.Types.MappedTuple
-import Abstraction.Types.Selector
-import Control.Category
 import Control.Monad
 import Control.Monad.Except
 import Control.Monad.Reader
-import Data.Coerce
-import Data.Kind
 import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Interpreter.Structure.Decl
 import Interpreter.Structure.Structure qualified as Structure
 import Interpreter.Structure.Values qualified as Value
-import Prelude hiding (id, (.))
 
 data InterpError
   = AbsentGlobal !T.Text
@@ -33,14 +26,11 @@ data InterpError
   | InvalidOp
   deriving (Eq, Ord, Show)
 
-data Decl = Decl
-  { numArgs :: !Int,
-    -- | The compute implementation. Graph is assumed to be accepting a tuple.
-    compute :: !(V.Vector Value.Value -> Interp Value.Value)
-  }
+-- Instead of lifting all maps, we choose to only lift the maps that appear.
+type InterpDecl = Decl (V.Vector Value.Value -> Interp Value.Value)
 
-newtype Interp a = Interp (ExceptT InterpError (Reader (M.Map T.Text Decl)) a)
-  deriving (Functor, Applicative, Monad, MonadReader (M.Map T.Text Decl), MonadError InterpError)
+newtype Interp a = Interp (ExceptT InterpError (Reader (M.Map T.Text InterpDecl)) a)
+  deriving (Functor, Applicative, Monad, MonadReader (M.Map T.Text InterpDecl), MonadError InterpError)
 
 newtype InterpArrow = InterpArrow {runInterp :: Value.Value -> Interp Value.Value}
 
@@ -54,7 +44,9 @@ instance Monoid InterpArrow where
 
 instance Bundleable InterpArrow where
   bundle' :: [InterpArrow] -> InterpArrow
-  bundle' fns = InterpArrow $ \v -> Value.Structural . Structure.Tuple <$> V.mapM (`runInterp` v) (V.fromList fns)
+  bundle' fns = InterpArrow $ \v ->
+    Value.Structural . Structure.Tuple <$> V.mapM (`runInterp` v) (V.fromList fns)
+
   pick' :: Selector' -> InterpArrow
   pick' Selector'{total, selected} = InterpArrow $ \case
     Value.Structural (Structure.Tuple bundle)
@@ -69,8 +61,10 @@ instance Selectable InterpArrow where
       | Just chosen <- V.fromList fns V.!? fromIntegral tag -> runInterp chosen v
       | otherwise -> throwError OffBound
     _ -> throwError InvalidOp
+
   tag' :: Selector' -> InterpArrow
-  tag' Selector'{selected} = InterpArrow $ pure . Value.Structural . Structure.Choice (fromIntegral selected)
+  tag' Selector'{selected} = InterpArrow $ \v ->
+    pure . Value.Structural $ Structure.Choice (fromIntegral selected) v
 
 instance Distributable InterpArrow where
   distribute' :: InterpArrow
@@ -83,39 +77,34 @@ instance Distributable InterpArrow where
       Just _ -> throwError InvalidOp
     _ -> throwError InvalidOp
 
--- Representing as Value -> Interp Value.
--- \(x, y) -> x
--- Accepts a pair, emits x.
--- vs.
--- \x -> (y => x)
--- Accepts a term, emits 'curried function' - currying is reflected on value level!
+instance WithGlobal InterpArrow where
+  referGlobal :: T.Text -> InterpArrow
+  referGlobal global = InterpArrow $ \case
+    Value.Structural (Structure.Tuple nil)
+      | null nil ->
+          asks (M.!? global) >>= \case
+            Nothing -> throwError (AbsentGlobal global)
+            Just _ -> simplifyGlobalApp global V.empty
+    _ -> throwError InvalidOp
 
--- We regard a function taking pair to be implicitly curried.
--- This makes sense in an untyped context!
-instance Applicable InterpArrow where
-  apply' :: InterpArrow
-  apply' = InterpArrow $ \case
+  tryApply :: InterpArrow
+  tryApply = InterpArrow $ \case
     Value.Structural (Structure.Tuple bundle) -> case V.toList bundle of
       [Value.Refer global prev, arg] -> simplifyGlobalApp global (V.snoc prev arg)
       [nonFn, _] -> throwError (ApplyNonFunc nonFn)
       _ -> throwError OffBound
     _ -> throwError InvalidOp
-  curried' :: InterpArrow -> InterpArrow
-  curried' = id
-  uncurried' :: InterpArrow -> InterpArrow
-  uncurried' = id
 
 -- | Simplify application to a global.
--- The application on the implementation side is uncurried.
 simplifyGlobalApp :: T.Text -> V.Vector Value.Value -> Interp Value.Value
 simplifyGlobalApp global args = do
   asks (M.!? global) >>= \case
     Nothing -> throwError (AbsentGlobal global)
     Just Decl{numArgs, compute}
-      | Just split <- splitEntire numArgs args -> handle compute split
-      | otherwise -> pure $ Value.Refer global args -- Not applied enough to simplify
+      | Just (using, remaining) <- splitEntire numArgs args -> handle compute using remaining
+      | otherwise -> pure $ Value.Refer global args
  where
-  handle compute (using, remaining) =
+  handle compute using remaining =
     compute using >>= \case
       Value.Refer ref prevArgs -> simplifyGlobalApp ref (prevArgs <> remaining)
       v | V.null remaining -> pure v

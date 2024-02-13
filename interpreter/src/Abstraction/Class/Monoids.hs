@@ -13,6 +13,7 @@ module Abstraction.Class.Monoids (
   Selectable (..),
   Distributable (..),
   Applicable (..),
+  WithGlobal (..),
   MonoidCat (..),
   IdempMonoid (..),
   wrapIdemp,
@@ -48,21 +49,18 @@ class (Bundleable m, Selectable m) => Distributable m where
 class (Bundleable m) => Applicable m where
   -- | apply :: (Mor cat) (FinProd cat [Arr cat a b, a]) b
   apply' :: m
+
   -- | curried :: (Mor cat) (FinProd cat [a, b]) t -> (Mor cat) a (Arr cat b t)
   curried' :: m -> m
+
   -- | uncurried :: (Mor cat) a (Arr cat b t) -> (Mor cat) (FinProd cat [a, b]) t
   uncurried' :: m -> m
 
--- Instead of admitting full currying,
--- one can introduce 'global' morphisms that can be applied.
--- class WithGlobal m where
---   -- | Reference a global,
---   global :: T.Text -> m
-
--- class ApplyTuple m where
---   -- | Given a tuple, apply its head to the tail in an uncurried manner.
---   -- applyTuple :: (((a1 => .. => an => b) * a1 * .. * an) -> b
---   uncurriedApply :: m
+-- | Instead of currying arbitrary map, this one only lifts certain ones.
+-- Such a type should carry some notion of error.
+class WithGlobal m where
+  referGlobal :: T.Text -> m
+  tryApply :: m
 
 -- | Category with a single object, whose morphism is the given monoid.
 type MonoidCat :: Type -> Type -> Type -> Type

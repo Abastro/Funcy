@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Data.Vector qualified as V
 import Prelude hiding (id, (.))
 
--- | Untyped evaluation 'graph', with input and output.
+-- | Untyped evaluation 'graph', with input and output; This is an abstract representation.
 --
 -- This cannot express arbitrary lambdas; instead, it can be replaced by a global call.
 data Graph where
@@ -25,8 +25,7 @@ data Graph where
   Select :: V.Vector Graph -> Graph
   -- | Given a tuple with tagged union at the second element, 'distribute' it.
   Distribute :: Graph
-  -- | Apply the head into the parameters, which are given in a tuple.
-  -- Multiple parameters are applied in curried manner.
+  -- | A function taking pair is identified as curried function as well.
   Apply :: Graph
   -- | References constant graph yielding a global.
   Global :: T.Text -> Graph
@@ -54,6 +53,5 @@ instance Selectable Graph where
 instance Distributable Graph where
   distribute' :: Graph
   distribute' = Distribute
-  
 
 -- TODO Evaluation strategy

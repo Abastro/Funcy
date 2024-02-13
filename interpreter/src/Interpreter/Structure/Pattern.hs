@@ -1,4 +1,4 @@
-module Interpreter.Pattern (
+module Interpreter.Structure.Pattern (
   Pattern (..),
   CaseStmt (..),
   Cases (..),
@@ -10,7 +10,7 @@ module Interpreter.Pattern (
 import Data.Int
 import Data.List
 import Data.Vector qualified as V
-import Interpreter.Structure
+import Interpreter.Structure.Structure
 
 data Pattern ref
   = Var !ref

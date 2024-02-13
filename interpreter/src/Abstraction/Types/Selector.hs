@@ -3,7 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Interpreter.Types.Selector (
+module Abstraction.Types.Selector (
   Selector (..),
   selIndex,
   selLength,
@@ -17,9 +17,9 @@ import Data.Kind
 import Data.Proxy
 import GHC.TypeError
 import GHC.TypeNats
-import Interpreter.Types.Tagged
-import Interpreter.Types.Tuple
-import Interpreter.Types.TypeList
+import Abstraction.Types.Tagged
+import Abstraction.Types.Tuple
+import Abstraction.Types.TypeList
 
 -- | Field selector, to be used with a tuple or tagged type.
 type Selector :: [k] -> k -> Type

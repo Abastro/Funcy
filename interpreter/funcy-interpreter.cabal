@@ -35,32 +35,28 @@ common opts
 library
     import:             libs, opts
     exposed-modules:
-        Utils
         Effects.EnvMap
+        
+        Abstraction.Class.Categories
+        Abstraction.Class.Monoids
 
-        Interpreter.Types.TypeList
-        Interpreter.Types.Tuple
-        Interpreter.Types.Tagged
-        Interpreter.Types.MappedTuple
-        Interpreter.Types.Selector
-        Interpreter.Types.HConst
+        Abstraction.Types.MappedTuple
+        Abstraction.Types.TypeList
+        Abstraction.Types.HConst
+        Abstraction.Types.Selector
+        Abstraction.Types.Tagged
+        Abstraction.Types.Tuple
 
-        Interpreter.Class.Monoids
-        Interpreter.Class.Categories
+        Interpreter.Structure.Values
+        Interpreter.Structure.Pattern
+        Interpreter.Structure.Expr
+        Interpreter.Structure.Structure
+        Interpreter.Structure.Graph
 
-        Interpreter.Structure
-        Interpreter.Values
-        Interpreter.Pattern
+        Interpreter.Process.Interpret
+        Interpreter.Process.Translate
+        Interpreter.Process.Parser
 
-        Interpreter.Graph
-        Interpreter.Expr
-
-        Interpreter.Interpret
-
-        Interpreter.Parser
-        Interpreter.Translate
-
-        Interpreter.Modules
     default-extensions:
         MultiParamTypeClasses
         LambdaCase

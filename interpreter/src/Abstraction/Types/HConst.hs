@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Interpreter.Types.HConst (
+module Abstraction.Types.HConst (
   Unit (..),
   Unit',
   Unit2 (..),

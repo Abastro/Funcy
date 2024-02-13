@@ -6,7 +6,7 @@
 --
 -- Classes here are analogues of Interpreter.Class.Categories,
 -- so it should satisfy the analogous laws.
-module Interpreter.Class.Monoids (
+module Abstraction.Class.Monoids (
   Selector' (..),
   untypeSelector,
   Bundleable (..),
@@ -19,13 +19,14 @@ module Interpreter.Class.Monoids (
   unwrapIdemp,
 ) where
 
+import Abstraction.Class.Categories
+import Abstraction.Types.HConst
+import Abstraction.Types.MappedTuple
+import Abstraction.Types.Selector
 import Control.Category
 import Data.Coerce
 import Data.Kind
-import Interpreter.Class.Categories
-import Interpreter.Types.HConst
-import Interpreter.Types.MappedTuple
-import Interpreter.Types.Selector
+import Data.Text qualified as T
 import Prelude hiding (id, (.))
 
 data Selector' = Selector' {total :: Int, selected :: Int}
@@ -45,14 +46,30 @@ class (Bundleable m, Selectable m) => Distributable m where
   distribute' :: m
 
 class (Bundleable m) => Applicable m where
+  -- | apply :: (Mor cat) (FinProd cat [Arr cat a b, a]) b
   apply' :: m
+  -- | curried :: (Mor cat) (FinProd cat [a, b]) t -> (Mor cat) a (Arr cat b t)
   curried' :: m -> m
+  -- | uncurried :: (Mor cat) a (Arr cat b t) -> (Mor cat) (FinProd cat [a, b]) t
   uncurried' :: m -> m
+
+-- Instead of admitting full currying,
+-- one can introduce 'global' morphisms that can be applied.
+-- class WithGlobal m where
+--   -- | Reference a global,
+--   global :: T.Text -> m
+
+-- class ApplyTuple m where
+--   -- | Given a tuple, apply its head to the tail in an uncurried manner.
+--   -- applyTuple :: (((a1 => .. => an => b) * a1 * .. * an) -> b
+--   uncurriedApply :: m
 
 -- | Category with a single object, whose morphism is the given monoid.
 type MonoidCat :: Type -> Type -> Type -> Type
 newtype MonoidCat m a b = MonoidCat m
   deriving (Functor)
+
+-- ! The instances are not lawful, since isomorphism of initial/terminal object is clearly not unique.
 
 instance (Monoid m) => Category (MonoidCat m) where
   id :: MonoidCat m a a

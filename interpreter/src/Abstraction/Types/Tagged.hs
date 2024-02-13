@@ -2,7 +2,7 @@
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Interpreter.Types.Tagged (
+module Abstraction.Types.Tagged (
   Tagged (..),
   taggedToEither,
   pattern LeftCase,

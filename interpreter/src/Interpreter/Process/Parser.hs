@@ -1,12 +1,12 @@
-module Interpreter.Parser where
+module Interpreter.Process.Parser where
 
 import Data.Char
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Data.Void
-import Interpreter.Expr qualified as Expr
-import Interpreter.Pattern qualified as Pattern
-import Interpreter.Structure
+import Interpreter.Structure.Expr qualified as Expr
+import Interpreter.Structure.Pattern qualified as Pattern
+import Interpreter.Structure.Structure
 import Text.Megaparsec qualified as Parsec
 import Text.Megaparsec.Char qualified as Parsec
 import Text.Megaparsec.Char.Lexer qualified as Lexer

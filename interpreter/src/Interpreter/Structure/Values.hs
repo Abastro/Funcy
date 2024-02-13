@@ -1,11 +1,11 @@
-module Interpreter.Values (
+module Interpreter.Structure.Values (
   Value (..),
   referDecl,
 ) where
 
 import Data.Text qualified as T
 import Data.Vector qualified as V
-import Interpreter.Structure
+import Interpreter.Structure.Structure
 
 -- | Untyped value.
 data Value

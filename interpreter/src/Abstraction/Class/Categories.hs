@@ -5,15 +5,15 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Interpreter.Class.Categories where
+module Abstraction.Class.Categories where
 
+import Abstraction.Types.MappedTuple
+import Abstraction.Types.Selector
+import Abstraction.Types.Tagged
+import Abstraction.Types.Tuple
 import Control.Arrow
 import Control.Category
 import Data.Kind
-import Interpreter.Types.MappedTuple
-import Interpreter.Types.Selector
-import Interpreter.Types.Tagged
-import Interpreter.Types.Tuple
 import Prelude hiding (id, (.))
 
 type Mor :: (k -> k -> Type) -> (k -> k -> Type)
@@ -92,6 +92,11 @@ class (HasProduct cat) => Closed (cat :: k -> k -> Type) where
   apply :: (Mor cat) (FinProd cat [Arr cat a b, a]) b
   curried :: (Mor cat) (FinProd cat [a, b]) t -> (Mor cat) a (Arr cat b t)
   uncurried :: (Mor cat) a (Arr cat b t) -> (Mor cat) (FinProd cat [a, b]) t
+
+-- | Category where instead of ~,
+-- there is partially applicable.
+class (HasProduct cat) => PartialApp (cat :: k -> k -> Type) where
+  type App cat :: k -> k
 
 instance Closed (->) where
   type Arr (->) = (->)

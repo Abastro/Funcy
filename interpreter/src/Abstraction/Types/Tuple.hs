@@ -2,7 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE PatternSynonyms #-}
 
-module Interpreter.Types.Tuple (
+module Abstraction.Types.Tuple (
   Tuple (..),
   pairToTuple,
   pattern Pair,

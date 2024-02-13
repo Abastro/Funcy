@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 
-module Interpreter.Types.MappedTuple (
+module Abstraction.Types.MappedTuple (
   Map1Tuple (..),
   Map2Tuple (..),
   listToMap1,

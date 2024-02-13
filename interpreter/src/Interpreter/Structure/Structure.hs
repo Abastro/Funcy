@@ -1,4 +1,4 @@
-module Interpreter.Structure (
+module Interpreter.Structure.Structure (
   Structure (..),
 ) where
 

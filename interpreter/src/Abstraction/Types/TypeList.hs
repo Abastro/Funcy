@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 
-module Interpreter.Types.TypeList (
+module Abstraction.Types.TypeList (
   WitList (..),
   TypeList (..),
   witLength,

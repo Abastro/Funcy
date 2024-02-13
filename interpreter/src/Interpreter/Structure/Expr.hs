@@ -1,5 +1,5 @@
 -- | Basic expressions.
-module Interpreter.Expr (
+module Interpreter.Structure.Expr (
   Expr (..),
   Head (..),
   fromHead,
@@ -8,8 +8,8 @@ module Interpreter.Expr (
 
 import Data.Text qualified as T
 import Data.Vector qualified as V
-import Interpreter.Pattern qualified as Pattern
-import Interpreter.Structure
+import Interpreter.Structure.Pattern qualified as Pattern
+import Interpreter.Structure.Structure
 
 -- TODO Implement CompE as well
 

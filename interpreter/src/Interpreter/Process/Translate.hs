@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Interpreter.Translate where
+module Interpreter.Process.Translate where
 
 import Control.Category ((<<<))
 import Control.Monad.Accum
@@ -9,7 +9,7 @@ import Control.Monad.Trans.Accum (Accum, runAccum)
 import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
-import Interpreter.Graph qualified as Graph
+import Interpreter.Structure.Graph qualified as Graph
 
 data TranslateError
   = AbsentVar T.Text

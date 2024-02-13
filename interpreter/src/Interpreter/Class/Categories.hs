@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -26,8 +27,8 @@ class (Category cat) => HasProduct (cat :: k -> k -> Type) where
   pick :: Selector as sel -> (Mor cat) (FinProd cat as) sel
 
 -- | Category with finite sums (coproducts).
-class (Category cat) => HasSum cat where
-  type FinSum cat :: [Type] -> Type
+class (Category cat) => HasSum (cat :: k -> k -> Type) where
+  type FinSum cat :: [k] -> k
   select :: Map1Tuple cat as b -> (Mor cat) (FinSum cat as) b
   tag :: Selector as sel -> (Mor cat) sel (FinSum cat as)
 
@@ -86,8 +87,8 @@ deriving via (AppStr (Kleisli m)) instance (Monad m) => Distributive (Kleisli m)
 --
 -- Note that this condition is quite hard to achieve,
 -- as one can notice from the lack of Kleisli instance.
-class (Category cat, HasProduct cat) => Closed cat where
-  type Arr cat :: Type -> Type -> Type
+class (HasProduct cat) => Closed (cat :: k -> k -> Type) where
+  type Arr cat :: k -> k -> k
   apply :: (Mor cat) (FinProd cat [Arr cat a b, a]) b
   curried :: (Mor cat) (FinProd cat [a, b]) t -> (Mor cat) a (Arr cat b t)
   uncurried :: (Mor cat) a (Arr cat b t) -> (Mor cat) (FinProd cat [a, b]) t
@@ -103,3 +104,11 @@ instance Closed (->) where
 
   uncurried :: Mor (->) a (b -> t) -> Mor (->) (Tuple [a, b]) t
   uncurried f (Pair x y) = f x y
+
+-- | Category where objects cannot be distinguished from each other.
+class (Category cat) => Idempotent cat where
+  idempotent :: cat a b
+
+  changeObj :: cat a b -> cat c d
+  default changeObj :: cat a b -> cat c d
+  changeObj cat = idempotent . cat . idempotent

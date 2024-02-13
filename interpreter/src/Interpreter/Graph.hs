@@ -1,160 +1,87 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- | Follows 'compiling to categories'.
 module Interpreter.Graph (
   Ref,
   Graph (..),
-  Decl (..),
-  constDecl,
-  fnDec,
-  fn2Dec,
-  interpGraph,
 ) where
 
 import Control.Category
 import Control.Monad ((<=<))
 import Control.Monad.Except
 import Control.Monad.Reader
+import Data.Coerce
 import Data.Kind
 import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
+import Interpreter.Class.Categories
+import Interpreter.Class.Monoids
 import Interpreter.Structure
+import Interpreter.Types.HConst
+import Interpreter.Types.MappedTuple
+import Interpreter.Types.Selector
 import Interpreter.Values qualified as Value
 import Prelude hiding (id, (.))
 
 type Ref = T.Text
 
 -- | Untyped evaluation 'graph', with input and output.
--- This cannot express arbitrary lambdas; instead, it can be replaced by the global call.
-type Graph :: () -> () -> Type
-data Graph a b where
-  Identity :: Graph a a
-  Compose :: Graph b c -> Graph a b -> Graph a c
+--
+-- This cannot express arbitrary lambdas; instead, it can be replaced by a global call.
+data Graph where
+  Identity :: Graph
+  Compose :: Graph -> Graph -> Graph
   -- | Pick an element from a tuple.
-  Pick :: Int -> Graph '() '()
-  -- | Fuse graphs into one producing a tuple.
-  Fuse :: V.Vector (Graph '() '()) -> Graph '() '()
+  Pick :: Int -> Int -> Graph
+  -- | Bundle graphs into one producing a tuple.
+  Bundle :: V.Vector Graph -> Graph
   -- | Apply the head into the parameters, which are given in a tuple.
   -- Multiple parameters are applied in curried manner.
-  Apply :: Graph '() '()
+  Apply :: Graph
   -- | Form a tagged union.
-  Tag :: Int -> Graph '() '()
-  -- | Branch into graphs, matching on the tagged union.
-  Branch :: V.Vector (Graph '() '()) -> Graph '() '()
+  Tag :: Int -> Int -> Graph
+  -- | Select among graphs by matching on the tagged union.
+  Select :: V.Vector Graph -> Graph
   -- | Given a tuple with tagged union at certain element, 'distribute' other elements into the tagged union.
-  Distribute :: Int -> Graph '() '()
+  Distribute :: Int -> Graph
   -- | References constant graph yielding a global.
-  Global :: Ref -> Graph '() '()
+  Global :: Ref -> Graph
 
-instance Category Graph where
-  id :: Graph a a
-  id = Identity
-  (.) :: Graph b c -> Graph a b -> Graph a c
-  (.) = Compose
+instance Semigroup Graph where
+  (<>) :: Graph -> Graph -> Graph
+  (<>) = Compose
 
-data Decl = Decl
-  { numArgs :: !Int,
-    -- | The compute implementation. Graph is assumed to be accepting a tuple.
-    compute :: !(Either (V.Vector Value.Value -> Interp Value.Value) (Graph '() '()))
-  }
+instance Monoid Graph where
+  mempty :: Graph
+  mempty = Identity
 
-constDecl :: Value.Value -> Decl
-constDecl v =
-  Decl
-    { numArgs = 0,
-      compute = Left $ \_ -> pure v
-    }
+instance Bundleable Graph where
+  bundle' :: [Graph] -> Graph
+  bundle' = Bundle . V.fromList
+  pick' :: Selector' -> Graph
+  pick' Selector'{total, selected} = Pick total selected
 
-fnDec :: (Value.Value -> Interp Value.Value) -> Decl
-fnDec fn =
-  Decl
-    { numArgs = 1,
-      compute = Left $ \vec -> fn (vec V.! 0)
-    }
+newtype Referable cat = Referable (forall a b. Ref -> cat a b)
 
-fn2Dec :: (Value.Value -> Value.Value -> Interp Value.Value) -> Decl
-fn2Dec fn =
-  Decl
-    { numArgs = 2,
-      compute = Left $ \vec -> fn (vec V.! 1) (vec V.! 2)
-    }
+-- TODO Resolving Graph, which can point to the graph
 
-data InterpError
-  = AbsentGlobal !Ref
-  | ApplyNonFunc !Value.Value
-  | MatchFunc
-  | PatternFail
-  | OffBound
-  | InvalidOp
-  deriving (Eq, Ord, Show)
+-- | Translate a graph into a distributive idempotent category.
+graphToCategory :: (Distributive cat, Idempotent cat) => Referable cat -> Graph -> cat s t
+graphToCategory refer = \case
+  Identity -> idempotent
+  Compose g f -> graphToCategory refer g . graphToCategory refer f
+  -- Tuple operations
+  Pick total sel -> withAnySelector total sel (changeObj . pick)
+  Bundle gs -> listToMap2 (graphToCategory refer <$> V.toList gs) (changeObj . bundle)
+  -- Tagged operations
+  Tag total sel -> withAnySelector total sel (changeObj . tag)
+  Select gs -> listToMap1 (graphToCategory refer <$> V.toList gs) (changeObj . select)
+  -- Distribution
+  Distribute _ -> changeObj distribute
+  Apply -> error "TODO"
+  Global global -> case refer of Referable ref -> ref global
 
 -- TODO Evaluation strategy
-
-newtype Interp a = Interp (ExceptT InterpError (Reader (M.Map Ref Decl)) a)
-  deriving (Functor, Applicative, Monad, MonadReader (M.Map Ref Decl), MonadError InterpError)
-
-interpGraph :: Graph a b -> Value.Value -> Interp Value.Value
-interpGraph = \case
-  Identity -> pure
-  Compose g f -> interpGraph g <=< interpGraph f
-  -- Tuples
-  Pick field -> \case
-    Value.Structural (Tuple bundle)
-      | Just v <- bundle V.!? field -> pure v
-      | otherwise -> throwError OffBound
-    _ -> throwError InvalidOp
-  Fuse fns -> \v -> Value.Structural . Tuple <$> V.mapM (`interpGraph` v) fns
-  -- Tagged unions
-  Tag tag -> pure . Value.Structural . Choice (fromIntegral tag)
-  Branch fns -> \case
-    Value.Structural (Choice tag v)
-      | Just chosen <- fns V.!? fromIntegral tag -> interpGraph chosen v
-      | otherwise -> throwError OffBound
-    _ -> undefined
-  -- Tuple & Tagged union interaction
-  Distribute field -> \case
-    Value.Structural (Tuple bundle) -> case bundle V.!? field of
-      Just (Value.Structural (Choice tag v)) ->
-        let tup' = Value.Structural (Tuple $ bundle V.// [(field, v)])
-         in pure $ Value.Structural (Choice tag tup')
-      Nothing -> throwError OffBound
-      Just _ -> throwError InvalidOp
-    _ -> throwError InvalidOp
-  -- Application
-  Apply -> \case
-    Value.Structural (Tuple bundle) -> case V.uncons bundle of
-      Just (Value.Refer global prev, args) -> simplifyGlobalApp global (prev <> args)
-      Just (nonFn, _) -> throwError (ApplyNonFunc nonFn)
-      Nothing -> throwError OffBound
-    _ -> throwError InvalidOp
-  -- Constants
-  Global global -> \case
-    Value.Structural (Tuple emp) | V.null emp -> simplifyGlobalApp global V.empty
-    _ -> throwError InvalidOp
-
--- | Simplify application to a global.
--- The application on the implementation side is uncurried.
-simplifyGlobalApp :: Ref -> V.Vector Value.Value -> Interp Value.Value
-simplifyGlobalApp decRef args = do
-  asks (M.!? decRef) >>= \case
-    Nothing -> throwError (AbsentGlobal decRef)
-    Just Decl{numArgs, compute}
-      | Just split <- splitEntire numArgs args -> handle compute split
-      | otherwise -> pure $ Value.Refer decRef args -- Not applied enough to simplify
- where
-  handle compute (using, remaining) =
-    apply compute using >>= \case
-      Value.Refer ref prevArgs -> simplifyGlobalApp ref (prevArgs <> remaining)
-      v | V.null remaining -> pure v
-      v -> throwError (ApplyNonFunc v)
-
-  apply = \case
-    Left native -> native
-    Right compute -> interpGraph compute . Value.Structural . Tuple
-
-splitEntire :: Int -> V.Vector a -> Maybe (V.Vector a, V.Vector a)
-splitEntire len v = case V.splitAt len v of
-  (pre, post) | V.length pre == len -> Just (pre, post)
-  _ -> Nothing

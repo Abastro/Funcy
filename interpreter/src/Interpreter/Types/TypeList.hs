@@ -1,26 +1,13 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE GADTs #-}
 
-module Interpreter.Types.TypeList where
+module Interpreter.Types.TypeList (
+  WitList (..),
+  TypeList (..),
+  witLength,
+) where
 
 import Data.Kind
-import GHC.TypeError
-
-type Map1 :: (j -> k -> l) -> [j] -> k -> [l]
-type family Map1 f xs y where
-  Map1 f '[] _ = '[]
-  Map1 f (x ': xs) y = f x y ': Map1 f xs y
-
-type Map2 :: (k -> j -> l) -> k -> [j] -> [l]
-type family Map2 f x ys where
-  Map2 f _ '[] = '[]
-  Map2 f x (y ': ys) = f x y ': Map2 f x ys
-
-type Index :: [()] -> [k] -> k
-type family Index n as where
-  Index '[] (x ': xs) = x
-  Index (_ ': n) (x ': xs) = Index n xs
-  Index _ '[] = TypeError (Text "invalid index.")
 
 type WitList :: [k] -> Type
 
@@ -28,6 +15,11 @@ type WitList :: [k] -> Type
 data WitList l where
   Empty :: WitList '[]
   More :: (TypeList xs) => WitList xs -> WitList (x ': xs)
+
+witLength :: WitList l -> Int
+witLength = \case
+  Empty -> 0
+  More ll -> 1 + witLength ll
 
 class TypeList l where
   witList :: WitList l

@@ -43,7 +43,9 @@ library
         Interpreter.Types.Tagged
         Interpreter.Types.MappedTuple
         Interpreter.Types.Selector
+        Interpreter.Types.HConst
 
+        Interpreter.Class.Monoids
         Interpreter.Class.Categories
 
         Interpreter.Structure
@@ -52,6 +54,8 @@ library
 
         Interpreter.Graph
         Interpreter.Expr
+
+        Interpreter.Interpret
 
         Interpreter.Parser
         Interpreter.Translate

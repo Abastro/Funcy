@@ -9,6 +9,8 @@ module Abstraction.Concrete.FreeClosed (
   commPair,
   assocPair,
   assocPairInv,
+  nestTuple,
+  unnestTuple,
 ) where
 
 import Abstraction.Class.Categories
@@ -19,7 +21,9 @@ import Abstraction.Types.Tuple
 import Abstraction.Types.TypeList
 import CustomPrelude
 import Data.Coerce
+import Data.Proxy
 import Data.Text qualified as T
+import Data.Type.Equality
 
 -- | Follows notion of 'free category' with cartesian-closed structures,
 -- with a way to add some indeterminate morphism.
@@ -33,25 +37,29 @@ type FreeClosed :: Type -> Type -> Type
 data FreeClosed a b where
   Identity :: FreeClosed a a
   Compose :: FreeClosed b c -> FreeClosed a b -> FreeClosed a c
-  -- Finite product
-  Bundle :: Map2Tuple FreeClosed a bs -> FreeClosed a (Tuple bs)
+  -- | Bundles a cone into a map yielding tuple.
+  Bundle :: MapTuple (FreeClosed a) bs -> FreeClosed a (Tuple bs)
+  -- | Pick an element from the tuple.
   Pick :: Selector as sel -> FreeClosed (Tuple as) sel
-  -- Finite sum
-  Choose :: Map1Tuple FreeClosed as b -> FreeClosed (Tagged as) b
+  -- | Chooses among a cocone, giving a map from tags.
+  Choose :: MapTuple (Opposite FreeClosed b) as -> FreeClosed (Tagged as) b
   Tags :: Selector as sel -> FreeClosed sel (Tagged as)
-  -- Distributive
-  Distribute :: FreeClosed (Pair a (Or u v)) (Or (Pair a u) (Pair a v))
   -- Closed
   Curried :: FreeClosed (Pair a b) t -> FreeClosed a (b -> t)
   Uncurried :: FreeClosed a (b -> t) -> FreeClosed (Pair a b) t
-  -- Indeterminant
+  -- Indeterminant.
   Indet :: T.Text -> FreeClosed Unit a
-  -- | Coercion which only changes repr.
-  Coer :: (Coercible a b) => FreeClosed a b
+  -- | Safe coercion.
+  Coerce :: (Coercible a b) => FreeClosed a b
   -- | Unsafe casting, required for untyped machineries.
   Unsafe :: FreeClosed a b
 
--- ? Distribute over Tagged?
+instance TestEquality (FreeClosed a) where
+  testEquality :: FreeClosed a b -> FreeClosed a b' -> Maybe (b :~: b')
+  testEquality = \cases
+    Identity Identity -> Just Refl
+    (Compose g f) (Compose g' f') | Just Refl <- testEquality f f' -> testEquality g g'
+    _ _ -> Nothing
 
 instance Category FreeClosed where
   id :: FreeClosed a a
@@ -62,34 +70,38 @@ instance Category FreeClosed where
 instance WithProduct FreeClosed where
   type Product FreeClosed = Pair
   together :: FreeClosed a b -> FreeClosed a c -> FreeClosed a (Pair b c)
-  together lf rf = Coer . Bundle (Map2Cons lf $ Map2Cons rf Map2Nil)
+  together lf rf = Coerce . Bundle (mapPair lf rf)
   pickFst :: FreeClosed (Pair a b) a
-  pickFst = Pick (Cur witList) . Coer
+  pickFst = Pick (selector @0 Proxy) . Coerce
   pickSnd :: FreeClosed (Pair a b) b
-  pickSnd = Pick (Next $ Cur witList) . Coer
+  pickSnd = Pick (selector @1 Proxy) . Coerce
 
 instance WithUnit FreeClosed where
   type UnitOf FreeClosed = Unit
   toUnit :: FreeClosed a Unit
-  toUnit = Bundle Map2Nil
+  toUnit = Bundle MapNil
 
 instance WithSum FreeClosed where
   type Sum FreeClosed = Or
   select :: FreeClosed a c -> FreeClosed b c -> FreeClosed (Or a b) c
-  select lf rf = Choose (Map1Cons lf $ Map1Cons rf Map1Nil) . Coer
+  select lf rf = Choose (mapPair (Opposite lf) (Opposite rf)) . Coerce
   tagLeft :: FreeClosed a (Or a b)
-  tagLeft = Coer . Tags (Cur witList)
+  tagLeft = Coerce . Tags (selector @0 Proxy)
   tagRight :: FreeClosed b (Or a b)
-  tagRight = Coer . Tags (Next (Cur witList))
+  tagRight = Coerce . Tags (selector @1 Proxy)
 
 instance WithVoid FreeClosed where
   type VoidOf FreeClosed = Void
   fromVoid :: FreeClosed Void a
-  fromVoid = Choose Map1Nil
+  fromVoid = Choose MapNil
 
+-- Closedness implies distributive property
 instance Distributive FreeClosed where
   distribute :: FreeClosed (Pair a (Or u v)) (Or (Pair a u) (Pair a v))
-  distribute = Distribute
+  distribute = Uncurried (select leftCase rightCase) . commPair
+   where
+    leftCase = Curried (tagLeft . commPair)
+    rightCase = Curried (tagRight . commPair)
 
 instance Closed FreeClosed where
   type Arr FreeClosed = (->)
@@ -107,18 +119,23 @@ assocPair = together (pickFst . pickFst) (together (pickSnd . pickFst) pickSnd)
 assocPairInv :: FreeClosed (Pair a (Pair b c)) (Pair (Pair a b) c)
 assocPairInv = together (together pickFst (pickFst . pickSnd)) (pickSnd . pickSnd)
 
-allSelectors :: WitList as -> Map2Tuple Selector as as
+allSelectors :: WitList as -> MapTuple (Selector as) as
 allSelectors = \case
-  Empty -> Map2Nil
-  More wit' -> Map2Cons (Cur wit') $ mapOverMap2 Next (allSelectors wit')
+  Empty -> MapNil
+  More wit' -> MapCons (Cur wit') $ mapOverMap Next (allSelectors wit')
 
-decompTuple :: WitList as -> WitList bs -> FreeClosed (Pair (Tuple as) (Tuple bs)) (Tuple (Append as bs))
-decompTuple witAs witBs = case witAs of
-  Empty -> pickSnd
-  More witAs' -> undefined
-  where
-    getTails :: WitList bs -> FreeClosed (Tuple (b ': bs)) (Tuple bs)
-    getTails witBs = Bundle $ mapOverMap2 (Pick . Next) (allSelectors witBs)
+nestTuple :: WitList as -> WitList bs -> FreeClosed (Tuple (Append as bs)) (Pair (Tuple as) (Tuple bs))
+nestTuple witAs witBs =
+  together
+    (Bundle $ mapOverMap (Pick . selectorAppend witBs) (allSelectors witAs))
+    (Bundle $ mapOverMap (Pick . selectorPrepend witAs) (allSelectors witBs))
+
+unnestTuple :: WitList as -> WitList bs -> FreeClosed (Pair (Tuple as) (Tuple bs)) (Tuple (Append as bs))
+unnestTuple witAs witBs =
+  Bundle $
+    appendMap
+      (mapOverMap (\sel -> Pick sel . pickFst) (allSelectors witAs))
+      (mapOverMap (\sel -> Pick sel . pickSnd) (allSelectors witBs))
 
 liftMorph :: FreeClosed a b -> FreeClosed Unit (a -> b)
 liftMorph mor = Curried (mor . pickSnd)

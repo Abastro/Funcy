@@ -9,6 +9,8 @@ module Abstraction.Types.Selector (
   selLength,
   fieldAt,
   tagAt,
+  selectorAppend,
+  selectorPrepend,
   withAnySelector,
   NatSelect (..),
 ) where
@@ -46,6 +48,16 @@ tagAt :: Selector xs sel -> sel -> Tagged xs
 tagAt = \case
   Cur _ -> Here
   Next sel -> tagAt (Next sel)
+
+selectorAppend :: WitList bs' -> Selector as' a -> Selector (Append as' bs') a
+selectorAppend witBs sel = case sel of
+  Cur wit -> Cur (appendWit wit witBs)
+  Next sel' -> Next (selectorAppend witBs sel')
+
+selectorPrepend :: WitList as' -> Selector bs' b -> Selector (Append as' bs') b
+selectorPrepend witAs sel = case witAs of
+  Empty -> sel
+  More witAs' -> Next (selectorPrepend witAs' sel)
 
 withAnySelector :: Int -> Int -> (forall xs sel. Selector xs sel -> r) -> r
 withAnySelector total sel f = case sel `compare` 0 of

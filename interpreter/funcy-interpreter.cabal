@@ -57,6 +57,7 @@ library
         Interpreter.Structure.Decl
 
         Interpreter.Process.FunComplete
+        Interpreter.Process.Simplify
         Interpreter.Process.Interpret
         Interpreter.Process.Translate
         Interpreter.Process.Parser

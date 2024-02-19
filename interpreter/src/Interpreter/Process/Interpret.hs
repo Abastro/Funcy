@@ -6,9 +6,13 @@ module Interpreter.Process.Interpret (
   Interp,
 ) where
 
+import Abstraction.Class.Categories
+import Abstraction.Types.HConst
+import Control.Category
 import Control.Monad
 import Control.Monad.Except
 import Control.Monad.Reader
+import CustomPrelude
 import Data.Map.Strict qualified as M
 import Data.Text qualified as T
 import Data.Vector qualified as V
@@ -23,6 +27,7 @@ data InterpError
   | PatternFail
   | OffBound
   | InvalidOp
+  | InvalidState
   deriving (Eq, Ord, Show)
 
 -- Instead of lifting all maps, we choose to only lift the maps that appear.
@@ -31,68 +36,94 @@ type InterpDecl = Decl (V.Vector Value.Value -> Interp Value.Value)
 newtype Interp a = Interp (ExceptT InterpError (Reader (M.Map T.Text InterpDecl)) a)
   deriving (Functor, Applicative, Monad, MonadReader (M.Map T.Text InterpDecl), MonadError InterpError)
 
-newtype InterpArrow = InterpArrow {runInterp :: Value.Value -> Interp Value.Value}
+-- * Thought about implementing dichotomy between functions and types, but turned out to be unfeasible.
 
-instance Semigroup InterpArrow where
-  (<>) :: InterpArrow -> InterpArrow -> InterpArrow
-  InterpArrow g <> InterpArrow f = InterpArrow (g <=< f)
+-- | Interpretation 'Category' with unlawful category instances,
+-- so that every object is isomorphic.
+type InterpCat :: HUnit -> HUnit -> Type
+newtype InterpCat a b = InterpCat (Value.Value -> Interp Value.Value)
 
-instance Monoid InterpArrow where
-  mempty :: InterpArrow
-  mempty = InterpArrow pure
+instance Category InterpCat where
+  id :: InterpCat a a
+  id = InterpCat pure
+  (.) :: InterpCat b c -> InterpCat a b -> InterpCat a c
+  InterpCat g . InterpCat f = InterpCat (g <=< f)
 
-instance Bundleable InterpArrow where
-  bundle' :: [InterpArrow] -> InterpArrow
-  bundle' fns = InterpArrow $ \v ->
-    Value.Structural . Structure.Tuple <$> V.mapM (`runInterp` v) (V.fromList fns)
+instance WithProduct InterpCat where
+  type Product InterpCat = UnitTwo
+  together :: InterpCat a b -> InterpCat a c -> InterpCat a d
+  together (InterpCat lmap) (InterpCat rmap) = InterpCat $ \v ->
+    Value.Structural . Structure.Tuple <$> V.mapM ($ v) (V.fromList [lmap, rmap])
 
-  pick' :: Selector' -> InterpArrow
-  pick' Selector'{total, selected} = InterpArrow $ \case
+  pickFst :: InterpCat c a
+  pickFst = InterpCat $ \case
     Value.Structural (Structure.Tuple bundle)
-      | total == V.length bundle, Just v <- bundle V.!? selected -> pure v
+      | [fst, _] <- V.toList bundle -> pure fst
       | otherwise -> throwError OffBound
     _ -> throwError InvalidOp
 
-instance Selectable InterpArrow where
-  select' :: [InterpArrow] -> InterpArrow
-  select' fns = InterpArrow $ \case
+  pickSnd :: InterpCat c b
+  pickSnd = InterpCat $ \case
+    Value.Structural (Structure.Tuple bundle)
+      | [_, snd] <- V.toList bundle -> pure snd
+      | otherwise -> throwError OffBound
+    _ -> throwError InvalidOp
+
+instance WithUnit InterpCat where
+  type Unit InterpCat = UnitList '[]
+  toUnit :: InterpCat a (Unit InterpCat)
+  toUnit = InterpCat $ \_ -> pure . Value.Structural $ Structure.Tuple V.empty
+
+instance WithSum InterpCat where
+  type Sum InterpCat = UnitTwo
+  select :: InterpCat a c -> InterpCat b c -> InterpCat d c
+  select (InterpCat lmap) (InterpCat rmap) = InterpCat $ \case
     Value.Structural (Structure.Choice tag v)
-      | Just chosen <- V.fromList fns V.!? fromIntegral tag -> runInterp chosen v
+      | tag == 0 -> lmap v
+      | tag == 1 -> rmap v
+      | otherwise -> throwError OffBound
+    _ -> throwError InvalidOp
+  tagLeft :: InterpCat a c
+  tagLeft = InterpCat $ \v ->
+    pure . Value.Structural $ Structure.Choice 0 v
+  tagRight :: InterpCat b c
+  tagRight = InterpCat $ \v ->
+    pure . Value.Structural $ Structure.Choice 1 v
+
+instance WithVoid InterpCat where
+  type Void InterpCat = UnitList '[]
+  fromVoid :: InterpCat (Void InterpCat) a
+  fromVoid = InterpCat $ \_ -> throwError InvalidState
+
+instance Distributive InterpCat where
+  distribute :: InterpCat (UnitTwo a (UnitTwo u v)) (UnitTwo (UnitTwo a u) (UnitTwo a v))
+  distribute = InterpCat $ \case
+    Value.Structural (Structure.Tuple bundle)
+      | [fstV, sndV] <- V.toList bundle -> case sndV of
+          Value.Structural (Structure.Choice tag sndIn) ->
+            let tup' = Value.Structural (Structure.Tuple $ V.fromList [fstV, sndIn])
+             in pure $ Value.Structural (Structure.Choice tag tup')
+          _ -> throwError InvalidOp
       | otherwise -> throwError OffBound
     _ -> throwError InvalidOp
 
-  tag' :: Selector' -> InterpArrow
-  tag' Selector'{selected} = InterpArrow $ \v ->
-    pure . Value.Structural $ Structure.Choice (fromIntegral selected) v
+-- instance WithGlobal InterpCat where
+--   referGlobal :: T.Text -> InterpCat
+--   referGlobal global = InterpCat $ \case
+--     Value.Structural (Structure.Tuple nil)
+--       | null nil ->
+--           asks (M.!? global) >>= \case
+--             Nothing -> throwError (AbsentGlobal global)
+--             Just _ -> simplifyGlobalApp global V.empty
+--     _ -> throwError InvalidOp
 
-instance Distributable InterpArrow where
-  distribute' :: InterpArrow
-  distribute' = InterpArrow $ \case
-    Value.Structural (Structure.Tuple bundle) -> case bundle V.!? 1 of
-      Just (Value.Structural (Structure.Choice tag v)) ->
-        let tup' = Value.Structural (Structure.Tuple $ bundle V.// [(1, v)])
-         in pure $ Value.Structural (Structure.Choice tag tup')
-      Nothing -> throwError OffBound
-      Just _ -> throwError InvalidOp
-    _ -> throwError InvalidOp
-
-instance WithGlobal InterpArrow where
-  referGlobal :: T.Text -> InterpArrow
-  referGlobal global = InterpArrow $ \case
-    Value.Structural (Structure.Tuple nil)
-      | null nil ->
-          asks (M.!? global) >>= \case
-            Nothing -> throwError (AbsentGlobal global)
-            Just _ -> simplifyGlobalApp global V.empty
-    _ -> throwError InvalidOp
-
-  tryApply :: InterpArrow
-  tryApply = InterpArrow $ \case
-    Value.Structural (Structure.Tuple bundle) -> case V.toList bundle of
-      [Value.Refer global prev, arg] -> simplifyGlobalApp global (V.snoc prev arg)
-      [nonFn, _] -> throwError (ApplyNonFunc nonFn)
-      _ -> throwError OffBound
-    _ -> throwError InvalidOp
+--   tryApply :: InterpCat
+--   tryApply = InterpCat $ \case
+--     Value.Structural (Structure.Tuple bundle) -> case V.toList bundle of
+--       [Value.Refer global prev, arg] -> simplifyGlobalApp global (V.snoc prev arg)
+--       [nonFn, _] -> throwError (ApplyNonFunc nonFn)
+--       _ -> throwError OffBound
+--     _ -> throwError InvalidOp
 
 -- | Simplify application to a global.
 simplifyGlobalApp :: T.Text -> V.Vector Value.Value -> Interp Value.Value

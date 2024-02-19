@@ -35,9 +35,11 @@ common opts
 library
     import:             libs, opts
     exposed-modules:
+        CustomPrelude
         Effects.EnvMap
         
         Abstraction.Class.Categories
+        Abstraction.Class.FiniteObjs
 
         Abstraction.Types.MappedTuple
         Abstraction.Types.TypeList
@@ -46,21 +48,25 @@ library
         Abstraction.Types.Tagged
         Abstraction.Types.Tuple
 
+        Abstraction.Concrete.FreeClosed
+
         Interpreter.Structure.Structure
         Interpreter.Structure.Values
         Interpreter.Structure.Pattern
         Interpreter.Structure.Expr
         Interpreter.Structure.Decl
-        Interpreter.Structure.Graph
 
-        Interpreter.Process.Categorical
+        Interpreter.Process.FunComplete
         Interpreter.Process.Interpret
         Interpreter.Process.Translate
         Interpreter.Process.Parser
 
     default-extensions:
         MultiParamTypeClasses
+        NoImplicitPrelude
         LambdaCase
+        NoFieldSelectors
+        OverloadedRecordDot
 
     hs-source-dirs:   src
     default-language: GHC2021

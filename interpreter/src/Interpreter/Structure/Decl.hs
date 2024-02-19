@@ -2,6 +2,8 @@ module Interpreter.Structure.Decl (
   Decl (..),
 ) where
 
+import CustomPrelude
+
 -- | A declaration is simply computation with a hint for number of arguments.
 data Decl comp = Decl
   { numArgs :: !Int,

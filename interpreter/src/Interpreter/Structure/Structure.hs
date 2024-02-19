@@ -2,6 +2,7 @@ module Interpreter.Structure.Structure (
   Structure (..),
 ) where
 
+import CustomPrelude
 import Data.Int
 import Data.List
 import Data.Text qualified as T

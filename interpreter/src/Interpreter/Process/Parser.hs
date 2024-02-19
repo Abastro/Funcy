@@ -1,5 +1,6 @@
 module Interpreter.Process.Parser where
 
+import CustomPrelude
 import Data.Char
 import Data.Text qualified as T
 import Data.Vector qualified as V

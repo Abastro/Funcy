@@ -6,6 +6,7 @@ module Interpreter.Structure.Expr (
   applyToExpr,
 ) where
 
+import CustomPrelude
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Interpreter.Structure.Pattern qualified as Pattern
@@ -40,34 +41,6 @@ instance Show Head where
     Var var -> T.unpack var
     Lam bind expr -> "\\" <> T.unpack bind <> " -> " <> show expr
     Case cases -> show cases
-
--- -- | Translates an expression into its bare form.
--- translate :: M.Map T.Text Int -> Expr -> Translate Bare.Expr
--- translate localEnv = \case
---   Structural str -> Bare.headExpr . Bare.Structural <$> traverse (translate localEnv) str
---   Var var
---     | Just found <- localEnv M.!? var -> pure $ Bare.headExpr (Bare.LocalRef found)
---     | otherwise -> throwError (AbsentVar var)
---   Apply fnE argE -> Bare.applyExpr <$> translate localEnv fnE <*> translate localEnv argE
---   Case (Pattern.Cases casesE) -> do
---     casesB <- Pattern.Cases <$> traverse (translateCase localEnv) casesE
---     let normalArgNum = M.size localEnv
---     declRef <- looks V.length
---     add (V.singleton $ Bare.Decl{Bare.normalArgNum, Bare.cases = casesB})
---     -- The call statement
---     pure $ Bare.Apply (Bare.DeclRef declRef) (V.fromList $ localRef <$> [0 .. pred normalArgNum])
---  where
---   localRef ref = Bare.headExpr (Bare.LocalRef ref)
-
--- translateCase :: M.Map T.Text Int -> Pattern.CaseStmt T.Text Expr -> Translate (Pattern.CaseStmt () Bare.Expr)
--- translateCase localEnv (Pattern.CaseStmt patt expr) = do
---   -- Add bindings by the pattern
---   let (local', pattB) = mapAccumL addLocal localEnv patt
---   -- Translate along with the bound expressions
---   exprB <- translate local' expr
---   pure $ Pattern.CaseStmt pattB exprB
---  where
---   addLocal curEnv ref = (M.insert ref (M.size curEnv) curEnv, ())
 
 -- -- TODO Compose code
 

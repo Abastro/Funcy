@@ -3,6 +3,7 @@ module Interpreter.Structure.Values (
   referDecl,
 ) where
 
+import CustomPrelude
 import Data.Text qualified as T
 import Data.Vector qualified as V
 import Interpreter.Structure.Structure

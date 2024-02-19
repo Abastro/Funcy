@@ -2,71 +2,47 @@
 
 module Interpreter.Process.Translate where
 
-import Control.Category ((<<<))
-import Control.Monad.Accum
-import Control.Monad.Except
-import Control.Monad.Trans.Accum (Accum, runAccum)
-import Data.Map.Strict qualified as M
+import Abstraction.Class.Categories
+import Abstraction.Concrete.FreeClosed
+import CustomPrelude
 import Data.Text qualified as T
-import Data.Vector qualified as V
-import Interpreter.Structure.Graph qualified as Graph
-import qualified Interpreter.Structure.Decl as Decl
+import Interpreter.Process.FunComplete
+-- import qualified Interpreter.Structure.Expr as Expr
+-- import qualified Data.Vector as V
 
-data TranslateError
-  = AbsentVar T.Text
-  | ApplyNonFunc
-  | Unsupported
-  deriving (Eq, Ord, Show)
-
-data Expr
+data InExpr
   = Var T.Text
-  | Lam T.Text Expr
-  | CasePair T.Text T.Text Expr
-  | App Expr Expr
+  | Lambda T.Text InExpr
+  | Pair InExpr InExpr
+  | BiCase InExpr InExpr
+  | Operate Operation InExpr
 
--- let x = e1 in e2
--- (\x -> e2) e1
+data Operation
+  = OpEval
+  | OpFst
+  | OpSnd
+  | OpTagLeft
+  | OpTagRight
 
-newtype Translate a = Translate (ExceptT TranslateError (Accum (M.Map T.Text ())) a)
-  deriving (Functor, Applicative, Monad, MonadError TranslateError, MonadAccum (M.Map T.Text (Decl.Decl ())))
+-- | Lambda term of the category.
+lambdaTerm :: T.Text -> InExpr -> FreeClosed () b
+lambdaTerm x phi = Coerce . liftMorph (completedLift x $ exprToFree phi)
 
-runTranslate :: Translate a -> (Either TranslateError a, M.Map T.Text (Decl.Decl ()))
-runTranslate (Translate trans) = runAccum (runExceptT trans) M.empty
-
--- | Generates the graph, given the environment which obtains from the parameter.
-translateExpr :: M.Map T.Text (Graph.Graph '() '()) -> Expr -> Translate (Graph.Graph '() '())
-translateExpr env = \case
-  Var var
-    | Just graph <- env M.!? var -> pure graph
-    | otherwise -> throwError (AbsentVar var)
-  Lam bind expr -> translateLam env bind expr
-  CasePair bindL bindR expr -> do
-    let nestedEnv = M.union (M.fromList [(bindL, Graph.Pick 0), (bindR, Graph.Pick 1)]) env
-    translateExpr nestedEnv expr
-  _ -> throwError Unsupported
-
-translateLam :: M.Map T.Text (Graph.Graph '() '()) -> T.Text -> Expr -> Translate (Graph.Graph '() '())
-translateLam env bind = \case
-  Var used | bind == used -> pure Graph.Identity
-  App fn arg -> do
-    fnG <- translateLam env bind fn
-    argG <- translateLam env bind arg
-    pure $ Graph.Apply <<< Graph.Fuse (V.fromList [fnG, argG])
-  Lam bind' expr -> do
-    lamG <- translateExpr env (CasePair bind bind' expr)
-    let declRef = T.pack "on" <> bind <> bind'
-        numArgs = 2 -- Curried 2
-    add $ M.singleton declRef Decl.Decl{Decl.numArgs, Decl.compute = Right lamG}
-    pure $ Graph.Global declRef
-  _ -> throwError Unsupported
-
--- translateHead :: Expr.Head -> Translate (Graph.Graph '() '())
--- translateHead = \case
---   Expr.Lam bind (Expr.Apply head args) | not (V.null args) -> do
---     headG <- translateHead . Expr.Lam bind $ Expr.fromHead head
---     argsG <- traverse (translateHead . Expr.Lam bind) args
---     pure $ Graph.Apply <<< Graph.Fuse (V.cons headG argsG)
---   Expr.Lam bind (Expr.Apply (Expr.Lam bind' expr) args) | V.null args -> do
---     -- TODO We cannot simply express curried function in the target; Need to pull in declaration
---     undefined
---   _ -> throwError Unsupported
+-- | Translate an expression into a morphism from unit.
+-- Since we are translating untyped terms, some coercions are necessary.
+exprToFree :: InExpr -> FreeClosed () b
+exprToFree = \case
+  Var x -> Indet x
+  Lambda x phi -> Coerce . liftMorph (completedLift x $ exprToFree phi)
+  Pair l r -> Coerce . together (exprToFree l) (exprToFree r)
+  BiCase onL onR -> Coerce . liftMorph (select (exprToFree onL) (exprToFree onR))
+  Operate op e -> opOf (exprToFree e) op
+ where
+  opOf :: (forall c. FreeClosed a c) -> Operation -> FreeClosed a b
+  opOf f = \case
+    OpEval -> evaluate . f
+    OpFst -> pickFst . f
+    OpSnd -> pickSnd . f
+    OpTagLeft -> Coerce . tagLeft . f
+    OpTagRight -> Coerce . tagRight . f
+  evaluate = Uncurried id

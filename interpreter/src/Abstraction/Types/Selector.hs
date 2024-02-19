@@ -13,13 +13,13 @@ module Abstraction.Types.Selector (
   NatSelect (..),
 ) where
 
-import Data.Kind
-import Data.Proxy
-import GHC.TypeError
-import GHC.TypeNats
 import Abstraction.Types.Tagged
 import Abstraction.Types.Tuple
 import Abstraction.Types.TypeList
+import CustomPrelude
+import Data.Proxy
+import GHC.TypeError
+import GHC.TypeNats
 
 -- | Field selector, to be used with a tuple or tagged type.
 type Selector :: [k] -> k -> Type

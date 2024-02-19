@@ -1,13 +1,15 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Abstraction.Types.TypeList (
   WitList (..),
   TypeList (..),
   witLength,
+  Concat,
 ) where
 
-import Data.Kind
+import CustomPrelude
 
 type WitList :: [k] -> Type
 
@@ -31,3 +33,8 @@ instance TypeList '[] where
 instance (TypeList xs) => TypeList (x ': xs) where
   witList :: WitList (x : xs)
   witList = More witList
+
+type Concat :: [k] -> [k] -> [k]
+type family Concat xs ys where
+  Concat (x ': xs) ys = x ': Concat xs ys
+  Concat '[] ys = ys

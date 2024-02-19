@@ -5,11 +5,11 @@
 module Abstraction.Types.Tagged (
   Tagged (..),
   taggedToEither,
-  pattern LeftCase,
-  pattern RightCase,
+  pattern OnLeft,
+  pattern OnRight,
 ) where
 
-import Data.Kind
+import CustomPrelude
 
 type Tagged :: [Type] -> Type
 data Tagged xs where
@@ -21,10 +21,12 @@ taggedToEither = \case
   Here a -> Left a
   There b -> Right b
 
-pattern LeftCase :: a -> Tagged [a, b]
-pattern LeftCase l = Here l
+newtype Or a b = WrapOr (Tagged [a, b])
 
-pattern RightCase :: b -> Tagged [a, b]
-pattern RightCase r = There (Here r)
+pattern OnLeft :: a -> Or a b
+pattern OnLeft l = WrapOr (Here l)
 
-{-# COMPLETE LeftCase, RightCase #-}
+pattern OnRight :: b -> Or a b
+pattern OnRight r = WrapOr (There (Here r))
+
+{-# COMPLETE OnLeft, OnRight #-}

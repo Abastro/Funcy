@@ -7,6 +7,7 @@ module Interpreter.Structure.Pattern (
   Comps (..),
 ) where
 
+import CustomPrelude
 import Data.Int
 import Data.List
 import Data.Vector qualified as V

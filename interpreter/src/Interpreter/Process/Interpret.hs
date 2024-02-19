@@ -70,8 +70,8 @@ instance WithProduct InterpCat where
     _ -> throwError InvalidOp
 
 instance WithUnit InterpCat where
-  type Unit InterpCat = UnitList '[]
-  toUnit :: InterpCat a (Unit InterpCat)
+  type UnitOf InterpCat = UnitList '[]
+  toUnit :: InterpCat a (UnitOf InterpCat)
   toUnit = InterpCat $ \_ -> pure . Value.Structural $ Structure.Tuple V.empty
 
 instance WithSum InterpCat where
@@ -91,8 +91,8 @@ instance WithSum InterpCat where
     pure . Value.Structural $ Structure.Choice 1 v
 
 instance WithVoid InterpCat where
-  type Void InterpCat = UnitList '[]
-  fromVoid :: InterpCat (Void InterpCat) a
+  type VoidOf InterpCat = UnitList '[]
+  fromVoid :: InterpCat (VoidOf InterpCat) a
   fromVoid = InterpCat $ \_ -> throwError InvalidState
 
 instance Distributive InterpCat where

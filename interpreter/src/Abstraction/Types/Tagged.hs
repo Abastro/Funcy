@@ -5,6 +5,8 @@
 module Abstraction.Types.Tagged (
   Tagged (..),
   taggedToEither,
+  Void,
+  Or(WrapOr),
   pattern OnLeft,
   pattern OnRight,
 ) where
@@ -21,6 +23,7 @@ taggedToEither = \case
   Here a -> Left a
   There b -> Right b
 
+type Void = Tagged '[]
 newtype Or a b = WrapOr (Tagged [a, b])
 
 pattern OnLeft :: a -> Or a b

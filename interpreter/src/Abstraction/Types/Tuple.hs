@@ -5,7 +5,8 @@
 module Abstraction.Types.Tuple (
   Tuple (..),
   pairToTuple,
-  Pair,
+  Unit,
+  Pair(WrapPair),
   pattern Pair,
 ) where
 
@@ -19,6 +20,7 @@ data Tuple xs where
 pairToTuple :: (x, Tuple xs) -> Tuple (x ': xs)
 pairToTuple (x, tup) = Cons x tup
 
+type Unit = Tuple '[]
 newtype Pair a b = WrapPair (Tuple [a, b])
 
 pattern Pair :: a -> b -> Pair a b

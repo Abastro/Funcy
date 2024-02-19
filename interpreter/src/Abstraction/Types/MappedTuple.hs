@@ -4,6 +4,7 @@
 module Abstraction.Types.MappedTuple (
   Map1Tuple (..),
   Map2Tuple (..),
+  appendMap1,
   mapOverMap1,
   mapOverMap2,
   map2ToMap1,
@@ -14,6 +15,7 @@ module Abstraction.Types.MappedTuple (
 ) where
 
 import CustomPrelude
+import Abstraction.Types.TypeList
 
 type Map1Tuple :: (k -> l -> Type) -> [k] -> l -> Type
 data Map1Tuple f xs y where
@@ -24,6 +26,11 @@ type Map2Tuple :: (k -> l -> Type) -> k -> [l] -> Type
 data Map2Tuple f x ys where
   Map2Nil :: Map2Tuple f x '[]
   Map2Cons :: f x y -> Map2Tuple f x ys -> Map2Tuple f x (y ': ys)
+
+appendMap1 :: Map1Tuple f xs y -> Map1Tuple f xs' y -> Map1Tuple f (Append xs xs') y
+appendMap1 l r = case l of
+  Map1Nil -> r
+  Map1Cons lhd ltl -> Map1Cons lhd (appendMap1 ltl r)
 
 mapOverMap1 :: (forall x. f x y -> g x y') -> (Map1Tuple f xs y -> Map1Tuple g xs y')
 mapOverMap1 f = \case

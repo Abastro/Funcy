@@ -14,11 +14,12 @@ module Abstraction.Class.Categories (
   Distributive (..),
   Closed (..),
   Idempotent (..),
+  Opposite (..),
 ) where
 
 import Control.Arrow
 import CustomPrelude
-import Data.Void qualified as Void
+import Data.Void
 
 -- | Category with a product.
 class (Category cat) => WithProduct (cat :: k -> k -> Type) where
@@ -29,8 +30,8 @@ class (Category cat) => WithProduct (cat :: k -> k -> Type) where
 
 -- | Category with the unit object.
 class (Category cat) => WithUnit (cat :: k -> k -> Type) where
-  type Unit cat :: k
-  toUnit :: a `cat` Unit cat
+  type UnitOf cat :: k
+  toUnit :: a `cat` UnitOf cat
 
 -- | Category with a (direct) sum (coproduct).
 class (Category cat) => WithSum (cat :: k -> k -> Type) where
@@ -40,8 +41,8 @@ class (Category cat) => WithSum (cat :: k -> k -> Type) where
   tagRight :: b `cat` Sum cat a b
 
 class (Category cat) => WithVoid (cat :: k -> k -> Type) where
-  type Void cat :: k
-  fromVoid :: Void cat `cat` a
+  type VoidOf cat :: k
+  fromVoid :: VoidOf cat `cat` a
 
 -- | Gives HasProduct/HasSum instance for category with desired operations.
 newtype AppStr cat a b = AppStr (cat a b)
@@ -62,7 +63,7 @@ deriving via (AppStr (->)) instance WithProduct (->)
 deriving via (AppStr (Kleisli m)) instance (Monad m) => WithProduct (Kleisli m)
 
 instance (Arrow cat) => WithUnit (AppStr cat) where
-  type Unit (AppStr cat) = ()
+  type UnitOf (AppStr cat) = ()
   toUnit :: AppStr cat a ()
   toUnit = arr $ const ()
 
@@ -82,12 +83,50 @@ deriving via (AppStr (->)) instance WithSum (->)
 deriving via (AppStr (Kleisli m)) instance (Monad m) => WithSum (Kleisli m)
 
 instance (Arrow cat) => WithVoid (AppStr cat) where
-  type Void (AppStr cat) = Void.Void
-  fromVoid :: AppStr cat Void.Void a
-  fromVoid = arr Void.absurd
+  type VoidOf (AppStr cat) = Void
+  fromVoid :: AppStr cat Void a
+  fromVoid = arr absurd
 
 deriving via (AppStr (->)) instance WithVoid (->)
 deriving via (AppStr (Kleisli m)) instance (Monad m) => WithVoid (Kleisli m)
+
+-- | Opposite category.
+-- Sometimes, it is easier to represent a property with this one.
+newtype Opposite cat a b = Opposite (cat b a)
+
+instance Category cat => Category (Opposite cat) where
+  id :: Opposite cat a a
+  id = Opposite id
+  (.) :: Opposite cat b c -> Opposite cat a b -> Opposite cat a c
+  Opposite g . Opposite f = Opposite (f . g)
+
+instance WithSum cat => WithProduct (Opposite cat) where
+  type Product (Opposite cat) = Sum cat
+  together :: Opposite cat a b -> Opposite cat a c -> Opposite cat a (Product (Opposite cat) b c)
+  together (Opposite lfn) (Opposite rfn) = Opposite (select lfn rfn)
+  pickFst :: Opposite cat (Product (Opposite cat) a b) a
+  pickFst = Opposite tagLeft
+  pickSnd :: Opposite cat (Product (Opposite cat) a b) b
+  pickSnd = Opposite tagRight
+
+instance WithVoid cat => WithUnit (Opposite cat) where
+  type UnitOf (Opposite cat) = VoidOf cat
+  toUnit :: Opposite cat a (UnitOf (Opposite cat))
+  toUnit = Opposite fromVoid
+
+instance WithProduct cat => WithSum (Opposite cat) where
+  type Sum (Opposite cat) = Product cat
+  select :: Opposite cat a c -> Opposite cat b c -> Opposite cat (Sum (Opposite cat) a b) c
+  select (Opposite lfn) (Opposite rfn) = Opposite (together lfn rfn)
+  tagLeft :: Opposite cat a (Sum (Opposite cat) a b)
+  tagLeft = Opposite pickFst
+  tagRight :: Opposite cat b (Sum (Opposite cat) a b)
+  tagRight = Opposite pickSnd
+
+instance WithUnit cat => WithVoid (Opposite cat) where
+  type VoidOf (Opposite cat) = UnitOf cat
+  fromVoid :: Opposite cat (VoidOf (Opposite cat)) a
+  fromVoid = Opposite toUnit
 
 -- | A category where sum and product, that satisfies the distributive law.
 class (WithProduct cat, WithSum cat) => Distributive cat where

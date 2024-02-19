@@ -6,6 +6,9 @@ module Abstraction.Concrete.FreeClosed (
   FreeClosed (..),
   liftMorph,
   unliftMorph,
+  commPair,
+  assocPair,
+  assocPairInv,
 ) where
 
 import Abstraction.Class.Categories
@@ -15,22 +18,8 @@ import Abstraction.Types.Tagged
 import Abstraction.Types.Tuple
 import Abstraction.Types.TypeList
 import CustomPrelude
+import Data.Coerce
 import Data.Text qualified as T
-import Data.Type.Equality
-import Data.Void qualified as Void
-import Unsafe.Coerce qualified as Unsafe
-
-pairAsTuple :: (a, b) :~: Tuple [a, b]
-pairAsTuple = Unsafe.unsafeCoerce Refl
-
-unitAsTuple :: () :~: Tuple '[]
-unitAsTuple = Unsafe.unsafeCoerce Refl
-
-eitherAsTagged :: Either a b :~: Tagged [a, b]
-eitherAsTagged = Unsafe.unsafeCoerce Refl
-
-voidAsTagged :: Void.Void :~: Tagged '[]
-voidAsTagged = Unsafe.unsafeCoerce Refl
 
 -- | Follows notion of 'free category' with cartesian-closed structures,
 -- with a way to add some indeterminate morphism.
@@ -51,24 +40,18 @@ data FreeClosed a b where
   Choose :: Map1Tuple FreeClosed as b -> FreeClosed (Tagged as) b
   Tags :: Selector as sel -> FreeClosed sel (Tagged as)
   -- Distributive
-  Distribute :: FreeClosed (a, Either u v) (Either (a, u) (a, v))
+  Distribute :: FreeClosed (Pair a (Or u v)) (Or (Pair a u) (Pair a v))
   -- Closed
-  Curried :: FreeClosed (a, b) t -> FreeClosed a (b -> t)
-  Uncurried :: FreeClosed a (b -> t) -> FreeClosed (a, b) t
+  Curried :: FreeClosed (Pair a b) t -> FreeClosed a (b -> t)
+  Uncurried :: FreeClosed a (b -> t) -> FreeClosed (Pair a b) t
   -- Indeterminant
-  Indet :: T.Text -> FreeClosed () a
-  -- | Unsafe coercion, required for untyped machineries.
-  Coerce :: FreeClosed a b
+  Indet :: T.Text -> FreeClosed Unit a
+  -- | Coercion which only changes repr.
+  Coer :: (Coercible a b) => FreeClosed a b
+  -- | Unsafe casting, required for untyped machineries.
+  Unsafe :: FreeClosed a b
 
 -- ? Distribute over Tagged?
--- FreeClosed (Tagged bs) c -> FreeClosed (a, Tagged bs) c
--- FreeClosed b c -> FreeClosed (a, b) c
--- FreeClosed (a, Tagged bs) (Tagged (Map ((,) a) bs))
--- Or, use the following?
--- FreeClosed (Tagged bs) c -> FreeClosed (Tagged bs) (a -> c)
-
-idCast :: a :~: b -> FreeClosed a b
-idCast Refl = id
 
 instance Category FreeClosed where
   id :: FreeClosed a a
@@ -77,46 +60,68 @@ instance Category FreeClosed where
   (.) = Compose
 
 instance WithProduct FreeClosed where
-  type Product FreeClosed = (,)
-  together :: FreeClosed a b -> FreeClosed a c -> FreeClosed a (b, c)
-  together lf rf = idCast (sym pairAsTuple) . Bundle (Map2Cons lf $ Map2Cons rf Map2Nil)
-  pickFst :: FreeClosed (a, b) a
-  pickFst = Pick (Cur witList) . idCast pairAsTuple
-  pickSnd :: FreeClosed (a, b) b
-  pickSnd = Pick (Next $ Cur witList) . idCast pairAsTuple
+  type Product FreeClosed = Pair
+  together :: FreeClosed a b -> FreeClosed a c -> FreeClosed a (Pair b c)
+  together lf rf = Coer . Bundle (Map2Cons lf $ Map2Cons rf Map2Nil)
+  pickFst :: FreeClosed (Pair a b) a
+  pickFst = Pick (Cur witList) . Coer
+  pickSnd :: FreeClosed (Pair a b) b
+  pickSnd = Pick (Next $ Cur witList) . Coer
 
 instance WithUnit FreeClosed where
-  type Unit FreeClosed = ()
-  toUnit :: FreeClosed a ()
-  toUnit = idCast (sym unitAsTuple) . Bundle Map2Nil
+  type UnitOf FreeClosed = Unit
+  toUnit :: FreeClosed a Unit
+  toUnit = Bundle Map2Nil
 
 instance WithSum FreeClosed where
-  type Sum FreeClosed = Either
-  select :: FreeClosed a c -> FreeClosed b c -> FreeClosed (Either a b) c
-  select lf rf = Choose (Map1Cons lf $ Map1Cons rf Map1Nil) . idCast eitherAsTagged
-  tagLeft :: FreeClosed a (Either a b)
-  tagLeft = idCast (sym eitherAsTagged) . Tags (Cur witList)
-  tagRight :: FreeClosed b (Either a b)
-  tagRight = idCast (sym eitherAsTagged) . Tags (Next (Cur witList))
+  type Sum FreeClosed = Or
+  select :: FreeClosed a c -> FreeClosed b c -> FreeClosed (Or a b) c
+  select lf rf = Choose (Map1Cons lf $ Map1Cons rf Map1Nil) . Coer
+  tagLeft :: FreeClosed a (Or a b)
+  tagLeft = Coer . Tags (Cur witList)
+  tagRight :: FreeClosed b (Or a b)
+  tagRight = Coer . Tags (Next (Cur witList))
 
 instance WithVoid FreeClosed where
-  type Void FreeClosed = Void.Void
-  fromVoid :: FreeClosed (Void FreeClosed) a
-  fromVoid = Choose Map1Nil . idCast voidAsTagged
+  type VoidOf FreeClosed = Void
+  fromVoid :: FreeClosed Void a
+  fromVoid = Choose Map1Nil
 
 instance Distributive FreeClosed where
-  distribute :: FreeClosed (a, Either u v) (Either (a, u) (a, v))
+  distribute :: FreeClosed (Pair a (Or u v)) (Or (Pair a u) (Pair a v))
   distribute = Distribute
 
 instance Closed FreeClosed where
   type Arr FreeClosed = (->)
-  curried :: FreeClosed (a, b) t -> FreeClosed a (b -> t)
+  curried :: FreeClosed (Pair a b) t -> FreeClosed a (b -> t)
   curried = Curried
-  uncurried :: FreeClosed a (b -> t) -> FreeClosed (a, b) t
+  uncurried :: FreeClosed a (b -> t) -> FreeClosed (Pair a b) t
   uncurried = Uncurried
 
-liftMorph :: FreeClosed a b -> FreeClosed () (a -> b)
+commPair :: FreeClosed (Pair a b) (Pair b a)
+commPair = together pickSnd pickFst
+
+assocPair :: FreeClosed (Pair (Pair a b) c) (Pair a (Pair b c))
+assocPair = together (pickFst . pickFst) (together (pickSnd . pickFst) pickSnd)
+
+assocPairInv :: FreeClosed (Pair a (Pair b c)) (Pair (Pair a b) c)
+assocPairInv = together (together pickFst (pickFst . pickSnd)) (pickSnd . pickSnd)
+
+allSelectors :: WitList as -> Map2Tuple Selector as as
+allSelectors = \case
+  Empty -> Map2Nil
+  More wit' -> Map2Cons (Cur wit') $ mapOverMap2 Next (allSelectors wit')
+
+decompTuple :: WitList as -> WitList bs -> FreeClosed (Pair (Tuple as) (Tuple bs)) (Tuple (Append as bs))
+decompTuple witAs witBs = case witAs of
+  Empty -> pickSnd
+  More witAs' -> undefined
+  where
+    getTails :: WitList bs -> FreeClosed (Tuple (b ': bs)) (Tuple bs)
+    getTails witBs = Bundle $ mapOverMap2 (Pick . Next) (allSelectors witBs)
+
+liftMorph :: FreeClosed a b -> FreeClosed Unit (a -> b)
 liftMorph mor = Curried (mor . pickSnd)
 
-unliftMorph :: FreeClosed () (a -> b) -> FreeClosed a b
+unliftMorph :: FreeClosed Unit (a -> b) -> FreeClosed a b
 unliftMorph fn = Uncurried fn . together toUnit id

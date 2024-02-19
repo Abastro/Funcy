@@ -6,7 +6,7 @@ module Abstraction.Types.TypeList (
   WitList (..),
   TypeList (..),
   witLength,
-  Concat,
+  Append,
 ) where
 
 import CustomPrelude
@@ -34,7 +34,7 @@ instance (TypeList xs) => TypeList (x ': xs) where
   witList :: WitList (x : xs)
   witList = More witList
 
-type Concat :: [k] -> [k] -> [k]
-type family Concat xs ys where
-  Concat (x ': xs) ys = x ': Concat xs ys
-  Concat '[] ys = ys
+type Append :: [k] -> [k] -> [k]
+type family Append xs ys where
+  Append (x ': xs) ys = x ': Append xs ys
+  Append '[] ys = ys

@@ -6,6 +6,7 @@ module Abstraction.Types.MappedTuple (
   mapPair,
   appendMap,
   mapOverMap,
+  withMapTuple,
 ) where
 
 import Abstraction.Types.TypeList
@@ -28,6 +29,11 @@ mapOverMap :: (forall x. f x -> g x) -> MapTuple f xs -> MapTuple g xs
 mapOverMap f = \case
   MapNil -> MapNil
   MapCons hd tl -> MapCons (f hd) (mapOverMap f tl)
+
+withMapTuple :: [f x] -> (forall xs. MapTuple f xs -> r) -> r
+withMapTuple = \case
+  [] -> \k -> k MapNil
+  hd : tl -> \k -> withMapTuple tl (k . MapCons hd)
 
 -- map2ToMap1 :: (forall y. f x y -> g y x') -> (Map2Tuple f x ys -> Map1Tuple g ys x')
 -- map2ToMap1 f = \case
